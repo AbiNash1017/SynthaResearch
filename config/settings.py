@@ -1,0 +1,7 @@
+﻿# Platform configuration settings
+DEFAULT_N = 5
+SENTIMENT_POSITIVE_THRESHOLD = 0.60
+SENTIMENT_NEGATIVE_THRESHOLD = 0.35
+MEMORY_WINDOW = 5
+DATA_DIR = "data"
+REPORTS_DIR = "reports"

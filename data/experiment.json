@@ -1,0 +1,12 @@
+{
+  "product_name": "LearnFlow",
+  "product_description": "A hybrid online learning app combining Udemy-style structured courses with Duolingo-style daily streak gamification to conquer student course dropouts.",
+  "target_audience": "College students and working professionals aged 20-35 who enroll in online courses but fail to finish them.",
+  "research_objectives": [
+    "Discover why learners drop out of courses after the first week",
+    "Test reaction to bite-sized 5-minute daily lessons vs 45-minute lectures",
+    "Evaluate willingness to pay for subscriptions vs one-time course fees",
+    "Identify if streaks and XP leaderboards create genuine motivation"
+  ],
+  "created_at": "2026-09-16T22:31:28.449346"
+}

@@ -1,0 +1,490 @@
+[
+  {
+    "id": "persona_001",
+    "name": "Rohan Mehta",
+    "archetype": "Impulse Buyer",
+    "age": 26,
+    "gender": "Male",
+    "occupation": "Junior Software Engineer",
+    "location": "Bengaluru, India",
+    "income_bracket": "lower-middle",
+    "education": "B.Tech Computer Science",
+    "personality_traits": [
+      "ambitious",
+      "easily distracted",
+      "deal-seeking"
+    ],
+    "learning_behavioral_patterns": {
+      "platform_familiarity": [
+        "Udemy",
+        "YouTube tutorials"
+      ],
+      "course_completion_rate": "low (under 10%)",
+      "preferred_lesson_length": "under 10 minutes",
+      "learning_time": "late night (10pm-12am)",
+      "motivation_trigger": "flash sales and self-improvement spikes",
+      "dropout_trigger": "dense theory and lack of early wins",
+      "gamification_response": "high — likes quick wins, streaks, badges",
+      "subscription_preference": "one-time course discount purchase",
+      "device": "mobile and laptop"
+    },
+    "psychological_profile": {
+      "mbti": "ESTP",
+      "risk_tolerance": "low",
+      "motivation_type": "extrinsic",
+      "decision_style": "impulsive",
+      "attention_span": "short"
+    },
+    "background_story": "Has purchased over 15 courses on Udemy during Black Friday and seasonal sales, but finished less than 2. Starts new learning sprints with great energy, then loses momentum after 3 days when sessions become theoretical.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.85,
+      "gamification_appeal": 0.9,
+      "long_video_tolerance": 0.2,
+      "social_learning_interest": 0.65,
+      "certificate_value": 0.7,
+      "overall_sentiment_bias": 0.5
+    },
+    "memory": {
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Why did you abandon or stop using your previous online course or study app?",
+          "timestamp": "2026-09-16T22:33:09.143212"
+        },
+        {
+          "role": "persona",
+          "content": "Honestly, it starts with huge excitement on day 1. But by day 3, the instructor dives into 45-minute abstract slides with no code demo, and I completely lose steam.",
+          "timestamp": "2026-09-16T22:33:09.143212"
+        },
+        {
+          "role": "user",
+          "content": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "timestamp": "2026-09-16T22:33:09.143212"
+        },
+        {
+          "role": "persona",
+          "content": "Lessons have to be under 8 to 10 minutes max. If I see a 50-minute video lecture, I immediately put it off for the weekend, and that weekend never arrives.",
+          "timestamp": "2026-09-16T22:33:09.143212"
+        },
+        {
+          "role": "user",
+          "content": "How much would you be willing to pay monthly for this learning platform?",
+          "timestamp": "2026-09-16T22:33:09.143212"
+        },
+        {
+          "role": "persona",
+          "content": "Hey! I'm currently looking through my course library trying to figure out what to tackle next.",
+          "timestamp": "2026-09-16T22:33:09.143212"
+        }
+      ],
+      "established_opinions": {
+        "completion": "neutral",
+        "lesson_length": "negative",
+        "price": "neutral"
+      },
+      "last_updated": "2026-09-16T22:33:09.143212",
+      "used_template_indices": {
+        "completion": [
+          0
+        ],
+        "lesson_length": [
+          0
+        ],
+        "greeting": [
+          0
+        ]
+      }
+    }
+  },
+  {
+    "id": "persona_002",
+    "name": "Chloe Martin",
+    "archetype": "Streak Chaser",
+    "age": 22,
+    "gender": "Female",
+    "occupation": "Graphic Design Intern",
+    "location": "Paris, France",
+    "income_bracket": "entry-level",
+    "education": "BFA Graphic Design",
+    "personality_traits": [
+      "disciplined",
+      "competitive",
+      "habit-driven"
+    ],
+    "learning_behavioral_patterns": {
+      "platform_familiarity": [
+        "Duolingo",
+        "Memrise"
+      ],
+      "course_completion_rate": "medium (daily activity, variable depth)",
+      "preferred_lesson_length": "3-7 minutes",
+      "learning_time": "morning commute or right before bed",
+      "motivation_trigger": "maintaining daily streak and leaderboard status",
+      "dropout_trigger": "losing streak or punitive difficulty curve",
+      "gamification_response": "very high — obsessively checks leaderboards and XP",
+      "subscription_preference": "small monthly sub if streak freeze is included",
+      "device": "mobile"
+    },
+    "psychological_profile": {
+      "mbti": "ESFJ",
+      "risk_tolerance": "medium",
+      "motivation_type": "extrinsic",
+      "decision_style": "routine-oriented",
+      "attention_span": "medium-burst"
+    },
+    "background_story": "Maintains an active 400+ day Duolingo streak and cannot sleep without doing a daily lesson. Values habit loops, visual badges, and friendly rivalries on weekly leaderboards over heavy textbook learning.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.6,
+      "gamification_appeal": 0.98,
+      "long_video_tolerance": 0.15,
+      "social_learning_interest": 0.85,
+      "certificate_value": 0.5,
+      "overall_sentiment_bias": 0.7
+    },
+    "memory": {
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Why did you abandon or stop using your previous online course or study app?",
+          "timestamp": "2026-09-16T22:33:09.145211"
+        },
+        {
+          "role": "persona",
+          "content": "I actually have a great completion record, but only if the app maintains daily continuity. If an app gives me a streak counter, I will show up 365 days in a row.",
+          "timestamp": "2026-09-16T22:33:09.145211"
+        },
+        {
+          "role": "user",
+          "content": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "timestamp": "2026-09-16T22:33:09.145211"
+        },
+        {
+          "role": "persona",
+          "content": "3 to 7 minutes is the absolute sweet spot. That fits perfectly into my morning metro commute or right before sleeping.",
+          "timestamp": "2026-09-16T22:33:09.145211"
+        },
+        {
+          "role": "user",
+          "content": "How much would you be willing to pay monthly for this learning platform?",
+          "timestamp": "2026-09-16T22:33:09.145211"
+        },
+        {
+          "role": "persona",
+          "content": "Hey! Just checking in right after finishing my morning streak lesson. What would you like to explore?",
+          "timestamp": "2026-09-16T22:33:09.145211"
+        }
+      ],
+      "established_opinions": {
+        "completion": "positive",
+        "lesson_length": "neutral",
+        "price": "neutral"
+      },
+      "last_updated": "2026-09-16T22:33:09.145211",
+      "used_template_indices": {
+        "completion": [
+          0
+        ],
+        "lesson_length": [
+          0
+        ],
+        "greeting": [
+          0
+        ]
+      }
+    }
+  },
+  {
+    "id": "persona_003",
+    "name": "Aarav Deshmukh",
+    "archetype": "Deep Learner",
+    "age": 31,
+    "gender": "Male",
+    "occupation": "Staff Backend Engineer",
+    "location": "Bengaluru, India",
+    "income_bracket": "upper-middle",
+    "education": "MS Software Systems",
+    "personality_traits": [
+      "analytical",
+      "methodical",
+      "focused"
+    ],
+    "learning_behavioral_patterns": {
+      "platform_familiarity": [
+        "Udemy",
+        "Coursera",
+        "edX"
+      ],
+      "course_completion_rate": "high (completes 80%+ of enrolled courses)",
+      "preferred_lesson_length": "20-40 minutes with comprehensive notes",
+      "learning_time": "weekend mornings or dedicated evening blocks",
+      "motivation_trigger": "mastery of subject, solving complex problems",
+      "dropout_trigger": "gimmicky features, shallow summaries, unvetted instructors",
+      "gamification_response": "low — finds badges and sounds patronizing",
+      "subscription_preference": "willing to pay annual fee for high-quality library",
+      "device": "desktop / dual monitor"
+    },
+    "psychological_profile": {
+      "mbti": "INTJ",
+      "risk_tolerance": "high",
+      "motivation_type": "intrinsic",
+      "decision_style": "evidence-based",
+      "attention_span": "long"
+    },
+    "background_story": "Treats online courses as formal continuing education. Watched 60+ hours of deep-dive courses on Udemy, Coursera, and MIT OpenCourseWare. Always tests every code snippet and creates exhaustive Notion notes.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.3,
+      "gamification_appeal": 0.15,
+      "long_video_tolerance": 0.9,
+      "social_learning_interest": 0.25,
+      "certificate_value": 0.6,
+      "overall_sentiment_bias": 0.55
+    },
+    "memory": {
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Why did you abandon or stop using your previous online course or study app?",
+          "timestamp": "2026-09-16T22:33:09.147213"
+        },
+        {
+          "role": "persona",
+          "content": "I actually finish almost all courses I enroll in—often 40 to 60 hours long—provided the instructor is an authoritative expert and explains first principles thoroughly.",
+          "timestamp": "2026-09-16T22:33:09.147213"
+        },
+        {
+          "role": "user",
+          "content": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "timestamp": "2026-09-16T22:33:09.147213"
+        },
+        {
+          "role": "persona",
+          "content": "25 to 45 minutes is appropriate. You simply cannot explore distributed systems, statistical modeling, or nuanced architecture in a 3-minute video.",
+          "timestamp": "2026-09-16T22:33:09.147213"
+        },
+        {
+          "role": "user",
+          "content": "How much would you be willing to pay monthly for this learning platform?",
+          "timestamp": "2026-09-16T22:33:09.147213"
+        },
+        {
+          "role": "persona",
+          "content": "Hello. I'm currently reviewing my course notes and reference documentation. How can I assist?",
+          "timestamp": "2026-09-16T22:33:09.147213"
+        }
+      ],
+      "established_opinions": {
+        "completion": "neutral",
+        "lesson_length": "neutral",
+        "price": "neutral"
+      },
+      "last_updated": "2026-09-16T22:33:09.147213",
+      "used_template_indices": {
+        "completion": [
+          0
+        ],
+        "lesson_length": [
+          0
+        ],
+        "greeting": [
+          0
+        ]
+      }
+    }
+  },
+  {
+    "id": "persona_004",
+    "name": "David Kim",
+    "archetype": "Career Switcher",
+    "age": 33,
+    "gender": "Male",
+    "occupation": "Bank Branch Officer -> Aspiring Cloud Engineer",
+    "location": "Toronto, Canada",
+    "income_bracket": "middle",
+    "education": "B.Com Finance",
+    "personality_traits": [
+      "goal-oriented",
+      "pragmatic",
+      "time-pressured"
+    ],
+    "learning_behavioral_patterns": {
+      "platform_familiarity": [
+        "Coursera",
+        "Udemy",
+        "LinkedIn Learning"
+      ],
+      "course_completion_rate": "high if syllabus guarantees hiring outcomes",
+      "preferred_lesson_length": "10-15 minutes with portfolio projects",
+      "learning_time": "weekday evenings after full-time job",
+      "motivation_trigger": "tangible resume items, interview prep, salary boost",
+      "dropout_trigger": "outdated tech stack, lack of verified credentials",
+      "gamification_response": "medium — appreciates progress bars towards portfolio goals",
+      "subscription_preference": "outcome-based subscription or company reimbursement",
+      "device": "laptop"
+    },
+    "psychological_profile": {
+      "mbti": "ENTJ",
+      "risk_tolerance": "medium",
+      "motivation_type": "extrinsic-career",
+      "decision_style": "ROI-driven",
+      "attention_span": "moderate"
+    },
+    "background_story": "Under immense time and financial pressure to transition careers. Spends 2 hours every evening after work studying with laser focus. Demands verifiable certificates, real-world portfolio tasks, and career relevance.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.45,
+      "gamification_appeal": 0.45,
+      "long_video_tolerance": 0.6,
+      "social_learning_interest": 0.5,
+      "certificate_value": 0.95,
+      "overall_sentiment_bias": 0.6
+    },
+    "memory": {
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Why did you abandon or stop using your previous online course or study app?",
+          "timestamp": "2026-09-16T22:33:09.148216"
+        },
+        {
+          "role": "persona",
+          "content": "I finish courses when I can clearly trace every module to a bullet point on a job description. If a course promises a portfolio project that impresses recruiters, I stick with it to the end.",
+          "timestamp": "2026-09-16T22:33:09.148216"
+        },
+        {
+          "role": "user",
+          "content": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "timestamp": "2026-09-16T22:33:09.149214"
+        },
+        {
+          "role": "persona",
+          "content": "12 to 18 minutes is optimal. Long enough to build a real component, but short enough that I can finish one or two modules before dinner.",
+          "timestamp": "2026-09-16T22:33:09.149214"
+        },
+        {
+          "role": "user",
+          "content": "How much would you be willing to pay monthly for this learning platform?",
+          "timestamp": "2026-09-16T22:33:09.149214"
+        },
+        {
+          "role": "persona",
+          "content": "Hi! Taking a quick break from my evening coding session. What would you like to discuss?",
+          "timestamp": "2026-09-16T22:33:09.149214"
+        }
+      ],
+      "established_opinions": {
+        "completion": "neutral",
+        "lesson_length": "neutral",
+        "price": "neutral"
+      },
+      "last_updated": "2026-09-16T22:33:09.149214",
+      "used_template_indices": {
+        "completion": [
+          0
+        ],
+        "lesson_length": [
+          0
+        ],
+        "greeting": [
+          0
+        ]
+      }
+    }
+  },
+  {
+    "id": "persona_005",
+    "name": "Mateo Rossi",
+    "archetype": "Casual Browser",
+    "age": 22,
+    "gender": "Male",
+    "occupation": "Retail Associate",
+    "location": "Rome, Italy",
+    "income_bracket": "lower-middle",
+    "education": "High School Diploma",
+    "personality_traits": [
+      "curious",
+      "low-commitment",
+      "recreational"
+    ],
+    "learning_behavioral_patterns": {
+      "platform_familiarity": [
+        "Duolingo",
+        "Skillshare",
+        "YouTube"
+      ],
+      "course_completion_rate": "very low (browses many, finishes rare)",
+      "preferred_lesson_length": "under 5 minutes",
+      "learning_time": "irregular, during downtime or waiting periods",
+      "motivation_trigger": "casual curiosity, entertainment",
+      "dropout_trigger": "quizzes with harsh fail states or mandatory homework",
+      "gamification_response": "high — enjoys fun visual themes and mini-games",
+      "subscription_preference": "freemium with ads, will rarely pay",
+      "device": "mobile"
+    },
+    "psychological_profile": {
+      "mbti": "INFP",
+      "risk_tolerance": "low",
+      "motivation_type": "intrinsic-recreational",
+      "decision_style": "spontaneous",
+      "attention_span": "short"
+    },
+    "background_story": "Downloads apps out of temporary curiosity or TikTok trends. Enjoys 3-minute quiz bites while waiting for the train or during study breaks. Will instantly uninstall if an app demands strict homework or expensive recurring fees.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.95,
+      "gamification_appeal": 0.8,
+      "long_video_tolerance": 0.1,
+      "social_learning_interest": 0.4,
+      "certificate_value": 0.2,
+      "overall_sentiment_bias": 0.45
+    },
+    "memory": {
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Why did you abandon or stop using your previous online course or study app?",
+          "timestamp": "2026-09-16T22:33:09.150213"
+        },
+        {
+          "role": "persona",
+          "content": "I rarely finish long courses. I'll open an app when I'm curious about a topic like digital illustration or conversational Spanish, browse for 3 days, and move on.",
+          "timestamp": "2026-09-16T22:33:09.150213"
+        },
+        {
+          "role": "user",
+          "content": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "timestamp": "2026-09-16T22:33:09.150213"
+        },
+        {
+          "role": "persona",
+          "content": "Under 5 minutes for sure! I usually use learning apps while waiting for a friend at a cafe or on the bus. Anything longer doesn't fit my lifestyle.",
+          "timestamp": "2026-09-16T22:33:09.150213"
+        },
+        {
+          "role": "user",
+          "content": "How much would you be willing to pay monthly for this learning platform?",
+          "timestamp": "2026-09-16T22:33:09.150213"
+        },
+        {
+          "role": "persona",
+          "content": "Hey there! Just exploring some fun apps on my phone. What's up?",
+          "timestamp": "2026-09-16T22:33:09.150213"
+        }
+      ],
+      "established_opinions": {
+        "completion": "neutral",
+        "lesson_length": "neutral",
+        "price": "neutral"
+      },
+      "last_updated": "2026-09-16T22:33:09.150213",
+      "used_template_indices": {
+        "completion": [
+          0
+        ],
+        "lesson_length": [
+          0
+        ],
+        "greeting": [
+          0
+        ]
+      }
+    }
+  }
+]

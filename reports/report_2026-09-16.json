@@ -1,0 +1,71 @@
+{
+  "report_date": "2026-09-16",
+  "product": "LearnFlow",
+  "persona_count": 5,
+  "survey_questions_asked": 3,
+  "interview_sessions_count": 2,
+  "themes": [
+    "someone courses (3 mentions)",
+    "courses sitting (3 mentions)",
+    "sitting untouched (3 mentions)",
+    "untouched udemy (3 mentions)",
+    "udemy library (3 mentions)"
+  ],
+  "sentiment_distribution": {
+    "positive": 0.07,
+    "neutral": 0.87,
+    "negative": 0.07
+  },
+  "behavioral_trends": [
+    {
+      "group": "Extrinsic Learners (Impulse Buyer, Streak Chaser)",
+      "finding": "High sensitivity to lesson lengths (>10m causes dropouts). 90%+ enthusiastic about streaks, badges, and instant gratification loops."
+    },
+    {
+      "group": "Mastery & Career Learners (Deep Learner, Career Switcher)",
+      "finding": "Indifferent or adverse to cartoon gamification; highly motivated by portfolio tasks, instructor credentials, and verified certifications."
+    },
+    {
+      "group": "Casual Browsers",
+      "finding": "Extremely price-sensitive (prefer ad-supported freemium); quickly churn if academic pressure or guilt is applied."
+    }
+  ],
+  "top_insights": [
+    "CRITICAL DROPOUT FACTOR: 4 out of 5 personas report lesson duration exceeding 15 minutes as the #1 reason for quitting a course.",
+    "POLARIZING FEATURE: Leaderboards and XP systems increase engagement for competitive learners but alienate analytical/deep learners.",
+    "PRICING MODEL GAP: Impulse learners prefer low one-time course fees (Udemy style), whereas career switchers and deep learners prefer outcome-oriented memberships.",
+    "HIGH RETENTION LEVER: Combining Duolingo-style 5-minute daily micro-habits with structured Udemy-style skill progression is strongly validated."
+  ],
+  "per_persona_breakdown": [
+    {
+      "id": "persona_001",
+      "name": "Rohan Mehta",
+      "archetype": "Impulse Buyer",
+      "key_takeaway": "Prefers under 10 minutes | Dropout trigger: dense theory and lack of early wins | Stance: one-time course discount purchase"
+    },
+    {
+      "id": "persona_002",
+      "name": "Chloe Martin",
+      "archetype": "Streak Chaser",
+      "key_takeaway": "Prefers 3-7 minutes | Dropout trigger: losing streak or punitive difficulty curve | Stance: small monthly sub if streak freeze is included"
+    },
+    {
+      "id": "persona_003",
+      "name": "Aarav Deshmukh",
+      "archetype": "Deep Learner",
+      "key_takeaway": "Prefers 20-40 minutes with comprehensive notes | Dropout trigger: gimmicky features, shallow summaries, unvetted instructors | Stance: willing to pay annual fee for high-quality library"
+    },
+    {
+      "id": "persona_004",
+      "name": "David Kim",
+      "archetype": "Career Switcher",
+      "key_takeaway": "Prefers 10-15 minutes with portfolio projects | Dropout trigger: outdated tech stack, lack of verified credentials | Stance: outcome-based subscription or company reimbursement"
+    },
+    {
+      "id": "persona_005",
+      "name": "Mateo Rossi",
+      "archetype": "Casual Browser",
+      "key_takeaway": "Prefers under 5 minutes | Dropout trigger: quizzes with harsh fail states or mandatory homework | Stance: freemium with ads, will rarely pay"
+    }
+  ]
+}

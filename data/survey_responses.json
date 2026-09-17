@@ -1,0 +1,136 @@
+{
+  "survey_id": "survey_1789578189",
+  "questions": [
+    "Why did you abandon or stop using your previous online course or study app?",
+    "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+    "How much would you be willing to pay monthly for this learning platform?"
+  ],
+  "responses": [
+    {
+      "persona_id": "persona_001",
+      "persona_name": "Rohan Mehta",
+      "archetype": "Impulse Buyer",
+      "answers": [
+        {
+          "question": "Why did you abandon or stop using your previous online course or study app?",
+          "answer": "Honestly, it starts with huge excitement on day 1. But by day 3, the instructor dives into 45-minute abstract slides with no code demo, and I completely lose steam.",
+          "sentiment": "neutral",
+          "key_phrase": "Honestly, it starts with huge excitement on day 1"
+        },
+        {
+          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "answer": "Lessons have to be under 8 to 10 minutes max. If I see a 50-minute video lecture, I immediately put it off for the weekend, and that weekend never arrives.",
+          "sentiment": "negative",
+          "key_phrase": "Lessons have to be under 8 to 10 minutes max"
+        },
+        {
+          "question": "How much would you be willing to pay monthly for this learning platform?",
+          "answer": "Hey! I'm currently looking through my course library trying to figure out what to tackle next.",
+          "sentiment": "neutral",
+          "key_phrase": "I'm currently looking through my course library trying to figure out what"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_002",
+      "persona_name": "Chloe Martin",
+      "archetype": "Streak Chaser",
+      "answers": [
+        {
+          "question": "Why did you abandon or stop using your previous online course or study app?",
+          "answer": "I actually have a great completion record, but only if the app maintains daily continuity. If an app gives me a streak counter, I will show up 365 days in a row.",
+          "sentiment": "positive",
+          "key_phrase": "I actually have a great completion record, but only if the app"
+        },
+        {
+          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "answer": "3 to 7 minutes is the absolute sweet spot. That fits perfectly into my morning metro commute or right before sleeping.",
+          "sentiment": "neutral",
+          "key_phrase": "3 to 7 minutes is the absolute sweet spot"
+        },
+        {
+          "question": "How much would you be willing to pay monthly for this learning platform?",
+          "answer": "Hey! Just checking in right after finishing my morning streak lesson. What would you like to explore?",
+          "sentiment": "neutral",
+          "key_phrase": "Just checking in right after finishing my morning streak lesson"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_003",
+      "persona_name": "Aarav Deshmukh",
+      "archetype": "Deep Learner",
+      "answers": [
+        {
+          "question": "Why did you abandon or stop using your previous online course or study app?",
+          "answer": "I actually finish almost all courses I enroll in—often 40 to 60 hours long—provided the instructor is an authoritative expert and explains first principles thoroughly.",
+          "sentiment": "neutral",
+          "key_phrase": "I actually finish almost all courses I enroll in—often 40 to 60"
+        },
+        {
+          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "answer": "25 to 45 minutes is appropriate. You simply cannot explore distributed systems, statistical modeling, or nuanced architecture in a 3-minute video.",
+          "sentiment": "neutral",
+          "key_phrase": "25 to 45 minutes is appropriate"
+        },
+        {
+          "question": "How much would you be willing to pay monthly for this learning platform?",
+          "answer": "Hello. I'm currently reviewing my course notes and reference documentation. How can I assist?",
+          "sentiment": "neutral",
+          "key_phrase": "I'm currently reviewing my course notes and reference documentation"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_004",
+      "persona_name": "David Kim",
+      "archetype": "Career Switcher",
+      "answers": [
+        {
+          "question": "Why did you abandon or stop using your previous online course or study app?",
+          "answer": "I finish courses when I can clearly trace every module to a bullet point on a job description. If a course promises a portfolio project that impresses recruiters, I stick with it to the end.",
+          "sentiment": "neutral",
+          "key_phrase": "I finish courses when I can clearly trace every module to a"
+        },
+        {
+          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "answer": "12 to 18 minutes is optimal. Long enough to build a real component, but short enough that I can finish one or two modules before dinner.",
+          "sentiment": "neutral",
+          "key_phrase": "12 to 18 minutes is optimal"
+        },
+        {
+          "question": "How much would you be willing to pay monthly for this learning platform?",
+          "answer": "Hi! Taking a quick break from my evening coding session. What would you like to discuss?",
+          "sentiment": "neutral",
+          "key_phrase": "Taking a quick break from my evening coding session"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_005",
+      "persona_name": "Mateo Rossi",
+      "archetype": "Casual Browser",
+      "answers": [
+        {
+          "question": "Why did you abandon or stop using your previous online course or study app?",
+          "answer": "I rarely finish long courses. I'll open an app when I'm curious about a topic like digital illustration or conversational Spanish, browse for 3 days, and move on.",
+          "sentiment": "neutral",
+          "key_phrase": "I rarely finish long courses"
+        },
+        {
+          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
+          "answer": "Under 5 minutes for sure! I usually use learning apps while waiting for a friend at a cafe or on the bus. Anything longer doesn't fit my lifestyle.",
+          "sentiment": "neutral",
+          "key_phrase": "Under 5 minutes for sure"
+        },
+        {
+          "question": "How much would you be willing to pay monthly for this learning platform?",
+          "answer": "Hey there! Just exploring some fun apps on my phone. What's up?",
+          "sentiment": "neutral",
+          "key_phrase": "Just exploring some fun apps on my phone"
+        }
+      ]
+    }
+  ],
+  "created_at": "2026-09-16T22:33:09.152223"
+}
