@@ -1,12 +1,12 @@
 {
-  "product_name": "LearnFlow",
-  "product_description": "A hybrid online learning app combining Udemy-style structured courses with Duolingo-style daily streak gamification to conquer student course dropouts.",
-  "target_audience": "College students and working professionals aged 20-35 who enroll in online courses but fail to finish them.",
+  "product_name": "foodpanda",
+  "industry_domain": "restaurents and food nilling utility",
+  "product_description": "A crm that i scutomizable for all restuarent needs as per ther menus, price and discount",
+  "target_audience": "restaurent owners, and cloud kitchens, any demographics above 15 years",
   "research_objectives": [
-    "Discover why learners drop out of courses after the first week",
-    "Test reaction to bite-sized 5-minute daily lessons vs 45-minute lectures",
-    "Evaluate willingness to pay for subscriptions vs one-time course fees",
-    "Identify if streaks and XP leaderboards create genuine motivation"
+    "to analyze the product usecase",
+    "does the product has a market and need",
+    "is this addaptable to all restuarents and kitechen across gloabe to be adapted"
   ],
-  "created_at": "2026-09-16T22:31:28.449346"
+  "created_at": "2026-09-21T17:57:59.599281"
 }

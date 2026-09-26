@@ -1,18 +1,22 @@
-﻿from fastapi import FastAPI, HTTPException
+import warnings
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
+
+warnings.filterwarnings("ignore", message="urllib3.*doesn't match a supported version")
 
 from agents.persona_generator import PersonaGenerationAgent
 from agents.persona_memory import PersonaMemoryModule
 from agents.survey_agent import SurveyAgent
 from agents.insight_agent import InsightExtractionAgent
+from config.settings import get_config_status, is_openrouter_configured, OPENROUTER_MODEL
 from utils.storage import load_json, save_json
 
 app = FastAPI(
-    title="Synthetic Users Research Platform API",
-    description="Backend services for AI-powered synthetic user research simulations",
-    version="1.0.0"
+    title="Universal Synthetic User Research Platform API",
+    description="Backend services for OpenRouter LLM-powered synthetic user research simulations across any product domain.",
+    version="2.0.0"
 )
 
 persona_agent = PersonaGenerationAgent()
@@ -24,6 +28,7 @@ class ExperimentModel(BaseModel):
     product_description: str
     target_audience: str
     research_objectives: List[str]
+    industry_domain: Optional[str] = "Technology"
 
 class SurveyRequestModel(BaseModel):
     questions: List[str]
@@ -34,7 +39,16 @@ class InterviewMessageModel(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"status": "online", "system": "Synthetic Users Research Platform"}
+    return {
+        "status": "online",
+        "system": "Universal Synthetic Users Research Platform",
+        "llm_config": get_config_status()
+    }
+
+@app.get("/api/llm-config")
+def get_llm_config():
+    """Returns the current LLM configuration and whether OpenRouter is ready."""
+    return get_config_status()
 
 @app.post("/api/setup-experiment")
 def setup_experiment(exp: ExperimentModel):
@@ -47,20 +61,25 @@ def setup_experiment(exp: ExperimentModel):
 def get_experiment():
     exp = load_json("data/experiment.json", None)
     if not exp:
-        raise HTTPException(status_code=404, detail="No experiment setup found.")
+        raise HTTPException(status_code=404, detail="No active experiment found. Please call /api/setup-experiment.")
     return exp
+
+@app.get("/api/suggest-questions")
+def suggest_survey_questions(count: Optional[int] = 3):
+    """Dynamically suggests survey questions tailored to the active product using OpenRouter LLM."""
+    exp = load_json("data/experiment.json", None)
+    if not exp:
+        raise HTTPException(status_code=400, detail="No active experiment found. Configure an experiment first.")
+    questions = survey_agent.suggest_questions(experiment=exp, count=count)
+    return {"product_name": exp.get("product_name"), "suggested_questions": questions}
 
 @app.post("/api/generate-personas")
 def generate_personas(count: Optional[int] = 5):
-    exp = load_json("data/experiment.json", {})
+    exp = load_json("data/experiment.json", None)
     if not exp:
-        exp = {
-            "product_name": "LearnFlow",
-            "target_audience": "Online course self-learners",
-            "product_description": "Udemy + Duolingo hybrid study platform"
-        }
+        raise HTTPException(status_code=400, detail="No active experiment found. Please call /api/setup-experiment first.")
     personas = persona_agent.generate_personas(exp, count=count)
-    return {"count": len(personas), "personas": personas}
+    return {"count": len(personas), "product": exp.get("product_name"), "personas": personas}
 
 @app.get("/api/personas")
 def list_personas():
@@ -69,8 +88,9 @@ def list_personas():
 
 @app.post("/api/run-survey")
 def run_survey(payload: SurveyRequestModel):
+    exp = load_json("data/experiment.json", None)
     try:
-        results = survey_agent.run_survey(payload.questions)
+        results = survey_agent.run_survey(payload.questions, experiment=exp)
         return results
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -82,19 +102,25 @@ def interview_turn(payload: InterviewMessageModel):
     if not persona:
         raise HTTPException(status_code=404, detail=f"Persona {payload.persona_id} not found")
 
-    response = PersonaMemoryModule.generate_response(persona, payload.user_message, mode="interview")
+    exp = load_json("data/experiment.json", {})
+    response = PersonaMemoryModule.generate_response(
+        persona=persona,
+        question=payload.user_message,
+        experiment=exp,
+        mode="interview"
+    )
     PersonaMemoryModule.update_persona_pool(persona, "data/persona_pool.json")
 
     # Record turn in interview logs
     logs = load_json("data/interview_logs.json", [])
-    # Find active session or create new
     session = next((s for s in logs if s.get("persona_id") == persona["id"]), None)
     if not session:
         session = {
             "session_id": f"session_{int(datetime.now().timestamp())}",
+            "product_name": exp.get("product_name", "Product"),
             "persona_id": persona["id"],
             "persona_name": persona["name"],
-            "archetype": persona["archetype"],
+            "archetype": persona.get("archetype", "User"),
             "turns": [],
             "session_started": datetime.now().isoformat()
         }
@@ -111,11 +137,15 @@ def interview_turn(payload: InterviewMessageModel):
     return {
         "persona_id": persona["id"],
         "persona_name": persona["name"],
+        "archetype": persona.get("archetype"),
         "user_message": payload.user_message,
         "persona_response": response
     }
 
 @app.get("/api/generate-report")
 def generate_report():
-    report = insight_agent.generate_report()
-    return report
+    try:
+        report = insight_agent.generate_report()
+        return report
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

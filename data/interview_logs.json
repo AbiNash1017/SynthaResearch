@@ -58,5 +58,67 @@
       }
     ],
     "session_started": "2026-09-16T22:26:55.364627"
+  },
+  {
+    "session_id": "session_1789630101",
+    "product_name": "echopace",
+    "persona_id": "persona_001",
+    "persona_name": "Alex Rivera",
+    "archetype": "Budget-Conscious Pragmatist",
+    "turns": [
+      {
+        "turn": 1,
+        "user_message": "what insights and remarks do u have regarding the app and its target demographic",
+        "persona_response": "Hello! I am Alex Rivera. Glad to share my feedback on this product.",
+        "timestamp": "2026-09-17T12:58:54.322503"
+      },
+      {
+        "turn": 2,
+        "user_message": "what insights and remarks do u have regarding the app and its target demographic",
+        "persona_response": "Hello! I am Alex Rivera. Glad to share my feedback on this product.",
+        "timestamp": "2026-09-17T12:59:02.139466"
+      },
+      {
+        "turn": 3,
+        "user_message": "hello",
+        "persona_response": "User Safety: safe\nResponse Safety: safe",
+        "timestamp": "2026-09-17T13:00:17.086744"
+      },
+      {
+        "turn": 4,
+        "user_message": "say me your ensights",
+        "persona_response": "User Safety: safe\nResponse Safety: safe",
+        "timestamp": "2026-09-17T13:00:34.499577"
+      }
+    ],
+    "session_started": "2026-09-17T12:58:54.322503"
+  },
+  {
+    "session_id": "session_1789993757",
+    "product_name": "foodpanda",
+    "persona_id": "persona_002",
+    "persona_name": "Priya Nair",
+    "archetype": "Power User / Optimizer",
+    "turns": [
+      {
+        "turn": 1,
+        "user_message": "what do u feel about the product in your current use case",
+        "persona_response": "In my current use case, foodpanda could be useful if it can replace the spreadsheet work I do for menu pricing, discounts, and order tracking across restaurant and cloud-kitchen setups. I’d want it to be highly customizable, fast, and support keyboard shortcuts or API access—otherwise it’ll just become another tool adding friction. For Bengaluru operators juggling multiple outlets, the value has to be clear: less manual entry and faster daily decisions.",
+        "timestamp": "2026-09-21T17:59:36.466433"
+      },
+      {
+        "turn": 2,
+        "user_message": "do u need any feature taht is simple and easily acesible",
+        "persona_response": "Yes — I’d need a single, always-visible dashboard for menu changes, prices, discounts, and order status. Everything should be editable in one or two clicks and easily exportable to a spreadsheet, since I still track things manually. If that’s buried in menus or syncs slowly, I’d go back to my current workflow.",
+        "timestamp": "2026-09-21T18:00:04.089064"
+      },
+      {
+        "turn": 3,
+        "user_message": "thank you",
+        "persona_response": "You’re welcome. If you need more detail on the restaurant workflow I’d want automated, I’m happy to walk you through it.",
+        "timestamp": "2026-09-21T18:00:13.290579"
+      }
+    ],
+    "session_started": "2026-09-21T17:59:36.466433"
   }
 ]

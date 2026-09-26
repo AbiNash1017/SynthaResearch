@@ -1,136 +1,68 @@
 {
-  "survey_id": "survey_1789578189",
+  "survey_id": "survey_1789630616",
+  "product_name": "HydraGlow",
   "questions": [
-    "Why did you abandon or stop using your previous online course or study app?",
-    "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
-    "How much would you be willing to pay monthly for this learning platform?"
+    "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
+    "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?"
   ],
   "responses": [
     {
       "persona_id": "persona_001",
-      "persona_name": "Rohan Mehta",
-      "archetype": "Impulse Buyer",
+      "persona_name": "Maya Chen",
+      "archetype": "Data-Driven Wellness Optimizer",
       "answers": [
         {
-          "question": "Why did you abandon or stop using your previous online course or study app?",
-          "answer": "Honestly, it starts with huge excitement on day 1. But by day 3, the instructor dives into 45-minute abstract slides with no code demo, and I completely lose steam.",
-          "sentiment": "neutral",
-          "key_phrase": "Honestly, it starts with huge excitement on day 1"
-        },
-        {
-          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
-          "answer": "Lessons have to be under 8 to 10 minutes max. If I see a 50-minute video lecture, I immediately put it off for the weekend, and that weekend never arrives.",
+          "question": "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
+          "answer": "The biggest barrier for me is forgetting to drink during back-to-back meetings, not really tracking my intake in real time. I’d be fairly likely to switch at $79 if HydraGlow syncs cleanly with Apple Health and Garmin, gives accurate hydration insights, and has reminders that feel helpful rather than annoying; I’d hesitate if the app sync is clunky, the lid leaks, the battery is weak, or the estimates feel gimmicky.",
           "sentiment": "negative",
-          "key_phrase": "Lessons have to be under 8 to 10 minutes max"
+          "key_phrase": "The biggest barrier for me is forgetting to drink during back-to-back meetings,"
         },
         {
-          "question": "How much would you be willing to pay monthly for this learning platform?",
-          "answer": "Hey! I'm currently looking through my course library trying to figure out what to tackle next.",
-          "sentiment": "neutral",
-          "key_phrase": "I'm currently looking through my course library trying to figure out what"
+          "question": "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?",
+          "answer": "I’d want gentle reminders about every 60–90 minutes during the workday, with meeting and sleep quiet hours; if push notifications exceeded roughly two or three per day, I’d start disabling them. Apple Health and Garmin sync would be essential to keeping HydraGlow—I’d stop using it if the data was inaccurate or the integration felt unreliable.",
+          "sentiment": "negative",
+          "key_phrase": "I’d want gentle reminders about every 60–90 minutes during the workday, with"
         }
       ]
     },
     {
       "persona_id": "persona_002",
-      "persona_name": "Chloe Martin",
-      "archetype": "Streak Chaser",
+      "persona_name": "Andre Williams",
+      "archetype": "Practical Desk-Worker Seeker",
       "answers": [
         {
-          "question": "Why did you abandon or stop using your previous online course or study app?",
-          "answer": "I actually have a great completion record, but only if the app maintains daily continuity. If an app gives me a streak counter, I will show up 365 days in a row.",
-          "sentiment": "positive",
-          "key_phrase": "I actually have a great completion record, but only if the app"
+          "question": "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
+          "answer": "As a 42-year-old Operations Manager here in Atlanta, my biggest barrier is getting interrupted so badly that I forget to drink until I’m already tense or getting that afternoon headache. I’d be maybe a 6 out of 10 on switching to HydraGlow at $79 if it quietly reminds me without nagging and actually helps me hit my daily goal, but I’d hesitate if it needs too much charging, has a confusing app, or feels like just another gadget I’ll eventually ignore.",
+          "sentiment": "negative",
+          "key_phrase": "As a 42-year-old Operations Manager here in Atlanta, my biggest barrier is"
         },
         {
-          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
-          "answer": "3 to 7 minutes is the absolute sweet spot. That fits perfectly into my morning metro commute or right before sleeping.",
-          "sentiment": "neutral",
-          "key_phrase": "3 to 7 minutes is the absolute sweet spot"
-        },
-        {
-          "question": "How much would you be willing to pay monthly for this learning platform?",
-          "answer": "Hey! Just checking in right after finishing my morning streak lesson. What would you like to explore?",
-          "sentiment": "neutral",
-          "key_phrase": "Just checking in right after finishing my morning streak lesson"
+          "question": "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?",
+          "answer": "I’d want reminders about every 90 minutes to two hours during the workday, preferably through the bottle’s LED first and phone alerts only when I’ve ignored it. If notifications repeat after I dismiss them, interrupt meetings, or feel like nagging more than twice a day, I’ll disable them and may uninstall the app; Apple Health and Garmin sync would be nice, but I’d keep using it even without them as long as the reminders are reliable.",
+          "sentiment": "negative",
+          "key_phrase": "I’d want reminders about every 90 minutes to two hours during the"
         }
       ]
     },
     {
       "persona_id": "persona_003",
-      "persona_name": "Aarav Deshmukh",
-      "archetype": "Deep Learner",
+      "persona_name": "Sofia Ramirez",
+      "archetype": "Social Fitness Enthusiast",
       "answers": [
         {
-          "question": "Why did you abandon or stop using your previous online course or study app?",
-          "answer": "I actually finish almost all courses I enroll in—often 40 to 60 hours long—provided the instructor is an authoritative expert and explains first principles thoroughly.",
-          "sentiment": "neutral",
-          "key_phrase": "I actually finish almost all courses I enroll in—often 40 to 60"
+          "question": "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
+          "answer": "The biggest barrier for me is staying on track during back-to-back classes when I’m coaching and completely lose track of time. I’d be moderately likely to switch at $79 if HydraGlow synced with my Garmin, gave helpful reminders without interrupting coaching, and looked stylish enough to keep in my gym bag. I’d hesitate if the reminders felt annoying, the bottle leaked, or the tracking seemed like something my current bottle and routine could already handle.",
+          "sentiment": "negative",
+          "key_phrase": "The biggest barrier for me is staying on track during back-to-back classes"
         },
         {
-          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
-          "answer": "25 to 45 minutes is appropriate. You simply cannot explore distributed systems, statistical modeling, or nuanced architecture in a 3-minute video.",
-          "sentiment": "neutral",
-          "key_phrase": "25 to 45 minutes is appropriate"
-        },
-        {
-          "question": "How much would you be willing to pay monthly for this learning platform?",
-          "answer": "Hello. I'm currently reviewing my course notes and reference documentation. How can I assist?",
-          "sentiment": "neutral",
-          "key_phrase": "I'm currently reviewing my course notes and reference documentation"
-        }
-      ]
-    },
-    {
-      "persona_id": "persona_004",
-      "persona_name": "David Kim",
-      "archetype": "Career Switcher",
-      "answers": [
-        {
-          "question": "Why did you abandon or stop using your previous online course or study app?",
-          "answer": "I finish courses when I can clearly trace every module to a bullet point on a job description. If a course promises a portfolio project that impresses recruiters, I stick with it to the end.",
-          "sentiment": "neutral",
-          "key_phrase": "I finish courses when I can clearly trace every module to a"
-        },
-        {
-          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
-          "answer": "12 to 18 minutes is optimal. Long enough to build a real component, but short enough that I can finish one or two modules before dinner.",
-          "sentiment": "neutral",
-          "key_phrase": "12 to 18 minutes is optimal"
-        },
-        {
-          "question": "How much would you be willing to pay monthly for this learning platform?",
-          "answer": "Hi! Taking a quick break from my evening coding session. What would you like to discuss?",
-          "sentiment": "neutral",
-          "key_phrase": "Taking a quick break from my evening coding session"
-        }
-      ]
-    },
-    {
-      "persona_id": "persona_005",
-      "persona_name": "Mateo Rossi",
-      "archetype": "Casual Browser",
-      "answers": [
-        {
-          "question": "Why did you abandon or stop using your previous online course or study app?",
-          "answer": "I rarely finish long courses. I'll open an app when I'm curious about a topic like digital illustration or conversational Spanish, browse for 3 days, and move on.",
-          "sentiment": "neutral",
-          "key_phrase": "I rarely finish long courses"
-        },
-        {
-          "question": "Would a 5-minute daily micro-lesson format keep you consistent compared to long video lectures?",
-          "answer": "Under 5 minutes for sure! I usually use learning apps while waiting for a friend at a cafe or on the bus. Anything longer doesn't fit my lifestyle.",
-          "sentiment": "neutral",
-          "key_phrase": "Under 5 minutes for sure"
-        },
-        {
-          "question": "How much would you be willing to pay monthly for this learning platform?",
-          "answer": "Hey there! Just exploring some fun apps on my phone. What's up?",
-          "sentiment": "neutral",
-          "key_phrase": "Just exploring some fun apps on my phone"
+          "question": "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?",
+          "answer": "I’d want gentle reminders every 60–90 minutes during busy Austin coaching days, especially between back-to-back classes, but not while I’m actively leading a session; if notifications interrupt my work more than once or twice a week, I’d disable them or uninstall the app. Garmin sync would be essential, and Apple Health sync would be a strong bonus, because I already rely on Garmin for my fitness data and wouldn’t want HydraGlow creating another disconnected routine.",
+          "sentiment": "negative",
+          "key_phrase": "I’d want gentle reminders every 60–90 minutes during busy Austin coaching days,"
         }
       ]
     }
   ],
-  "created_at": "2026-09-16T22:33:09.152223"
+  "created_at": "2026-09-17T13:06:56.547647"
 }

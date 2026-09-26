@@ -1,35 +1,40 @@
-﻿import re
+import re
 
-TOPIC_KEYWORDS = {
-    "price": [
-        "price", "pay", "cost", "subscription", "rupee", "rupees", "dollar",
+UNIVERSAL_TOPIC_KEYWORDS = {
+    "pricing": [
+        "price", "pay", "cost", "subscription", "rupee", "rupees", "dollar", "dollars",
         "expensive", "cheap", "sale", "discount", "fee", "afford", "pricing", "plan",
-        "membership", "money", "free", "freemium"
+        "membership", "money", "free", "freemium", "billing", "tier", "license", "budget"
     ],
-    "gamification": [
-        "streak", "streaks", "xp", "points", "badge", "badges", "leaderboard",
-        "leaderboards", "game", "gamif", "gamification", "ga,ification", "level",
-        "reward", "rewards", "rank", "competition", "compete", "freeze", "hearts", "gems"
+    "usability_ux": [
+        "easy", "simple", "complex", "intuitive", "interface", "ux", "ui", "navigation",
+        "confusing", "design", "layout", "onboarding", "cluttered", "clean", "friction",
+        "steep", "learning curve", "effort"
     ],
-    "lesson_length": [
-        "minute", "minutes", "length", "long", "short", "bite", "hour", "duration",
-        "time", "lecture", "video length", "quick", "snackable", "daily time"
+    "features_functionality": [
+        "feature", "features", "capabilities", "tool", "tools", "integration", "api",
+        "sync", "export", "import", "functionality", "workflow", "customize", "customization",
+        "automation", "shortcut", "dashboard", "analytics", "reporting"
     ],
-    "completion": [
-        "abandon", "finish", "complete", "drop", "quit", "retention", "consistency",
-        "progress", "motivation", "not able to complete", "why", "stop", "stuck", "give up"
+    "reliability_performance": [
+        "speed", "fast", "slow", "lag", "bug", "bugs", "crash", "security", "privacy",
+        "reliable", "reliability", "uptime", "stable", "stability", "offline", "data protection"
     ],
-    "certification": [
-        "certificate", "credential", "resume", "cv", "job", "career", "hiring",
-        "portfolio", "linkedin", "interview", "recruiter", "accreditation"
+    "switching_friction": [
+        "alternative", "alternatives", "competitor", "competitors", "switch", "migrate",
+        "migration", "replace", "current tool", "habit", "existing setup", "lock-in"
     ],
-    "curriculum_quality": [
-        "quality", "depth", "theory", "practice", "instructor", "project", "syllabus",
-        "content", "thorough", "exercises", "hands-on", "coding", "notes", "advanced"
+    "value_roi": [
+        "worth", "value", "roi", "benefit", "benefits", "outcome", "save time", "return",
+        "result", "results", "impact", "productivity", "solve", "useful"
+    ],
+    "support_community": [
+        "support", "documentation", "docs", "help", "tutorial", "tutorials", "customer service",
+        "guide", "community", "forum", "onboarding support"
     ],
     "acknowledgement": [
         "okay", "ok", "got it", "cool", "fine", "alright", "all right", "great",
-        "nice", "interesting", "understood", "makes sense", "sure"
+        "nice", "interesting", "understood", "makes sense", "sure", "thanks", "thank you"
     ],
     "greeting": [
         "hello", "hi", "hey", "good morning", "good evening", "how are you", "who are you"
@@ -37,13 +42,12 @@ TOPIC_KEYWORDS = {
 }
 
 def detect_topic(text: str) -> str:
-    """Matches text against topic keywords and returns the most relevant topic or 'general'."""
+    """Matches text against universal product topic keywords and returns the most relevant topic or 'general'."""
     text_clean = re.sub(r"[^\w\s]", " ", text.lower())
     words = text_clean.split()
-    
-    # Check exact multi-word / substring or word-level match
     text_lower = text.lower().replace(",", " ")
-    for topic, keywords in TOPIC_KEYWORDS.items():
+
+    for topic, keywords in UNIVERSAL_TOPIC_KEYWORDS.items():
         for kw in keywords:
             if kw in text_lower or any(w == kw for w in words):
                 return topic

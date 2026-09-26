@@ -1,147 +1,135 @@
-﻿ARCHETYPE_PROFILES = {
-    "Impulse Buyer": {
-        "personality_traits": ["ambitious", "easily distracted", "deal-seeking"],
-        "learning_behavioral_patterns": {
-            "platform_familiarity": ["Udemy", "YouTube tutorials"],
-            "course_completion_rate": "low (under 10%)",
-            "preferred_lesson_length": "under 10 minutes",
-            "learning_time": "late night (10pm-12am)",
-            "motivation_trigger": "flash sales and self-improvement spikes",
-            "dropout_trigger": "dense theory and lack of early wins",
-            "gamification_response": "high — likes quick wins, streaks, badges",
-            "subscription_preference": "one-time course discount purchase",
-            "device": "mobile and laptop"
+"""
+Universal Archetype Profiles for Product Research Simulations.
+Designed to represent diverse consumer and professional behaviors across any industry domain.
+"""
+
+UNIVERSAL_ARCHETYPES = {
+    "Budget-Conscious Pragmatist": {
+        "description": "Carefully weighs price against utility, prioritizes free tiers or discounts, hates unexpected recurring charges.",
+        "personality_traits": ["practical", "frugal", "analytical", "value-driven"],
+        "behavioral_patterns": {
+            "tech_adoption": "late majority — waits for proven solutions and deals",
+            "decision_speed": "slow and deliberative",
+            "primary_driver": "cost efficiency and tangible value",
+            "churn_trigger": "price increases, hidden fees, or low perceived return on spend",
+            "device_usage": "mobile and desktop"
         },
         "psychological_profile": {
-            "mbti": "ESTP",
+            "mbti": "ISTJ",
             "risk_tolerance": "low",
-            "motivation_type": "extrinsic",
-            "decision_style": "impulsive",
-            "attention_span": "short"
+            "motivation_type": "extrinsic-economic",
+            "decision_style": "value-maximizing",
+            "attention_span": "focused on terms and pricing"
         },
         "opinion_seeds": {
-            "price_sensitivity": 0.85,
-            "gamification_appeal": 0.90,
-            "long_video_tolerance": 0.20,
-            "social_learning_interest": 0.65,
-            "certificate_value": 0.70,
-            "overall_sentiment_bias": 0.50
+            "price_sensitivity": 0.90,
+            "openness_to_change": 0.35,
+            "tech_comfort": 0.60,
+            "feature_complexity_tolerance": 0.40,
+            "overall_sentiment_bias": 0.45
         }
     },
-    "Streak Chaser": {
-        "personality_traits": ["disciplined", "competitive", "habit-driven"],
-        "learning_behavioral_patterns": {
-            "platform_familiarity": ["Duolingo", "Memrise"],
-            "course_completion_rate": "medium (daily activity, variable depth)",
-            "preferred_lesson_length": "3-7 minutes",
-            "learning_time": "morning commute or right before bed",
-            "motivation_trigger": "maintaining daily streak and leaderboard status",
-            "dropout_trigger": "losing streak or punitive difficulty curve",
-            "gamification_response": "very high — obsessively checks leaderboards and XP",
-            "subscription_preference": "small monthly sub if streak freeze is included",
-            "device": "mobile"
-        },
-        "psychological_profile": {
-            "mbti": "ESFJ",
-            "risk_tolerance": "medium",
-            "motivation_type": "extrinsic",
-            "decision_style": "routine-oriented",
-            "attention_span": "medium-burst"
-        },
-        "opinion_seeds": {
-            "price_sensitivity": 0.60,
-            "gamification_appeal": 0.98,
-            "long_video_tolerance": 0.15,
-            "social_learning_interest": 0.85,
-            "certificate_value": 0.50,
-            "overall_sentiment_bias": 0.70
-        }
-    },
-    "Deep Learner": {
-        "personality_traits": ["analytical", "methodical", "focused"],
-        "learning_behavioral_patterns": {
-            "platform_familiarity": ["Udemy", "Coursera", "edX"],
-            "course_completion_rate": "high (completes 80%+ of enrolled courses)",
-            "preferred_lesson_length": "20-40 minutes with comprehensive notes",
-            "learning_time": "weekend mornings or dedicated evening blocks",
-            "motivation_trigger": "mastery of subject, solving complex problems",
-            "dropout_trigger": "gimmicky features, shallow summaries, unvetted instructors",
-            "gamification_response": "low — finds badges and sounds patronizing",
-            "subscription_preference": "willing to pay annual fee for high-quality library",
-            "device": "desktop / dual monitor"
+    "Power User / Optimizer": {
+        "description": "Deeply explores features, seeks maximum control, customization, and efficiency; hates dumbed-down interfaces.",
+        "personality_traits": ["analytical", "exacting", "tech-savvy", "detail-oriented"],
+        "behavioral_patterns": {
+            "tech_adoption": "early adopter / enthusiast",
+            "decision_speed": "fast once technical specs and performance are verified",
+            "primary_driver": "productivity boost, depth of capability, and workflow integration",
+            "churn_trigger": "simplistic design, lack of keyboard shortcuts/APIs, or performance lags",
+            "device_usage": "multi-monitor desktop and high-end devices"
         },
         "psychological_profile": {
             "mbti": "INTJ",
             "risk_tolerance": "high",
-            "motivation_type": "intrinsic",
+            "motivation_type": "intrinsic-mastery",
             "decision_style": "evidence-based",
-            "attention_span": "long"
+            "attention_span": "long and meticulous"
         },
         "opinion_seeds": {
             "price_sensitivity": 0.30,
-            "gamification_appeal": 0.15,
-            "long_video_tolerance": 0.90,
-            "social_learning_interest": 0.25,
-            "certificate_value": 0.60,
-            "overall_sentiment_bias": 0.55
+            "openness_to_change": 0.85,
+            "tech_comfort": 0.95,
+            "feature_complexity_tolerance": 0.90,
+            "overall_sentiment_bias": 0.60
         }
     },
-    "Career Switcher": {
-        "personality_traits": ["goal-oriented", "pragmatic", "time-pressured"],
-        "learning_behavioral_patterns": {
-            "platform_familiarity": ["Coursera", "Udemy", "LinkedIn Learning"],
-            "course_completion_rate": "high if syllabus guarantees hiring outcomes",
-            "preferred_lesson_length": "10-15 minutes with portfolio projects",
-            "learning_time": "weekday evenings after full-time job",
-            "motivation_trigger": "tangible resume items, interview prep, salary boost",
-            "dropout_trigger": "outdated tech stack, lack of verified credentials",
-            "gamification_response": "medium — appreciates progress bars towards portfolio goals",
-            "subscription_preference": "outcome-based subscription or company reimbursement",
-            "device": "laptop"
+    "Busy Professional / Outcome-Driven": {
+        "description": "Extremely time-pressured; needs instant clarity and quick time-to-value; gladly pays if it saves time.",
+        "personality_traits": ["goal-oriented", "decisive", "pragmatic", "impatient"],
+        "behavioral_patterns": {
+            "tech_adoption": "early majority — adopts whatever solves their immediate bottleneck",
+            "decision_speed": "rapid if immediate ROI is evident",
+            "primary_driver": "time-saving, friction-free onboarding, and tangible outcomes",
+            "churn_trigger": "steep learning curves, complicated setup, or unreliable workflows",
+            "device_usage": "laptop and smartphone on the go"
         },
         "psychological_profile": {
             "mbti": "ENTJ",
             "risk_tolerance": "medium",
             "motivation_type": "extrinsic-career",
             "decision_style": "ROI-driven",
-            "attention_span": "moderate"
+            "attention_span": "short-burst and task-focused"
         },
         "opinion_seeds": {
-            "price_sensitivity": 0.45,
-            "gamification_appeal": 0.45,
-            "long_video_tolerance": 0.60,
-            "social_learning_interest": 0.50,
-            "certificate_value": 0.95,
-            "overall_sentiment_bias": 0.60
+            "price_sensitivity": 0.35,
+            "openness_to_change": 0.70,
+            "tech_comfort": 0.75,
+            "feature_complexity_tolerance": 0.50,
+            "overall_sentiment_bias": 0.65
         }
     },
-    "Casual Browser": {
-        "personality_traits": ["curious", "low-commitment", "recreational"],
-        "learning_behavioral_patterns": {
-            "platform_familiarity": ["Duolingo", "Skillshare", "YouTube"],
-            "course_completion_rate": "very low (browses many, finishes rare)",
-            "preferred_lesson_length": "under 5 minutes",
-            "learning_time": "irregular, during downtime or waiting periods",
-            "motivation_trigger": "casual curiosity, entertainment",
-            "dropout_trigger": "quizzes with harsh fail states or mandatory homework",
-            "gamification_response": "high — enjoys fun visual themes and mini-games",
-            "subscription_preference": "freemium with ads, will rarely pay",
-            "device": "mobile"
+    "Casual Explorer": {
+        "description": "Browses with low initial commitment; driven by curiosity, social proof, or sleek aesthetics.",
+        "personality_traits": ["curious", "spontaneous", "aesthetic-minded", "easily distracted"],
+        "behavioral_patterns": {
+            "tech_adoption": "trend follower — joins via social buzz or casual recommendations",
+            "decision_speed": "impulsive but non-committal",
+            "primary_driver": "entertainment, curiosity, and enjoyable user experience",
+            "churn_trigger": "rigid setup, overwhelming cognitive load, or early paywalls",
+            "device_usage": "primarily mobile"
         },
         "psychological_profile": {
-            "mbti": "INFP",
-            "risk_tolerance": "low",
+            "mbti": "ENFP",
+            "risk_tolerance": "medium",
             "motivation_type": "intrinsic-recreational",
             "decision_style": "spontaneous",
             "attention_span": "short"
         },
         "opinion_seeds": {
-            "price_sensitivity": 0.95,
-            "gamification_appeal": 0.80,
-            "long_video_tolerance": 0.10,
-            "social_learning_interest": 0.40,
-            "certificate_value": 0.20,
-            "overall_sentiment_bias": 0.45
+            "price_sensitivity": 0.80,
+            "openness_to_change": 0.75,
+            "tech_comfort": 0.65,
+            "feature_complexity_tolerance": 0.25,
+            "overall_sentiment_bias": 0.55
+        }
+    },
+    "Skeptical Traditionalist": {
+        "description": "Satisfied with their existing habits or legacy tools; highly resistant to change unless reliability is guaranteed.",
+        "personality_traits": ["conservative", "thorough", "cautious", "habit-driven"],
+        "behavioral_patterns": {
+            "tech_adoption": "late adopter / laggard",
+            "decision_speed": "very slow; requires external validation and proven track record",
+            "primary_driver": "stability, data privacy, and zero disruption to routine",
+            "churn_trigger": "bugs, unannounced UI overhauls, or feeling patronized",
+            "device_usage": "desktop or standard mobile"
+        },
+        "psychological_profile": {
+            "mbti": "ISFJ",
+            "risk_tolerance": "very low",
+            "motivation_type": "status-quo preservation",
+            "decision_style": "risk-averse",
+            "attention_span": "methodical"
+        },
+        "opinion_seeds": {
+            "price_sensitivity": 0.65,
+            "openness_to_change": 0.15,
+            "tech_comfort": 0.45,
+            "feature_complexity_tolerance": 0.30,
+            "overall_sentiment_bias": 0.35
         }
     }
 }
+
+# Alias for backwards compatibility
+ARCHETYPE_PROFILES = UNIVERSAL_ARCHETYPES

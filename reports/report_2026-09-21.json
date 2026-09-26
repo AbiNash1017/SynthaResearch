@@ -1,0 +1,85 @@
+{
+  "executive_summary": "Evaluation of foodpanda reveals actionable feedback across 5 synthetic user profiles in the restaurent owners, and cloud kitchens, any demographics above 15 years space.",
+  "themes": [
+    "apple health (4 mentions)",
+    "safety safe (4 mentions)",
+    "biggest barrier (3 mentions)",
+    "back back (3 mentions)",
+    "health garmin (3 mentions)"
+  ],
+  "sentiment_distribution": {
+    "positive": 0.0,
+    "neutral": 0.0,
+    "negative": 1.0
+  },
+  "sentiment_analysis": "User reception shows 0% positive interest balanced with practical adoption concerns.",
+  "behavioral_trends": [
+    {
+      "group": "Budget-Conscious Pragmatist",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: price increases, hidden fees, or low perceived return on spend."
+    },
+    {
+      "group": "Power User / Optimizer",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: simplistic design, lack of keyboard shortcuts/APIs, or performance lags."
+    },
+    {
+      "group": "Busy Professional / Outcome-Driven",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: steep learning curves, complicated setup, or unreliable workflows."
+    },
+    {
+      "group": "Casual Explorer",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: rigid setup, overwhelming cognitive load, or early paywalls."
+    },
+    {
+      "group": "Skeptical Traditionalist",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: bugs, unannounced UI overhauls, or feeling patronized."
+    }
+  ],
+  "critical_objections": [
+    "Switching cost and friction from established habits",
+    "Uncertainty around sustained daily utility"
+  ],
+  "top_insights": [
+    "VALUE PROPOSITION: Clear ROI messaging is vital for foodpanda when targeting restaurent owners, and cloud kitchens, any demographics above 15 years.",
+    "ONBOARDING FRICTION: Minimizing time-to-first-value is the primary determinant of long-term adoption across cohorts.",
+    "PRICING MODEL: Cohorts express reluctance toward aggressive upfront commitments without hands-on trial periods.",
+    "DIFFERENTIATION: Focus core messaging on resolving specific bottlenecks rather than broad feature lists."
+  ],
+  "per_persona_breakdown": [
+    {
+      "id": "persona_001",
+      "name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "key_takeaway": "Stance shaped by: Strictly value-driven; requires clear proof of time/cost savings."
+    },
+    {
+      "id": "persona_002",
+      "name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "key_takeaway": "Stance shaped by: Strictly value-driven; requires clear proof of time/cost savings."
+    },
+    {
+      "id": "persona_003",
+      "name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "key_takeaway": "Stance shaped by: Strictly value-driven; requires clear proof of time/cost savings."
+    },
+    {
+      "id": "persona_004",
+      "name": "Elena Vance",
+      "archetype": "Casual Explorer",
+      "key_takeaway": "Stance shaped by: Strictly value-driven; requires clear proof of time/cost savings."
+    },
+    {
+      "id": "persona_005",
+      "name": "Marcus Chen",
+      "archetype": "Skeptical Traditionalist",
+      "key_takeaway": "Stance shaped by: Strictly value-driven; requires clear proof of time/cost savings."
+    }
+  ],
+  "report_date": "2026-09-21",
+  "product": "foodpanda",
+  "persona_count": 5,
+  "survey_questions_asked": 2,
+  "interview_sessions_count": 4
+}
