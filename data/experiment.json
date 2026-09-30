@@ -1,12 +1,11 @@
 {
-  "product_name": "foodpanda",
-  "industry_domain": "restaurents and food nilling utility",
-  "product_description": "A crm that i scutomizable for all restuarent needs as per ther menus, price and discount",
-  "target_audience": "restaurent owners, and cloud kitchens, any demographics above 15 years",
+  "product_name": "Syncscribe",
+  "industry_domain": "A collabrative multi document editor and manager with offline first principle",
+  "product_description": "The product is developed to keep busy professionals value there time and document all synced at one place without ever opening there laptop to write the same file while they can do it in there phone even when they are offline",
+  "target_audience": "Working professionals, students and all demographics",
   "research_objectives": [
-    "to analyze the product usecase",
-    "does the product has a market and need",
-    "is this addaptable to all restuarents and kitechen across gloabe to be adapted"
+    "To see the purpose of the syncscribe is being fullfilled and user are not having any document syn or poor user experience",
+    "To very various contiruntors are able to continrute to there wok in the file from anywhere without loosing the edge and loosing theer conente when offline"
   ],
-  "created_at": "2026-09-21T17:57:59.599281"
+  "created_at": "2026-09-30T12:49:08.176885"
 }

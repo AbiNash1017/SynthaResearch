@@ -1,68 +1,268 @@
 {
-  "survey_id": "survey_1789630616",
-  "product_name": "HydraGlow",
+  "survey_id": "survey_1790753049",
+  "product_name": "Syncscribe",
   "questions": [
-    "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
-    "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?"
+    "What is your single biggest frustration with current tools or methods you use in this space?",
+    "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+    "What pricing structure or monthly amount would you consider fair for this solution?"
   ],
   "responses": [
     {
       "persona_id": "persona_001",
-      "persona_name": "Maya Chen",
-      "archetype": "Data-Driven Wellness Optimizer",
+      "persona_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
       "answers": [
         {
-          "question": "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
-          "answer": "The biggest barrier for me is forgetting to drink during back-to-back meetings, not really tracking my intake in real time. I’d be fairly likely to switch at $79 if HydraGlow syncs cleanly with Apple Health and Garmin, gives accurate hydration insights, and has reminders that feel helpful rather than annoying; I’d hesitate if the app sync is clunky, the lid leaks, the battery is weak, or the estimates feel gimmicky.",
+          "question": "What is your single biggest frustration with current tools or methods you use in this space?",
+          "answer": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google Classroom. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
           "sentiment": "negative",
-          "key_phrase": "The biggest barrier for me is forgetting to drink during back-to-back meetings,"
+          "key_phrase": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google"
         },
         {
-          "question": "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?",
-          "answer": "I’d want gentle reminders about every 60–90 minutes during the workday, with meeting and sleep quiet hours; if push notifications exceeded roughly two or three per day, I’d start disabling them. Apple Health and Garmin sync would be essential to keeping HydraGlow—I’d stop using it if the data was inaccurate or the integration felt unreliable.",
+          "question": "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+          "answer": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google Classroom. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
           "sentiment": "negative",
-          "key_phrase": "I’d want gentle reminders about every 60–90 minutes during the workday, with"
+          "key_phrase": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google"
+        },
+        {
+          "question": "What pricing structure or monthly amount would you consider fair for this solution?",
+          "answer": "When it comes to my wallet, I'm pretty straightforward: Cautious and ROI-focused: Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time. Prefers low upfront risk or clear trial period.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+          "sentiment": "negative",
+          "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Cautious and ROI-focused:"
         }
       ]
     },
     {
       "persona_id": "persona_002",
-      "persona_name": "Andre Williams",
-      "archetype": "Practical Desk-Worker Seeker",
+      "persona_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
       "answers": [
         {
-          "question": "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
-          "answer": "As a 42-year-old Operations Manager here in Atlanta, my biggest barrier is getting interrupted so badly that I forget to drink until I’m already tense or getting that afternoon headache. I’d be maybe a 6 out of 10 on switching to HydraGlow at $79 if it quietly reminds me without nagging and actually helps me hit my daily goal, but I’d hesitate if it needs too much charging, has a confusing app, or feels like just another gadget I’ll eventually ignore.",
+          "question": "What is your single biggest frustration with current tools or methods you use in this space?",
+          "answer": "Right now, my default routine revolves around Teachable, Loom video recordings, and Discord student community. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
           "sentiment": "negative",
-          "key_phrase": "As a 42-year-old Operations Manager here in Atlanta, my biggest barrier is"
+          "key_phrase": "Right now, my default routine revolves around Teachable, Loom video recordings, and"
         },
         {
-          "question": "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?",
-          "answer": "I’d want reminders about every 90 minutes to two hours during the workday, preferably through the bottle’s LED first and phone alerts only when I’ve ignored it. If notifications repeat after I dismiss them, interrupt meetings, or feel like nagging more than twice a day, I’ll disable them and may uninstall the app; Apple Health and Garmin sync would be nice, but I’d keep using it even without them as long as the reminders are reliable.",
+          "question": "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+          "answer": "Right now, my default routine revolves around Teachable, Loom video recordings, and Discord student community. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
           "sentiment": "negative",
-          "key_phrase": "I’d want reminders about every 90 minutes to two hours during the"
+          "key_phrase": "Right now, my default routine revolves around Teachable, Loom video recordings, and"
+        },
+        {
+          "question": "What pricing structure or monthly amount would you consider fair for this solution?",
+          "answer": "When it comes to my wallet, I'm pretty straightforward: High budget tolerance for depth: Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time, provided deep customization and automation are included.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+          "sentiment": "negative",
+          "key_phrase": "When it comes to my wallet, I'm pretty straightforward: High budget tolerance"
         }
       ]
     },
     {
       "persona_id": "persona_003",
-      "persona_name": "Sofia Ramirez",
-      "archetype": "Social Fitness Enthusiast",
+      "persona_name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
       "answers": [
         {
-          "question": "When you try to meet your daily hydration goal, what is the biggest barrier you face, and how likely would you be to switch from your current bottle or routine to HydraGlow at $79? What feature or outcome would make that price feel justified, and what would make you hesitate to buy?",
-          "answer": "The biggest barrier for me is staying on track during back-to-back classes when I’m coaching and completely lose track of time. I’d be moderately likely to switch at $79 if HydraGlow synced with my Garmin, gave helpful reminders without interrupting coaching, and looked stylish enough to keep in my gym bag. I’d hesitate if the reminders felt annoying, the bottle leaked, or the tracking seemed like something my current bottle and routine could already handle.",
+          "question": "What is your single biggest frustration with current tools or methods you use in this space?",
+          "answer": "Right now, my default routine revolves around Moodle, Notion course syllabus, and grading spreadsheets. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
           "sentiment": "negative",
-          "key_phrase": "The biggest barrier for me is staying on track during back-to-back classes"
+          "key_phrase": "Right now, my default routine revolves around Moodle, Notion course syllabus, and"
         },
         {
-          "question": "How often would you want hydration reminders, and at what point would push notifications feel intrusive enough to disable or uninstall the app? How important would Apple Health and Garmin synchronization be in deciding whether to keep using HydraGlow?",
-          "answer": "I’d want gentle reminders every 60–90 minutes during busy Austin coaching days, especially between back-to-back classes, but not while I’m actively leading a session; if notifications interrupt my work more than once or twice a week, I’d disable them or uninstall the app. Garmin sync would be essential, and Apple Health sync would be a strong bonus, because I already rely on Garmin for my fitness data and wouldn’t want HydraGlow creating another disconnected routine.",
+          "question": "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+          "answer": "Right now, my default routine revolves around Moodle, Notion course syllabus, and grading spreadsheets. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
           "sentiment": "negative",
-          "key_phrase": "I’d want gentle reminders every 60–90 minutes during busy Austin coaching days,"
+          "key_phrase": "Right now, my default routine revolves around Moodle, Notion course syllabus, and"
+        },
+        {
+          "question": "What pricing structure or monthly amount would you consider fair for this solution?",
+          "answer": "When it comes to my wallet, I'm pretty straightforward: Willing to pay a premium immediately if onboarding takes under 10 minutes and eliminates difficulty providing individualized feedback acros.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+          "sentiment": "negative",
+          "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Willing to pay"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_004",
+      "persona_name": "Elena Vance",
+      "archetype": "Casual Explorer",
+      "answers": [
+        {
+          "question": "What is your single biggest frustration with current tools or methods you use in this space?",
+          "answer": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and email threads. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+          "sentiment": "negative",
+          "key_phrase": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and"
+        },
+        {
+          "question": "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+          "answer": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and email threads. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+          "sentiment": "negative",
+          "key_phrase": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and"
+        },
+        {
+          "question": "What pricing structure or monthly amount would you consider fair for this solution?",
+          "answer": "When it comes to my wallet, I'm pretty straightforward: Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+          "sentiment": "negative",
+          "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Willing to pay"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_005",
+      "persona_name": "Marcus Chen",
+      "archetype": "Skeptical Traditionalist",
+      "answers": [
+        {
+          "question": "What is your single biggest frustration with current tools or methods you use in this space?",
+          "answer": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and WhatsApp study groups. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+          "sentiment": "negative",
+          "key_phrase": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and"
+        },
+        {
+          "question": "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+          "answer": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and WhatsApp study groups. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+          "sentiment": "negative",
+          "key_phrase": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and"
+        },
+        {
+          "question": "What pricing structure or monthly amount would you consider fair for this solution?",
+          "answer": "When it comes to my wallet, I'm pretty straightforward: Skeptical about new software fees: Requires proven track record before replacing Coursera.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+          "sentiment": "negative",
+          "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Skeptical about new"
         }
       ]
     }
   ],
-  "created_at": "2026-09-17T13:06:56.547647"
+  "created_at": "2026-09-30T12:54:09.942280",
+  "matrix": {
+    "survey_id": "survey_1790753049",
+    "product_name": "Syncscribe",
+    "persona_count": 5,
+    "questions": [
+      {
+        "question_index": 1,
+        "question": "What is your single biggest frustration with current tools or methods you use in this space?",
+        "persona_answers": {
+          "persona_001": {
+            "persona_name": "Alex Rivera",
+            "archetype": "Budget-Conscious Pragmatist",
+            "answer": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google Classroom. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google"
+          },
+          "persona_002": {
+            "persona_name": "Priya Nair",
+            "archetype": "Power User / Optimizer",
+            "answer": "Right now, my default routine revolves around Teachable, Loom video recordings, and Discord student community. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Teachable, Loom video recordings, and"
+          },
+          "persona_003": {
+            "persona_name": "Jordan Smith",
+            "archetype": "Busy Professional / Outcome-Driven",
+            "answer": "Right now, my default routine revolves around Moodle, Notion course syllabus, and grading spreadsheets. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Moodle, Notion course syllabus, and"
+          },
+          "persona_004": {
+            "persona_name": "Elena Vance",
+            "archetype": "Casual Explorer",
+            "answer": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and email threads. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and"
+          },
+          "persona_005": {
+            "persona_name": "Marcus Chen",
+            "archetype": "Skeptical Traditionalist",
+            "answer": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and WhatsApp study groups. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and"
+          }
+        }
+      },
+      {
+        "question_index": 2,
+        "question": "If Syncscribe could solve that problem reliably, what would make you hesitate to switch?",
+        "persona_answers": {
+          "persona_001": {
+            "persona_name": "Alex Rivera",
+            "archetype": "Budget-Conscious Pragmatist",
+            "answer": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google Classroom. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Canvas LMS, Zoom, and Google"
+          },
+          "persona_002": {
+            "persona_name": "Priya Nair",
+            "archetype": "Power User / Optimizer",
+            "answer": "Right now, my default routine revolves around Teachable, Loom video recordings, and Discord student community. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Teachable, Loom video recordings, and"
+          },
+          "persona_003": {
+            "persona_name": "Jordan Smith",
+            "archetype": "Busy Professional / Outcome-Driven",
+            "answer": "Right now, my default routine revolves around Moodle, Notion course syllabus, and grading spreadsheets. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Moodle, Notion course syllabus, and"
+          },
+          "persona_004": {
+            "persona_name": "Elena Vance",
+            "archetype": "Casual Explorer",
+            "answer": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and email threads. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Blackboard, Turnitin plagiarism checker, and"
+          },
+          "persona_005": {
+            "persona_name": "Marcus Chen",
+            "archetype": "Skeptical Traditionalist",
+            "answer": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and WhatsApp study groups. Switching to Syncscribe would require a noticeable improvement in convenience, because changing habits is friction-heavy. It would have to make communicating with Working professionals, students and all demographics radically smoother before I'd make the jump.",
+            "sentiment": "negative",
+            "key_phrase": "Right now, my default routine revolves around Coursera, PDF assignment worksheets, and"
+          }
+        }
+      },
+      {
+        "question_index": 3,
+        "question": "What pricing structure or monthly amount would you consider fair for this solution?",
+        "persona_answers": {
+          "persona_001": {
+            "persona_name": "Alex Rivera",
+            "archetype": "Budget-Conscious Pragmatist",
+            "answer": "When it comes to my wallet, I'm pretty straightforward: Cautious and ROI-focused: Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time. Prefers low upfront risk or clear trial period.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+            "sentiment": "negative",
+            "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Cautious and ROI-focused:"
+          },
+          "persona_002": {
+            "persona_name": "Priya Nair",
+            "archetype": "Power User / Optimizer",
+            "answer": "When it comes to my wallet, I'm pretty straightforward: High budget tolerance for depth: Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time, provided deep customization and automation are included.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+            "sentiment": "negative",
+            "key_phrase": "When it comes to my wallet, I'm pretty straightforward: High budget tolerance"
+          },
+          "persona_003": {
+            "persona_name": "Jordan Smith",
+            "archetype": "Busy Professional / Outcome-Driven",
+            "answer": "When it comes to my wallet, I'm pretty straightforward: Willing to pay a premium immediately if onboarding takes under 10 minutes and eliminates difficulty providing individualized feedback acros.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+            "sentiment": "negative",
+            "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Willing to pay"
+          },
+          "persona_004": {
+            "persona_name": "Elena Vance",
+            "archetype": "Casual Explorer",
+            "answer": "When it comes to my wallet, I'm pretty straightforward: Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+            "sentiment": "negative",
+            "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Willing to pay"
+          },
+          "persona_005": {
+            "persona_name": "Marcus Chen",
+            "archetype": "Skeptical Traditionalist",
+            "answer": "When it comes to my wallet, I'm pretty straightforward: Skeptical about new software fees: Requires proven track record before replacing Coursera.. I'm already paying for several essentials, so unless Syncscribe provides undeniable daily utility that saves me time, I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it.",
+            "sentiment": "negative",
+            "key_phrase": "When it comes to my wallet, I'm pretty straightforward: Skeptical about new"
+          }
+        }
+      }
+    ],
+    "created_at": "2026-09-30T12:54:09.942280"
+  }
 }

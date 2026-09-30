@@ -1,166 +1,62 @@
 [
   {
     "id": "persona_001",
-    "name": "Maya Chen",
-    "age": 34,
-    "gender": "Female",
-    "occupation": "Senior Product Manager",
-    "location": "Toronto, Canada",
-    "income_bracket": "high",
-    "education": "Bachelor's degree in Computer Science",
-    "archetype": "Strategic Remote Team Lead",
+    "name": "Alex Rivera",
+    "archetype": "Budget-Conscious Pragmatist",
     "personality_traits": [
-      "organized",
-      "analytical",
-      "collaborative"
+      "frugal",
+      "cautious"
     ],
     "behavioral_patterns": {
-      "current_tools": "Uses Jira, Slack, Notion, Google Calendar, and Asana to coordinate roadmap work across a distributed product team.",
-      "usage_frequency": "Daily; manages goals, sprint planning, stakeholder updates, and cross-functional blockers every workday.",
-      "primary_pain_points": "Important blockers get buried in Slack threads, meetings consume too much focus time, and team goals are not always visible across regions.",
-      "willingness_to_pay": "Willing to pay a premium if the tool reduces meeting load, improves visibility, and integrates with existing project management systems.",
-      "churn_triggers": "Poor integrations, inaccurate AI summaries, excessive notifications, or lack of executive-level reporting.",
-      "feature_priorities": "AI meeting reduction, goal tracking, blocker detection, team dashboards, Slack and Jira integrations, and customizable reporting."
+      "current_tools": "Manual GitHub PR reviews",
+      "primary_pain_points": "Slow turnaround on reviews",
+      "willingness_to_pay": "Reluctant without proven ROI",
+      "churn_triggers": "Excessive cost per seat"
     },
-    "psychological_profile": {
-      "mbti": "INTJ",
-      "risk_tolerance": "medium",
-      "motivation_type": "intrinsic",
-      "decision_style": "analytical"
-    },
-    "background_story": "Maya leads a product team spread across North America and Europe, and she spends a large portion of her week reconciling updates from multiple tools. She is interested in FocusFlow because it promises to reduce meeting overhead and make blockers more visible. She will trial the product if it can demonstrate clear time savings within the first month.",
     "opinion_seeds": {
-      "price_sensitivity": 0.35,
-      "tech_comfort": 0.88,
-      "overall_sentiment_bias": 0.55
-    },
-    "memory": {
-      "conversation_history": [],
-      "established_opinions": {},
-      "last_updated": "2026-09-21T17:52:21.700833"
+      "overall_sentiment_bias": 0.4,
+      "openness_to_change": 0.35,
+      "price_sensitivity": 0.85
     }
   },
   {
     "id": "persona_002",
-    "name": "Daniel Okafor",
-    "age": 29,
-    "gender": "Male",
-    "occupation": "Remote Software Engineer",
-    "location": "Lagos, Nigeria",
-    "income_bracket": "middle",
-    "education": "Bachelor's degree in Information Technology",
-    "archetype": "Focused Individual Contributor",
+    "name": "Priya Nair",
+    "archetype": "Power User / Optimizer",
     "personality_traits": [
-      "curious",
-      "independent",
-      "practical"
+      "analytical",
+      "tech-savvy"
     ],
     "behavioral_patterns": {
-      "current_tools": "Uses GitHub, Linear, Slack, Notion, and personal notes to track tasks, documentation, and async updates.",
-      "usage_frequency": "Several times per week; struggles most when team context changes quickly or blockers affect delivery timelines.",
-      "primary_pain_points": "Frequent context switching, unclear ownership of tasks, too many status meetings, and difficulty knowing when help is needed.",
-      "willingness_to_pay": "Prefers a low-cost individual plan or free tier; likely to pay more only if the app directly saves personal time.",
-      "churn_triggers": "Complicated onboarding, high subscription cost, forced team adoption, or AI outputs that require too much manual correction.",
-      "feature_priorities": "Simple task blocking, AI-generated summaries, async check-ins, calendar integration, and minimal notifications."
+      "current_tools": "CLI and custom linters",
+      "primary_pain_points": "Superficial linter comments without architectural context",
+      "willingness_to_pay": "$40/mo easily justified if deep",
+      "churn_triggers": "Hallucinated recommendations"
     },
-    "psychological_profile": {
-      "mbti": "ISTP",
-      "risk_tolerance": "low",
-      "motivation_type": "extrinsic",
-      "decision_style": "pragmatic"
-    },
-    "background_story": "Daniel works remotely for a startup and values deep focus, but his day is often interrupted by pings, meetings, and unclear priorities. He is skeptical of productivity tools that add more admin work, so he would test FocusFlow mainly to protect focus time. His feedback would likely emphasize usability, speed, and whether the tool fits naturally into an existing engineering workflow.",
     "opinion_seeds": {
-      "price_sensitivity": 0.78,
-      "tech_comfort": 0.82,
-      "overall_sentiment_bias": 0.4
-    },
-    "memory": {
-      "conversation_history": [],
-      "established_opinions": {},
-      "last_updated": "2026-09-21T17:52:21.700833"
+      "overall_sentiment_bias": 0.7,
+      "openness_to_change": 0.85,
+      "price_sensitivity": 0.25
     }
   },
   {
     "id": "persona_003",
-    "name": "Sofia Alvarez",
-    "age": 42,
-    "gender": "Female",
-    "occupation": "Operations Director",
-    "location": "Mexico City, Mexico",
-    "income_bracket": "middle",
-    "education": "Master's degree in Business Administration",
-    "archetype": "Process-Oriented Distributed Operations Leader",
+    "name": "Jordan Smith",
+    "archetype": "Busy Professional / Outcome-Driven",
     "personality_traits": [
-      "detail-oriented",
-      "empathetic",
-      "structured"
+      "decisive",
+      "impatient"
     ],
     "behavioral_patterns": {
-      "current_tools": "Uses Microsoft Teams, Outlook, Trello, Excel trackers, and recurring video calls to coordinate operations across regional teams.",
-      "usage_frequency": "Daily; regularly tracks team priorities, resolves delays, and prepares operational updates for leadership.",
-      "primary_pain_points": "She spends too much time collecting status updates, tracking unresolved issues manually, and running meetings that could be handled asynchronously.",
-      "willingness_to_pay": "Open to team-based pricing if the tool improves operational visibility and reduces manual reporting effort.",
-      "churn_triggers": "Lack of regional accessibility, unclear admin controls, poor mobile experience, or failure to support asynchronous communication.",
-      "feature_priorities": "Team goal visibility, blocker escalation, automated status reporting, simple dashboards, multilingual support, and mobile access."
+      "current_tools": "Jira and Slack alerts",
+      "primary_pain_points": "PR review bottlenecks blocking sprint releases",
+      "willingness_to_pay": "Gladly pays company card",
+      "churn_triggers": "Complex onboarding setup"
     },
-    "psychological_profile": {
-      "mbti": "ESFJ",
-      "risk_tolerance": "medium",
-      "motivation_type": "intrinsic",
-      "decision_style": "collaborative"
-    },
-    "background_story": "Sofia manages operations for a remote-first services company with team members in Latin America, the United States, and Europe. She is responsible for keeping work moving without relying on constant meetings. She would be interested in FocusFlow if it helps her spot risks early and gives her teams a shared place to communicate priorities.",
     "opinion_seeds": {
-      "price_sensitivity": 0.55,
-      "tech_comfort": 0.68,
-      "overall_sentiment_bias": 0.6
-    },
-    "memory": {
-      "conversation_history": [],
-      "established_opinions": {},
-      "last_updated": "2026-09-21T17:52:21.700833"
-    }
-  },
-  {
-    "id": "persona_004",
-    "name": "Amara Hassan",
-    "age": 26,
-    "gender": "Female",
-    "occupation": "Freelance Content Strategist",
-    "location": "Dubai, United Arab Emirates",
-    "income_bracket": "low",
-    "education": "Self-taught digital marketing professional",
-    "archetype": "Flexible Independent Knowledge Worker",
-    "personality_traits": [
-      "creative",
-      "adaptable",
-      "social"
-    ],
-    "behavioral_patterns": {
-      "current_tools": "Uses Trello, Google Docs, WhatsApp, Calendly, and Instagram DMs to manage client projects and communication.",
-      "usage_frequency": "Weekly to daily depending on client deadlines; often juggles multiple clients and changing priorities.",
-      "primary_pain_points": "Client requests arrive through scattered channels, deadlines are easy to miss, and she struggles to identify which tasks are blocking progress.",
-      "willingness_to_pay": "Highly price-sensitive; would prefer a free plan, freemium model, or low monthly subscription with clear value.",
-      "churn_triggers": "Too many team features she does not need, complex setup, expensive upgrades, or limited mobile functionality.",
-      "feature_priorities": "Client project tracking, deadline reminders, simple AI prioritization, lightweight reporting, and integrations with communication apps."
-    },
-    "psychological_profile": {
-      "mbti": "ENFP",
-      "risk_tolerance": "high",
-      "motivation_type": "extrinsic",
-      "decision_style": "intuitive"
-    },
-    "background_story": "Amara runs her own content strategy business and works with international clients across different time zones. She likes productivity tools but often abandons them if they feel too corporate or time-consuming. She would be open to FocusFlow if it helps her stay organized, communicate blockers clearly, and manage her workload without adding administrative burden.",
-    "opinion_seeds": {
-      "price_sensitivity": 0.9,
-      "tech_comfort": 0.75,
-      "overall_sentiment_bias": 0.7
-    },
-    "memory": {
-      "conversation_history": [],
-      "established_opinions": {},
-      "last_updated": "2026-09-21T17:52:21.700833"
+      "overall_sentiment_bias": 0.75,
+      "openness_to_change": 0.75,
+      "price_sensitivity": 0.3
     }
   }
 ]

@@ -36,6 +36,12 @@ UNIVERSAL_TOPIC_KEYWORDS = {
         "okay", "ok", "got it", "cool", "fine", "alright", "all right", "great",
         "nice", "interesting", "understood", "makes sense", "sure", "thanks", "thank you"
     ],
+    "adoption_intent": [
+        "would you use", "would you buy", "would you pay", "will you use", "would use",
+        "adopt", "adoption", "recommend", "try", "switch to", "sign up", "purchase",
+        "install", "use this product", "likely to use", "likelihood", "interest in using",
+        "worth buying", "intend to use", "decision to buy"
+    ],
     "greeting": [
         "hello", "hi", "hey", "good morning", "good evening", "how are you", "who are you"
     ]

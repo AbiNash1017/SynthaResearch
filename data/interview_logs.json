@@ -120,5 +120,21 @@
       }
     ],
     "session_started": "2026-09-21T17:59:36.466433"
+  },
+  {
+    "session_id": "session_1790444465",
+    "product_name": "Craeer foods",
+    "persona_id": "persona_001",
+    "persona_name": "Alex Rivera",
+    "archetype": "Budget-Conscious Pragmatist",
+    "turns": [
+      {
+        "turn": 1,
+        "user_message": "how do u like our product how does it help in your cloud kitchen",
+        "persona_response": "From my point of view as someone who's generally practical and frugal, my reaction to Craeer foods comes down to daily friction. I deal with Friction and time wasted with existing solutions in resturnt chain oners and cloud kitchen regularly, and if this app can genuinely make that easier without price increases, hidden fees, or low perceived return on spend, I'd be interested—otherwise, I'll probably just stick to Traditional manual tools and spreadsheets for resturnt chain oners and cloud kitchen.",
+        "timestamp": "2026-09-26T23:11:20.144437"
+      }
+    ],
+    "session_started": "2026-09-26T23:11:20.144437"
   }
 ]

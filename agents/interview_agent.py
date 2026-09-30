@@ -71,54 +71,57 @@ class InterviewAgent:
         session_turns = []
         turn_num = 1
 
-        while True:
-            try:
+        try:
+            while True:
+                try:
+                    if HAS_RICH and console:
+                        user_msg = console.input("[bold green]You:[/bold green] ").strip()
+                    else:
+                        user_msg = input("You: ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    break
+
+                if not user_msg:
+                    continue
+
+                if user_msg.lower() in ["exit", "quit", "end"]:
+                    _print_msg("[dim]Interview session ended.[/dim]")
+                    break
+
+                response = PersonaMemoryModule.generate_response(
+                    persona=persona,
+                    question=user_msg,
+                    experiment=experiment,
+                    mode="interview"
+                )
+
                 if HAS_RICH and console:
-                    user_msg = console.input("[bold green]You:[/bold green] ").strip()
+                    console.print(f"[bold cyan]{persona['name']}:[/bold cyan] {response}\n")
                 else:
-                    user_msg = input("You: ").strip()
-            except (EOFError, KeyboardInterrupt):
-                break
+                    print(f"{persona['name']}: {response}\n")
 
-            if not user_msg:
-                continue
+                session_turns.append({
+                    "turn": turn_num,
+                    "user_message": user_msg,
+                    "persona_response": response,
+                    "timestamp": datetime.now().isoformat()
+                })
+                turn_num += 1
 
-            if user_msg.lower() in ["exit", "quit", "end"]:
-                _print_msg("[dim]Interview session ended.[/dim]")
-                break
+                PersonaMemoryModule.update_persona_pool(persona, self.persona_path)
 
-            response = PersonaMemoryModule.generate_response(
-                persona=persona,
-                question=user_msg,
-                experiment=experiment,
-                mode="interview"
-            )
-
-            if HAS_RICH and console:
-                console.print(f"[bold cyan]{persona['name']}:[/bold cyan] {response}\n")
-            else:
-                print(f"{persona['name']}: {response}\n")
-
-            session_turns.append({
-                "turn": turn_num,
-                "user_message": user_msg,
-                "persona_response": response,
-                "timestamp": datetime.now().isoformat()
-            })
-            turn_num += 1
-
-            PersonaMemoryModule.update_persona_pool(persona, self.persona_path)
-
-        if session_turns:
-            all_logs = load_json(self.logs_path, [])
-            all_logs.append({
-                "session_id": session_id,
-                "product_name": p_name,
-                "persona_id": persona["id"],
-                "persona_name": persona["name"],
-                "archetype": persona.get("archetype", "User"),
-                "turns": session_turns,
-                "session_started": session_turns[0]["timestamp"]
-            })
-            save_json(self.logs_path, all_logs)
-            _print_msg(f"[bold green]Saved {len(session_turns)} interview turns to {self.logs_path}[/bold green]")
+        finally:
+            if session_turns:
+                all_logs = load_json(self.logs_path, [])
+                all_logs.append({
+                    "session_id": session_id,
+                    "product_name": p_name,
+                    "persona_id": persona["id"],
+                    "persona_name": persona["name"],
+                    "archetype": persona.get("archetype", "User"),
+                    "turns": session_turns,
+                    "session_started": session_turns[0]["timestamp"]
+                })
+                save_json(self.logs_path, all_logs)
+                _print_msg(f"[bold green]Saved {len(session_turns)} interview turns to {self.logs_path}[/bold green]")
+        return session_id

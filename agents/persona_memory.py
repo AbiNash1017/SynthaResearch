@@ -20,6 +20,8 @@ class PersonaMemoryModule:
         """
         if experiment is None:
             experiment = load_json("data/experiment.json", {})
+        from utils.normalizer import normalize_experiment
+        experiment = normalize_experiment(experiment)
 
         topic = detect_topic(question)
         memory = persona.setdefault("memory", {
@@ -51,9 +53,11 @@ class PersonaMemoryModule:
 
         # Detect sentiment/stance from the generated response
         stance = PersonaMemoryModule.extract_stance(response)
+        summary = PersonaMemoryModule._summarize_opinion(response)
         if topic != "general" and topic not in ["greeting", "acknowledgement"]:
             opinions[topic] = {
                 "stance": stance,
+                "summary": summary,
                 "last_question": question,
                 "recorded_at": datetime.now().isoformat()
             }
@@ -78,6 +82,16 @@ class PersonaMemoryModule:
         return response
 
     @staticmethod
+    def _summarize_opinion(text: str) -> str:
+        """Extracts a succinct 1-sentence summary of the expressed stance."""
+        sentences = re.split(r"[.!?]", text)
+        valid = [s.strip() for s in sentences if len(s.strip()) > 10]
+        if valid:
+            words = valid[0].split()
+            return " ".join(words[:16])
+        return text[:80]
+
+    @staticmethod
     def _generate_with_llm(
         persona: Dict[str, Any],
         question: str,
@@ -98,6 +112,20 @@ class PersonaMemoryModule:
         p_desc = experiment.get("product_description", "")
         p_audience = experiment.get("target_audience", "")
 
+        # Format established opinions as human-readable statements
+        if established:
+            op_lines = []
+            for t_name, t_data in established.items():
+                if isinstance(t_data, dict):
+                    st = t_data.get("stance", "neutral")
+                    summ = t_data.get("summary", "")
+                    op_lines.append(f"- Topic '{t_name}': {st.upper()} stance ('{summ}')")
+                else:
+                    op_lines.append(f"- Topic '{t_name}': {t_data}")
+            established_str = "\n".join(op_lines)
+        else:
+            established_str = "This is the start of the interview (no prior stated opinions)."
+
         system_prompt = f"""You are roleplaying in a live product research interview as:
 - Name: {name}
 - Age: {persona.get('age', 28)}, Gender: {persona.get('gender', 'unspecified')}
@@ -116,7 +144,7 @@ Product Under Research:
 - Target Audience: {p_audience}
 
 Prior Opinions You Expressed In This Chat:
-{established if established else "This is the start of the interview."}
+{established_str}
 
 CONVERSATIONAL RULES:
 1. Speak completely in character as {name} in the first person ("I", "my", "me").
@@ -126,8 +154,8 @@ CONVERSATIONAL RULES:
 5. Directly address what the researcher just asked. If they ask for your thoughts, insights, or remarks on {p_name} and its target demographic, give a thoughtful, realistic opinion based on who you are.
 6. {'Provide a conversational spoken reply (2 to 4 natural sentences).' if mode == 'interview' else 'Provide a clear, succinct survey answer (1 to 2 sentences).'}
 7. Your response MUST be distinctly shaped by your specific archetype ({archetype}), your occupation, your location, and your age. Do NOT give a generic answer that any user could give.
+8. If the researcher's questions or comments contain typos or informal phrasing, naturally interpret their intent. NEVER repeat, quote, or carry over typos in your response.
 """
-
 
         messages = [{"role": "system", "content": system_prompt}]
 
@@ -141,7 +169,7 @@ CONVERSATIONAL RULES:
 
     @staticmethod
     def _generate_fallback(persona: Dict[str, Any], question: str, experiment: Dict[str, Any], topic: str) -> str:
-        """Dynamic conversational fallback that responds authentically to the question context."""
+        """Dynamic conversational fallback that responds authentically to question context and maintains multi-turn memory."""
         name = persona.get("name", "Alex")
         age = persona.get("age", 27)
         occ = persona.get("occupation", "Specialist")
@@ -159,9 +187,49 @@ CONVERSATIONAL RULES:
         p_audience = experiment.get("target_audience", "users")
 
         q_lower = question.lower()
+        history = persona.get("memory", {}).get("conversation_history", [])
 
-        # 1. Questions asking for insights, thoughts, remarks, demographic feedback
-        if any(k in q_lower for k in ["insight", "remark", "demographic", "thought", "opinion", "feedback", "what do you think", "how do you feel", "perspective"]):
+        # Check for multi-turn follow-up queries (e.g., "why?", "elaborate", "can you explain?")
+        is_followup = any(k in q_lower for k in ["why", "elaborate", "explain", "tell me more", "what do you mean", "could you clarify", "why is that", "more detail"])
+        if is_followup and history:
+            last_persona_turn = next((t["content"] for t in reversed(history) if t.get("role") == "persona"), None)
+            if last_persona_turn:
+                return (
+                    f"To elaborate on that, it really ties directly back to my daily setup as a {occ}. "
+                    f"When I mentioned {pain}, that's not just a minor annoyance—it's a real disruption in my workflow. "
+                    f"If {p_name} can't guarantee stability against {churn}, I can't justify making a change."
+                )
+
+        # 1. Adoption intent questions: "Would you use this product?", "Would you buy/adopt?"
+        if any(k in q_lower for k in ["would you use", "would you buy", "would you pay", "will you use", "would use", "adopt", "likely to use", "consider using", "recommend"]):
+            if "budget" in arch.lower() or "pragmatist" in arch.lower():
+                return (
+                    f"I would only consider using {p_name} if there's a risk-free trial or a very sensible free tier. "
+                    f"With my attitude toward spending ({wtp}), I need clear evidence of cost efficiency before adopting it over {current_tools}."
+                )
+            elif "power" in arch.lower() or "optimizer" in arch.lower():
+                return (
+                    f"Yes, I'd definitely test {p_name} if it offers deep functionality and doesn't get in my way. "
+                    f"If it solves {pain} faster than {current_tools}, I'd adopt it, provided it avoids {churn}."
+                )
+            elif "busy" in arch.lower() or "professional" in arch.lower():
+                return (
+                    f"I would gladly use {p_name} if the onboarding takes under 5 minutes and immediately saves me time. "
+                    f"My schedule is packed, so tangible ROI is the single deciding factor."
+                )
+            elif "traditionalist" in arch.lower() or "skeptic" in arch.lower():
+                return (
+                    f"Honestly, I'd be hesitant to switch right away. I'm accustomed to {current_tools}, "
+                    f"and until {p_name} has proven itself completely reliable without {churn}, I'd wait and see."
+                )
+            else:
+                return (
+                    f"I'd be open to trying {p_name}, especially if people in my circle recommend it. "
+                    f"If it feels intuitive and fixes my frustration with {pain}, I could see myself using it regularly."
+                )
+
+        # 2. Questions asking for insights, thoughts, remarks, demographic feedback
+        elif any(k in q_lower for k in ["insight", "remark", "demographic", "thought", "opinion", "feedback", "what do you think", "how do you feel", "perspective"]):
             return (
                 f"Honestly, speaking as a {age}-year-old {occ} living in {loc}, looking at {p_name} gives me mixed feelings. "
                 f"On paper, targeting {p_audience} makes sense, but in reality, different age brackets use apps for totally different reasons. "
@@ -170,7 +238,7 @@ CONVERSATIONAL RULES:
                 f"so it really needs to prove it's safer and more reliable than sticking with {current_tools}."
             )
 
-        # 2. Questions about pricing, cost, subscription
+        # 3. Questions about pricing, cost, subscription
         elif any(k in q_lower for k in ["price", "cost", "pay", "subscription", "pricing", "dollar", "rupee", "money", "afford", "expensive", "fee"]):
             return (
                 f"When it comes to my wallet, I'm pretty straightforward: {wtp}. "
@@ -178,7 +246,7 @@ CONVERSATIONAL RULES:
                 f"I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it."
             )
 
-        # 3. Questions about privacy, safety, anonymity, moderation
+        # 4. Questions about privacy, safety, anonymity, moderation
         elif any(k in q_lower for k in ["privacy", "safe", "safety", "anonym", "secure", "security", "data", "trust", "moderation", "harass"]):
             return (
                 f"Safety and data privacy are non-negotiable for me. If {p_name} is dealing with {p_desc[:50]}, "
@@ -186,7 +254,7 @@ CONVERSATIONAL RULES:
                 f"The moment an app feels compromised or allows toxic behavior, that's an instant dealbreaker ({churn}) for me."
             )
 
-        # 4. Questions about switching, alternatives, current habits
+        # 5. Questions about switching, alternatives, current habits
         elif any(k in q_lower for k in ["switch", "competitor", "alternative", "replace", "current", "habit", "migrate"]):
             return (
                 f"Right now, my default routine revolves around {current_tools}. "
@@ -194,18 +262,18 @@ CONVERSATIONAL RULES:
                 f"It would have to make communicating with {p_audience} radically smoother before I'd make the jump."
             )
 
-        # 5. Greetings
+        # 6. Greetings
         elif any(k in q_lower for k in ["hello", "hi", "hey", "good morning", "good evening", "how are you", "who are you"]):
             return (
                 f"Hey! Great to connect. I'm {name}, a {age}-year-old {occ} here in {loc}. "
                 f"Glad to share my honest take on {p_name}."
             )
 
-        # 6. Acknowledgement
+        # 7. Acknowledgement
         elif any(k in q_lower for k in ["ok", "okay", "cool", "understood", "got it", "makes sense", "sure"]):
             return f"Exactly. That's why from my viewpoint as a {arch}, execution is going to be everything for {p_name}."
 
-        # 7. General fallback
+        # 8. General fallback
         else:
             return (
                 f"From my point of view as someone who's generally {traits[0]} and {traits[1] if len(traits)>1 else 'practical'}, "
@@ -216,10 +284,27 @@ CONVERSATIONAL RULES:
 
     @staticmethod
     def extract_stance(text: str) -> str:
-        """Classifies text into positive, negative, or neutral stance."""
+        """Classifies text into positive, negative, or neutral stance with negation handling."""
         lower = text.lower()
-        pos_words = ["love", "great", "excellent", "excited", "happy", "yes", "definitely", "willing", "useful", "valuable", "seamless", "fantastic", "effective", "worth it", "appreciate"]
-        neg_words = ["hate", "dislike", "terrible", "frustrat", "annoy", "no", "never", "unwilling", "expensive", "waste", "complicat", "skeptical", "refuse", "hesitate", "overpriced", "clunky", "dealbreaker"]
+        
+        # Check negated positive ("not good", "not worth", "would not use", "wouldn't be comfortable")
+        negated_pos = [
+            "not good", "not great", "not worth", "not impressed", "wouldn't pay",
+            "would not pay", "would not use", "wouldn't use", "don't like", "do not like",
+            "hard to justify", "wouldn't be comfortable", "would not be comfortable",
+            "not comfortable", "wouldn't consider", "would not consider", "only way i'd consider",
+            "hesitant to", "reluctant to"
+        ]
+        if any(np in lower for np in negated_pos):
+            return "negative"
+            
+        # Check negated negative ("not bad", "not terrible", "not expensive", "don't mind")
+        negated_neg = ["not bad", "not terrible", "not awful", "not expensive", "don't mind", "do not mind", "not against"]
+        if any(nn in lower for nn in negated_neg):
+            return "positive"
+
+        pos_words = ["love", "great", "excellent", "excited", "happy", "yes", "definitely", "willing", "useful", "valuable", "seamless", "fantastic", "effective", "worth it", "appreciate", "gladly", "adopt"]
+        neg_words = ["hate", "dislike", "terrible", "frustrat", "annoy", "no", "never", "unwilling", "expensive", "waste", "complicat", "skeptical", "refuse", "hesitate", "overpriced", "clunky", "dealbreaker", "hesitant", "reluctant", "uncomfortable"]
 
         pos_count = sum(1 for w in pos_words if w in lower)
         neg_count = sum(1 for w in neg_words if w in lower)
@@ -238,3 +323,4 @@ CONVERSATIONAL RULES:
                 pool[i] = persona
                 break
         save_json(pool_path, pool)
+

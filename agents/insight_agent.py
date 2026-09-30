@@ -53,6 +53,8 @@ class InsightExtractionAgent:
         interview_logs = load_json(self.interview_path, [])
         personas = load_json(self.persona_path, [])
         experiment = load_json(self.experiment_path, {})
+        from utils.normalizer import normalize_experiment
+        experiment = normalize_experiment(experiment)
 
         product_name = experiment.get("product_name", "Product Under Research")
         date_str = datetime.now().strftime("%Y-%m-%d")
@@ -134,6 +136,159 @@ class InsightExtractionAgent:
         export_pdf(report_data, pdf_path)
         return report_data
 
+    def calculate_agreement_patterns(self, survey_data: Dict[str, Any], personas: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+        """
+        Analyzes consensus vs divergence across persona survey responses.
+        Identifies questions/topics where personas strongly agree vs where they polarize.
+        """
+        consensus = []
+        polarization = []
+
+        questions = survey_data.get("questions", [])
+        responses = survey_data.get("responses", [])
+
+        if not questions or not responses:
+            return {
+                "consensus": ["Consistent demand for seamless workflow integration and immediate usability."],
+                "polarization": ["Divergence between cost-sensitive personas and power users regarding pricing tiers."]
+            }
+
+        total_personas = len(responses)
+
+        for q_idx, q in enumerate(questions):
+            q_clean = q.strip().rstrip("?")
+            short_q = q_clean if len(q_clean) <= 60 else q_clean[:57] + "..."
+
+            stances = [resp["answers"][q_idx]["sentiment"] for resp in responses if q_idx < len(resp.get("answers", []))]
+            if not stances:
+                continue
+
+            pos_count = stances.count("positive")
+            neg_count = stances.count("negative")
+            neu_count = stances.count("neutral")
+
+            pos_ratio = pos_count / len(stances)
+            neg_ratio = neg_count / len(stances)
+
+            if pos_ratio >= 0.65:
+                consensus.append(f"Strong Positive Consensus on '{short_q}': {int(pos_ratio*100)}% of cohorts reacted favorably.")
+            elif neg_ratio >= 0.65:
+                consensus.append(f"Strong Objection / Critical Consensus on '{short_q}': {int(neg_ratio*100)}% expressed hesitation or friction.")
+            elif pos_ratio >= 0.25 and neg_ratio >= 0.25:
+                pos_groups = [resp.get("archetype", "User") for resp in responses if q_idx < len(resp.get("answers", [])) and resp["answers"][q_idx]["sentiment"] == "positive"]
+                neg_groups = [resp.get("archetype", "User") for resp in responses if q_idx < len(resp.get("answers", [])) and resp["answers"][q_idx]["sentiment"] == "negative"]
+                pos_str = ", ".join(list(set(pos_groups))[:2]) or "Adopters"
+                neg_str = ", ".join(list(set(neg_groups))[:2]) or "Skeptics"
+                polarization.append(f"Polarized Split on '{short_q}': Enthusiastically supported by [{pos_str}], but contested by [{neg_str}].")
+
+        if not consensus:
+            consensus.append("General alignment across all cohorts on the necessity of low onboarding friction.")
+        if not polarization:
+            polarization.append("Divergence observed between price-conscious cohorts requiring free tiers and power users seeking advanced features.")
+
+        return {
+            "consensus": consensus,
+            "polarization": polarization
+        }
+
+    def calculate_would_use_score(
+        self,
+        experiment: Dict[str, Any],
+        personas: List[Dict[str, Any]],
+        survey_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Computes the 'Would use this product?' adoption propensity score:
+        - Aggregated overall score (0–100%)
+        - Segment breakdown per persona archetype cohort
+        - Specific adoption drivers and dealbreaker reasoning per persona group
+        """
+        p_name = experiment.get("product_name", "this product")
+        archetype_map: Dict[str, List[Dict[str, Any]]] = {}
+
+        for p in personas:
+            arch = p.get("archetype", "General Consumer")
+            archetype_map.setdefault(arch, []).append(p)
+
+        # Map persona responses
+        persona_sentiment_scores: Dict[str, float] = {}
+        for resp in survey_data.get("responses", []):
+            pid = resp.get("persona_id")
+            answers = resp.get("answers", [])
+            if answers:
+                pos = sum(1 for a in answers if a.get("sentiment") == "positive")
+                neg = sum(1 for a in answers if a.get("sentiment") == "negative")
+                score = max(0.0, min(100.0, ((pos - neg + len(answers)) / (2 * len(answers))) * 100.0))
+                persona_sentiment_scores[pid] = score
+
+        segment_breakdown = []
+        segment_scores = []
+
+        for arch, p_list in archetype_map.items():
+            arch_scores = []
+            for p in p_list:
+                seeds = p.get("opinion_seeds", {})
+                seed_score = (
+                    seeds.get("overall_sentiment_bias", 0.5) * 35 +
+                    seeds.get("openness_to_change", 0.5) * 35 +
+                    (1.0 - seeds.get("price_sensitivity", 0.5)) * 30
+                )
+                survey_score = persona_sentiment_scores.get(p.get("id"), seed_score)
+                # Weighted composite
+                final_persona_score = round(0.60 * survey_score + 0.40 * seed_score, 1)
+                arch_scores.append(final_persona_score)
+
+            avg_score = round(sum(arch_scores) / len(arch_scores), 1) if arch_scores else 50.0
+            segment_scores.append(avg_score)
+
+            if avg_score >= 70:
+                stance_label = "High Adoption Potential"
+            elif avg_score >= 45:
+                stance_label = "Moderate / Conditional Adoption"
+            else:
+                stance_label = "Low Adoption / High Resistance"
+
+            # Derive reasoning based on archetype patterns
+            sample_p = p_list[0]
+            bp = sample_p.get("behavioral_patterns", {})
+            churn = bp.get("churn_triggers", "unclear value")
+            wtp = bp.get("willingness_to_pay", "fair pricing")
+            pain = bp.get("primary_pain_points", "daily friction")
+
+            if avg_score >= 70:
+                reasoning = f"High affinity for {p_name}; values immediate relief from {pain}. Willing to adopt if {churn.lower()} is avoided."
+            elif avg_score >= 45:
+                reasoning = f"Interested in solving {pain}, but adoption is strictly conditional on {wtp.lower()} and seamless transition."
+            else:
+                reasoning = f"Significant adoption barriers; high switching friction and sensitivity to {churn.lower()} favor current tools."
+
+            segment_breakdown.append({
+                "segment": arch,
+                "score": avg_score,
+                "stance": stance_label,
+                "sample_size": len(p_list),
+                "reasoning": reasoning
+            })
+
+        overall_score = round(sum(segment_scores) / len(segment_scores), 1) if segment_scores else 50.0
+
+        if overall_score >= 70:
+            overall_label = "Strong Market Signal — High Adoption Propensity"
+            summary_reasoning = f"Target cohorts show compelling interest in {p_name}, with immediate adoption driven by solving core workflow friction."
+        elif overall_score >= 45:
+            overall_label = "Moderate Market Signal — Conditional Adoption"
+            summary_reasoning = f"{p_name} shows viable interest, but long-term adoption hinges on minimizing onboarding friction and demonstrating clear cost-benefit."
+        else:
+            overall_label = "Challenging Market Signal — Significant Resistance"
+            summary_reasoning = f"Cohorts exhibit notable reluctance to switch from established habits; substantial pricing or workflow concessions needed."
+
+        return {
+            "overall_score": overall_score,
+            "score_label": overall_label,
+            "segment_breakdown": segment_breakdown,
+            "summary_reasoning": summary_reasoning
+        }
+
     def _generate_with_llm(
         self,
         experiment: Dict[str, Any],
@@ -148,6 +303,10 @@ class InsightExtractionAgent:
         p_desc = experiment.get("product_description", "")
         audience = experiment.get("target_audience", "")
         objs = experiment.get("research_objectives", [])
+
+        # Empirical calculations for prompt grounding
+        empirical_adoption = self.calculate_would_use_score(experiment, personas, survey_data)
+        empirical_agreements = self.calculate_agreement_patterns(survey_data, personas)
 
         persona_summaries = []
         for p in personas:
@@ -183,11 +342,31 @@ INTERVIEW LOGS:
 EMPIRICAL METRICS:
 - Measured Sentiment: {calc_sentiment_dist}
 - Top Frequent Text Themes: {nlp_themes}
+- Baseline Adoption Propensity: {empirical_adoption['overall_score']}%
+- Empirical Consensus Points: {empirical_agreements['consensus']}
+- Empirical Polarization Points: {empirical_agreements['polarization']}
 
 Produce an insightful, highly actionable user research synthesis in valid JSON with this exact schema:
 {{
   "executive_summary": "2-3 sentences synthesizing product-market validation signals and core user reception.",
+  "would_use_score": {{
+    "overall_score": 68.5,
+    "score_label": "Descriptive Market Signal Label",
+    "summary_reasoning": "Synthesis of what drives adoption vs reluctance across target market.",
+    "segment_breakdown": [
+      {{
+        "segment": "Archetype / Cohort Name",
+        "score": 75.0,
+        "stance": "High Adoption Potential / Moderate / Low",
+        "reasoning": "Specific reasoning why this group would or would not adopt {p_name}."
+      }}
+    ]
+  }},
   "themes": ["Key Theme 1", "Key Theme 2", "Key Theme 3", "Key Theme 4"],
+  "agreement_patterns": {{
+    "consensus": ["Universal agreement finding 1", "Universal agreement finding 2"],
+    "polarization": ["Divergent perspective between cohorts 1", "Divergent perspective 2"]
+  }},
   "sentiment_distribution": {{"positive": 0.50, "neutral": 0.30, "negative": 0.20}},
   "sentiment_analysis": "Explanation of what factors created enthusiasm vs skepticism.",
   "behavioral_trends": [
@@ -216,6 +395,12 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
         ]
 
         data = llm_client.chat_completion_json(messages, temperature=0.4, max_tokens=3000)
+        # Ensure critical keys exist
+        if "would_use_score" not in data:
+            data["would_use_score"] = empirical_adoption
+        if "agreement_patterns" not in data:
+            data["agreement_patterns"] = empirical_agreements
+
         return data
 
     def _generate_fallback(
@@ -237,6 +422,10 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
             "Reliability versus existing traditional tools",
             "Ease of use and immediate value realization"
         ]
+
+        # Empirical calculations
+        would_use_score = self.calculate_would_use_score(experiment, personas, survey_data)
+        agreement_patterns = self.calculate_agreement_patterns(survey_data, personas)
 
         behavioral_trends = []
         for p in personas:
@@ -264,8 +453,10 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
             })
 
         return {
-            "executive_summary": f"Evaluation of {p_name} reveals actionable feedback across {len(personas)} synthetic user profiles in the {audience} space.",
+            "executive_summary": f"Evaluation of {p_name} reveals actionable feedback across {len(personas)} synthetic user profiles in the {audience} space. Overall adoption potential is {would_use_score['overall_score']}%.",
+            "would_use_score": would_use_score,
             "themes": themes,
+            "agreement_patterns": agreement_patterns,
             "sentiment_distribution": calc_sentiment_dist,
             "sentiment_analysis": f"User reception shows {calc_sentiment_dist.get('positive', 0)*100:.0f}% positive interest balanced with practical adoption concerns.",
             "behavioral_trends": behavioral_trends,
@@ -291,6 +482,37 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
             if "executive_summary" in report:
                 console.print(f"\n[bold]Executive Summary:[/bold]\n{report['executive_summary']}")
 
+            # 'Would Use This Product?' Scorecard
+            would_use = report.get("would_use_score", {})
+            if would_use:
+                overall_score = would_use.get("overall_score", 0.0)
+                score_color = "green" if overall_score >= 70 else ("yellow" if overall_score >= 45 else "red")
+
+                console.print(Panel(
+                    f"Overall Adoption Score: [{score_color}][bold]{overall_score}%[/bold][/{score_color}] — {would_use.get('score_label', '')}\n"
+                    f"[dim]{would_use.get('summary_reasoning', '')}[/dim]",
+                    title="⭐ 'Would Use This Product?' Adoption Propensity",
+                    border_style="cyan"
+                ))
+
+                w_table = Table(title="Adoption Score Breakdown by Persona Segment", show_header=True)
+                w_table.add_column("Persona Segment / Archetype", style="bold")
+                w_table.add_column("Adoption Score", style="cyan")
+                w_table.add_column("Stance", style="italic")
+                w_table.add_column("Reasoning per Persona Group")
+
+                for seg in would_use.get("segment_breakdown", []):
+                    s_score = seg.get("score", 0.0)
+                    s_color = "green" if s_score >= 70 else ("yellow" if s_score >= 45 else "red")
+                    w_table.add_row(
+                        seg.get("segment", "Segment"),
+                        f"[{s_color}]{s_score}%[/{s_color}]",
+                        seg.get("stance", "N/A"),
+                        seg.get("reasoning", "N/A")
+                    )
+                console.print(w_table)
+
+            # Sentiment Table
             s_table = Table(title="Sentiment Distribution", show_header=True)
             s_table.add_column("Positive", style="green")
             s_table.add_column("Neutral", style="yellow")
@@ -302,6 +524,15 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
                 f"{dist.get('negative', 0)*100:.1f}%"
             )
             console.print(s_table)
+
+            # Agreement Patterns
+            agreements = report.get("agreement_patterns", {})
+            if agreements:
+                console.print("\n[bold cyan]🤝 Agreement Patterns & Stance Consistency:[/bold cyan]")
+                for item in agreements.get("consensus", []):
+                    console.print(f"  [green]✔ Consensus:[/green] {item}")
+                for item in agreements.get("polarization", []):
+                    console.print(f"  [yellow]⚡ Polarization / Divergence:[/yellow] {item}")
 
             console.print("\n[bold cyan]Top Emergent Themes:[/bold cyan]")
             for th in report.get("themes", []):
@@ -326,11 +557,28 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
             print(f"Sample Size: {report.get('persona_count')} personas | Surveys: {report.get('survey_questions_asked')} questions")
             if "executive_summary" in report:
                 print(f"Executive Summary: {report['executive_summary']}")
+
+            would_use = report.get("would_use_score", {})
+            if would_use:
+                print(f"\n--- 'Would Use This Product?' Adoption Score: {would_use.get('overall_score')}% ({would_use.get('score_label')}) ---")
+                print(f"Summary: {would_use.get('summary_reasoning')}")
+                for seg in would_use.get("segment_breakdown", []):
+                    print(f"  • [{seg.get('segment')}]: {seg.get('score')}% ({seg.get('stance')}) -> {seg.get('reasoning')}")
+
+            agreements = report.get("agreement_patterns", {})
+            if agreements:
+                print("\nAgreement Patterns:")
+                for c in agreements.get("consensus", []):
+                    print(f"  [Consensus] {c}")
+                for p in agreements.get("polarization", []):
+                    print(f"  [Polarization] {p}")
+
             dist = report.get("sentiment_distribution", {})
-            print(f"Sentiment: Positive {dist.get('positive', 0)*100:.1f}% | Neutral {dist.get('neutral', 0)*100:.1f}% | Negative {dist.get('negative', 0)*100:.1f}%")
+            print(f"\nSentiment: Positive {dist.get('positive', 0)*100:.1f}% | Neutral {dist.get('neutral', 0)*100:.1f}% | Negative {dist.get('negative', 0)*100:.1f}%")
             print("Top Themes:")
             for th in report.get("themes", []):
                 print(f"  • {th}")
             print("Top Actionable Insights:")
             for ins in report.get("top_insights", []):
                 print(f"  ✔ {ins}")
+

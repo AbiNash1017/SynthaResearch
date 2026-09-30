@@ -22,6 +22,7 @@ except ImportError:
 from config.archetype_map import UNIVERSAL_ARCHETYPES
 from config.settings import is_openrouter_configured, OPENROUTER_MODEL
 from utils.llm_client import llm_client, OpenRouterConfigurationError
+from utils.normalizer import normalize_experiment, generate_aligned_personas_fallback
 from utils.storage import save_json, load_json
 
 def _print_msg(msg: str):
@@ -45,10 +46,13 @@ class PersonaGenerationAgent:
     ) -> List[Dict[str, Any]]:
         """
         Generates diverse synthetic personas tailored to the given product experiment using OpenRouter LLM.
+        Automatically normalizes input context, corrects any typos, and aligns personas with the target market.
         """
+        normalized_exp = normalize_experiment(experiment)
+
         if is_openrouter_configured():
             try:
-                personas = self._generate_with_llm(experiment, count)
+                personas = self._generate_with_llm(normalized_exp, count)
                 save_json(self.data_path, personas)
                 return personas
             except Exception as e:
@@ -61,58 +65,63 @@ class PersonaGenerationAgent:
                 "OpenRouter is not configured. Please set OPENROUTER_API_KEY and OPENROUTER_MODEL in .env."
             )
 
-        _print_msg("[yellow]Notice: Using universal archetype fallback (Configure OPENROUTER_API_KEY and OPENROUTER_MODEL in .env for full LLM generation).[/yellow]")
-        personas = self._generate_fallback(experiment, count)
+        _print_msg("[yellow]Notice: Using aligned archetype fallback generator (100% domain-tailored, typo-free).[/yellow]")
+        personas = self._generate_fallback(normalized_exp, count)
         save_json(self.data_path, personas)
         return personas
 
     def _generate_with_llm(self, experiment: Dict[str, Any], count: int) -> List[Dict[str, Any]]:
-        """Invokes OpenRouter to produce dynamic, domain-tailored synthetic personas."""
+        """Invokes OpenRouter to produce dynamic, domain-tailored synthetic personas with strict target market alignment."""
         product_name = experiment.get("product_name", "Innovative Product")
         product_desc = experiment.get("product_description", "")
         target_audience = experiment.get("target_audience", "General Users")
         research_objs = experiment.get("research_objectives", [])
         industry = experiment.get("industry_domain", "Technology")
 
-        prompt = f"""You are an elite product research scientist.
-Generate {count} diverse, realistic synthetic user personas specifically tailored for research on the following product:
+        prompt = f"""You are an elite UX research scientist and synthetic persona generator.
+Generate {count} diverse, authentic, realistic synthetic user personas specifically tailored for research on the following product:
 
 Product Name: {product_name}
-Product Category / Domain: {industry}
-Product Description: {product_desc}
-Target Audience: {target_audience}
+Product Domain / Category: {industry}
+Product Description & Value Proposition: {product_desc}
+Target Audience & User Demographics: {target_audience}
 Research Objectives: {json.dumps(research_objs)}
 
-The personas must represent diverse archetypes across the target market. Ensure demographic, occupational, and psychological diversity.
+CRITICAL GENERATION RULES:
+1. STRICT TARGET CUSTOMER ALIGNMENT: Every single persona MUST be an authentic, direct target customer, operator, buyer, or user for this specific product.
+   - For example, if the product is for restaurants, cloud kitchens, POS, and food billing, personas MUST have real hospitality job titles (such as Multi-Unit Restaurant Owner, Cloud Kitchen Operations Manager, Restaurant General Manager, Food & Beverage Accounts Lead, Cafe Franchisee). NEVER generate unrelated generic professions like software developers or general consultants unless they are the direct target market.
+2. ZERO TYPO REPRODUCTION: The user's original concept notes may have contained informal typos or misspellings. Infer the true commercial intent and business use case. Under no circumstances should you copy, repeat, or carry over any typos or raw text mistakes into persona cards, tools, or pain points.
+3. AUTHENTIC TOOLS & PAIN POINTS: 'current_tools' and 'primary_pain_points' MUST describe real tools and operational bottlenecks specific to this industry.
+4. PSYCHOLOGICAL & OPINION DIVERSITY: Ensure diverse age ranges, genders, geographic locations, and distinct archetypes (pragmatists, optimizers, busy professionals, skeptics, etc.).
 
 Return a valid JSON array containing exactly {count} persona objects. Each persona object must have the following structure:
 [
   {{
     "id": "persona_001",
     "name": "Full Name",
-    "age": 28,
+    "age": 36,
     "gender": "Female",
-    "occupation": "Job Title",
+    "occupation": "Industry-Specific Role",
     "location": "City, Country",
     "income_bracket": "middle",
     "education": "Degree or background",
     "archetype": "Descriptive Archetype Title",
     "personality_traits": ["trait1", "trait2", "trait3"],
     "behavioral_patterns": {{
-      "current_tools": "Tools or habits currently used for this problem",
-      "usage_frequency": "How often they deal with this problem",
-      "primary_pain_points": "Main frustrations in this domain",
-      "willingness_to_pay": "Stance on pricing and budget tolerance for this solution",
-      "churn_triggers": "Specific dealbreakers that would make them abandon this product",
-      "feature_priorities": "Top capabilities they look for"
+      "current_tools": "Real-world tools currently used in this domain",
+      "usage_frequency": "Daily during operations",
+      "primary_pain_points": "Specific operational frustration in this workflow",
+      "willingness_to_pay": "Pricing attitude and budget stance",
+      "churn_triggers": "Specific dealbreakers for abandoning this product",
+      "feature_priorities": "Top capabilities sought"
     }},
     "psychological_profile": {{
-      "mbti": "INTJ",
+      "mbti": "ISTJ",
       "risk_tolerance": "medium",
-      "motivation_type": "intrinsic",
+      "motivation_type": "extrinsic-economic",
       "decision_style": "analytical"
     }},
-    "background_story": "A 2-3 sentence realistic narrative explaining their context and perspective on this product category.",
+    "background_story": "A 2-3 sentence realistic narrative explaining their daily workflow, industry role, and perspective on this product.",
     "opinion_seeds": {{
       "price_sensitivity": 0.65,
       "tech_comfort": 0.80,
@@ -150,128 +159,9 @@ Return a valid JSON array containing exactly {count} persona objects. Each perso
         return cleaned_personas
 
     def _generate_fallback(self, experiment: Dict[str, Any], count: int) -> List[Dict[str, Any]]:
-        """Universal fallback personas when OpenRouter LLM is not configured."""
-        import random
-        archetypes = list(UNIVERSAL_ARCHETYPES.keys())
-        p_name = experiment.get("product_name", "Product")
-        p_desc = experiment.get("product_description", "Modern software solution")
-        audience = experiment.get("target_audience", "General users")
+        """Domain-aligned fallback personas guaranteeing zero typos and authentic industry roles."""
+        return generate_aligned_personas_fallback(experiment, count)
 
-        names = ["Alex Rivera", "Priya Nair", "Jordan Smith", "Elena Vance", "Marcus Chen", "Sarah Miller"]
-        occupations = ["Product Specialist", "Independent Consultant", "Operations Manager", "Software Developer", "Small Business Owner", "Team Lead"]
-        locations = ["Chicago, USA", "Bengaluru, India", "London, UK", "Toronto, Canada", "Berlin, Germany", "Sydney, Australia"]
-        genders = ["Male", "Female", "Non-binary", "Female", "Male", "Female"]
-        income_brackets = ["lower-middle", "middle", "upper-middle", "middle", "lower-middle", "upper-middle"]
-        educations = [
-            "Bachelor's in Business Administration",
-            "Master's in Computer Science",
-            "Associate Degree in Design",
-            "Bachelor's in Engineering",
-            "Self-taught / Bootcamp Graduate",
-            "MBA"
-        ]
-        # Fixed age pool — no cycling repeats within typical counts
-        ages = [27, 34, 41, 29, 47, 31]
-
-        # Domain-aware patterns for fallback simulation
-        p_desc_lower = p_desc.lower()
-        industry_lower = experiment.get("industry_domain", "").lower()
-
-        if any(k in p_desc_lower or k in industry_lower for k in ["chat", "social", "anonym", "messaging", "community"]):
-            domain_tools = ["Discord, Reddit, and WhatsApp", "Instagram DMs and Telegram", "Slack and Twitter/X", "Signal and private forums", "Snapchat and group chats", "iMessage and Discord"]
-            domain_pains = [
-                "Toxic anonymous spam and lack of genuine moderation",
-                "App fatigue and doomscrolling without meaningful connection",
-                "Privacy concerns and unwanted creepy direct messages",
-                "Superficial conversations that die out after five minutes",
-                "Overcomplicated features when all I want is clean, safe chat"
-            ]
-            domain_wtp = "Prefers free with optional cosmetic perks under $5/mo"
-        elif any(k in p_desc_lower or k in industry_lower for k in ["dev", "code", "software", "api", "git"]):
-            domain_tools = ["GitHub PRs, Slack, and Jira", "GitLab CI/CD and VS Code", "Bitbucket and email threads", "Linear and manual code review", "Docker and terminal tools", "Jenkins and Slack alerts"]
-            domain_pains = [
-                "Review bottlenecks and waiting days for PR approvals",
-                "Noisy false-positive automated alerts",
-                "Lack of context on complex legacy codebases",
-                "Context switching between Jira, GitHub, and Slack",
-                "Security compliance and hallucinated recommendations"
-            ]
-            domain_wtp = "Willing to spend $20-$40/seat/mo if it saves 3+ engineering hours weekly"
-        elif any(k in p_desc_lower or k in industry_lower for k in ["health", "fitness", "wellness", "hydrate", "nutrition"]):
-            domain_tools = ["Apple Health and standard water bottle", "MyFitnessPal and Strava", "Whoop and phone reminders", "Fitbit and paper habit log", "Garmin Connect and basic timers", "Peloton app and smart scale"]
-            domain_pains = [
-                "Nagging notifications that make me feel guilty instead of motivated",
-                "Inaccurate sensor tracking and bluetooth disconnects",
-                "Too much manual data entry every day",
-                "Battery running out every single day",
-                "Cluttered apps with bloated premium paywalls"
-            ]
-            domain_wtp = "Willing to pay $50-$80 one-time hardware or $8-$12/mo for actionable health insights"
-        else:
-            domain_tools = [f"Traditional manual tools and spreadsheets for {audience}"] * 6
-            domain_pains = [f"Friction and time wasted with existing solutions in {audience}"] * 6
-            domain_wtp = "Strictly value-driven; requires clear proof of time/cost savings"
-
-        personas = []
-        now_iso = datetime.now().isoformat()
-
-        # Use a seeded RNG for reproducibility per experiment but variation across personas
-        rng = random.Random(hash(p_name + str(count)))
-
-        for i in range(count):
-            arch_key = archetypes[i % len(archetypes)]
-            arch_data = UNIVERSAL_ARCHETYPES[arch_key]
-            name = names[i % len(names)]
-            occ = occupations[i % len(occupations)]
-            loc = locations[i % len(locations)]
-            gender = genders[i % len(genders)]
-            income = income_brackets[i % len(income_brackets)]
-            edu = educations[i % len(educations)]
-            age = ages[i % len(ages)]
-            tool = domain_tools[i % len(domain_tools)]
-            pain = domain_pains[i % len(domain_pains)]
-
-            # Per-persona opinion seed jitter (±0.10) to ensure differentiation
-            base_seeds = dict(arch_data["opinion_seeds"])
-            opinion_seeds = {
-                k: round(min(1.0, max(0.0, v + rng.uniform(-0.10, 0.10))), 2)
-                for k, v in base_seeds.items()
-            }
-
-            persona = {
-                "id": f"persona_{i+1:03d}",
-                "name": name,
-                "age": age,
-                "gender": gender,
-                "occupation": occ,
-                "location": loc,
-                "income_bracket": income,
-                "education": edu,
-                "archetype": arch_key,
-                "personality_traits": list(arch_data["personality_traits"]),
-                "behavioral_patterns": {
-                    "current_tools": tool,
-                    "usage_frequency": "Daily or several times a week",
-                    "primary_pain_points": pain,
-                    "willingness_to_pay": domain_wtp,
-                    "churn_triggers": arch_data["behavioral_patterns"]["churn_trigger"],
-                    "feature_priorities": "Simplicity, reliability, and immediate practical value"
-                },
-                "psychological_profile": dict(arch_data["psychological_profile"]),
-                "background_story": (
-                    f"{name} is a {age}-year-old {occ} living in {loc}. "
-                    f"As a {arch_key}, their daily routine heavily involves {tool}, but they are frustrated by {pain.lower()}."
-                ),
-                "opinion_seeds": opinion_seeds,
-                "memory": {
-                    "conversation_history": [],
-                    "established_opinions": {},
-                    "last_updated": now_iso
-                }
-            }
-            personas.append(persona)
-
-        return personas
 
 
     def print_persona_cards(self, personas: List[Dict[str, Any]]) -> None:

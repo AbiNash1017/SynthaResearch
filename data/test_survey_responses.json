@@ -1,0 +1,77 @@
+{
+  "survey_id": "survey_test_001",
+  "product_name": "DevPulse AI",
+  "questions": [
+    "Does slow pull request review time significantly bottleneck your team's shipping velocity?",
+    "Would you adopt DevPulse AI if it integrated directly into GitHub without modifying CI/CD?",
+    "Would you be willing to pay $35 per engineer per month for this solution?"
+  ],
+  "responses": [
+    {
+      "persona_id": "persona_001",
+      "persona_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "answers": [
+        {
+          "question": "Q1",
+          "answer": "Yes, slow reviews are definitely our biggest weekly bottleneck.",
+          "sentiment": "positive"
+        },
+        {
+          "question": "Q2",
+          "answer": "I would consider it if there is a generous free trial.",
+          "sentiment": "positive"
+        },
+        {
+          "question": "Q3",
+          "answer": "No, $35 per seat is too expensive for our budget.",
+          "sentiment": "negative"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_002",
+      "persona_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "answers": [
+        {
+          "question": "Q1",
+          "answer": "Yes, waiting 3 days for approvals halts progress.",
+          "sentiment": "positive"
+        },
+        {
+          "question": "Q2",
+          "answer": "Definitely, native GitHub integration is essential.",
+          "sentiment": "positive"
+        },
+        {
+          "question": "Q3",
+          "answer": "Yes, $35/month is well worth 4 hours saved per week.",
+          "sentiment": "positive"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_003",
+      "persona_name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "answers": [
+        {
+          "question": "Q1",
+          "answer": "Absolutely, review delays cost us delivery dates.",
+          "sentiment": "positive"
+        },
+        {
+          "question": "Q2",
+          "answer": "Yes, seamless GitHub adoption would make onboarding instant.",
+          "sentiment": "positive"
+        },
+        {
+          "question": "Q3",
+          "answer": "Yes, if it saves team time, $35 is an easy expense.",
+          "sentiment": "positive"
+        }
+      ]
+    }
+  ]
+}

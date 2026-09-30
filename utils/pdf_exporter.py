@@ -77,8 +77,48 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         story.append(Paragraph(exec_summary, callout_style))
         story.append(Spacer(1, 10))
 
-    # 1. Sentiment Distribution
-    story.append(Paragraph("1. Sentiment & Response Distribution", h2_style))
+    # 1. 'Would Use This Product?' Adoption Propensity Scorecard
+    would_use = report.get("would_use_score")
+    if would_use:
+        overall_score = would_use.get("overall_score", 0.0)
+        story.append(Paragraph("1. 'Would Use This Product?' Adoption Propensity", h2_style))
+        story.append(Paragraph(
+            f"<b>Overall Target Market Adoption Score:</b> <font color='#2B6CB0'><b>{overall_score}%</b></font> — {would_use.get('score_label', '')}",
+            body_style
+        ))
+        if would_use.get("summary_reasoning"):
+            story.append(Spacer(1, 3))
+            story.append(Paragraph(f"<i>Summary:</i> {would_use['summary_reasoning']}", body_style))
+        story.append(Spacer(1, 6))
+
+        # Segment breakdown table
+        segments = would_use.get("segment_breakdown", [])
+        if segments:
+            seg_table_data = [["Persona Segment / Archetype", "Adoption Score", "Stance", "Segment Reasoning"]]
+            for seg in segments:
+                seg_table_data.append([
+                    seg.get("segment", "Segment"),
+                    f"{seg.get('score', 0)}%",
+                    seg.get("stance", "N/A"),
+                    seg.get("reasoning", "N/A")
+                ])
+            t_seg = Table(seg_table_data, colWidths=[130, 80, 110, 210])
+            t_seg.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor("#1A202C")),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ('LEADING', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            story.append(t_seg)
+        story.append(Spacer(1, 10))
+
+    # 2. Sentiment Distribution
+    story.append(Paragraph("2. Sentiment & Response Distribution", h2_style))
     dist = report.get("sentiment_distribution", {})
     sentiment_data = [
         ["Sentiment Stance", "Percentage Share"],
@@ -100,8 +140,8 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         story.append(Paragraph(f"<i>Analysis:</i> {report['sentiment_analysis']}", body_style))
     story.append(Spacer(1, 10))
 
-    # 2. Key Emergent Themes
-    story.append(Paragraph("2. Top Emergent Themes", h2_style))
+    # 3. Key Emergent Themes
+    story.append(Paragraph("3. Top Emergent Themes", h2_style))
     themes = report.get("themes", [])
     if themes:
         for i, th in enumerate(themes, 1):
@@ -110,8 +150,20 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         story.append(Paragraph("No significant themes extracted yet.", body_style))
     story.append(Spacer(1, 10))
 
-    # 3. Behavioral Trends
-    story.append(Paragraph("3. Behavioral Cohort Trends", h2_style))
+    # 4. Agreement Patterns (Consensus vs Polarization)
+    agreements = report.get("agreement_patterns")
+    if agreements:
+        story.append(Paragraph("4. Agreement Patterns & Stance Consistency", h2_style))
+        for item in agreements.get("consensus", []):
+            story.append(Paragraph(f"• <b>[Consensus]:</b> {item}", body_style))
+            story.append(Spacer(1, 2))
+        for item in agreements.get("polarization", []):
+            story.append(Paragraph(f"• <b>[Polarization / Divergence]:</b> {item}", body_style))
+            story.append(Spacer(1, 2))
+        story.append(Spacer(1, 8))
+
+    # 5. Behavioral Trends
+    story.append(Paragraph("5. Behavioral Cohort Trends", h2_style))
     trends = report.get("behavioral_trends", [])
     if trends:
         for trend in trends:
@@ -121,25 +173,25 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
             story.append(Spacer(1, 3))
     story.append(Spacer(1, 8))
 
-    # 4. Critical Objections (if present)
+    # 6. Critical Objections (if present)
     objections = report.get("critical_objections", [])
     if objections:
-        story.append(Paragraph("4. Critical Objections & Churn Risks", h2_style))
+        story.append(Paragraph("6. Critical Objections & Churn Risks", h2_style))
         for obj in objections:
             story.append(Paragraph(f"⚠ {obj}", body_style))
             story.append(Spacer(1, 3))
         story.append(Spacer(1, 8))
 
-    # 5. Critical Insights & Recommendations
-    story.append(Paragraph("5. Actionable Product Insights & Recommendations", h2_style))
+    # 7. Critical Insights & Recommendations
+    story.append(Paragraph("7. Actionable Product Insights & Recommendations", h2_style))
     insights = report.get("top_insights", [])
     for ins in insights:
         story.append(Paragraph(f"✔ {ins}", body_style))
         story.append(Spacer(1, 3))
     story.append(Spacer(1, 8))
 
-    # 6. Persona Profiles Breakdown
-    story.append(Paragraph("6. Synthetic Persona Cohort Breakdown", h2_style))
+    # 8. Persona Profiles Breakdown
+    story.append(Paragraph("8. Synthetic Persona Cohort Breakdown", h2_style))
     breakdown = report.get("per_persona_breakdown", [])
     for p in breakdown:
         p_name = p.get("name", "Unknown Persona")

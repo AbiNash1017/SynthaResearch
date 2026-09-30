@@ -2,6 +2,7 @@ import json
 import sys
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 # Ensure venv site-packages is discoverable if present
@@ -50,6 +51,8 @@ class SurveyAgent:
         """
         if experiment is None:
             experiment = load_json(self.experiment_path, {})
+        from utils.normalizer import normalize_experiment
+        experiment = normalize_experiment(experiment)
 
         p_name = experiment.get("product_name", "the product")
         p_desc = experiment.get("product_description", "")
@@ -65,10 +68,12 @@ Description: {p_desc}
 Target Audience: {audience}
 Research Objectives: {json.dumps(objs)}
 
+CRITICAL: Understand the intended business domain and user use case even if raw notes had typos. NEVER repeat or propagate typos into the questions.
+
 Return only a valid JSON array of {count} strings (the survey questions).
 Focus on:
-1. Core problem/pain point resonance.
-2. Willingness to adopt/switch and key hesitations.
+1. Core problem/pain point resonance in this specific industry.
+2. Willingness to adopt/switch and key operational hesitations.
 3. Pricing perception or essential feature requirements.
 """
                 messages = [
@@ -88,7 +93,16 @@ Focus on:
             f"What pricing structure or monthly amount would you consider fair for this solution?"
         ]
 
-    def run_survey(self, questions: List[str], experiment: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def run_survey(
+        self,
+        questions: List[str],
+        experiment: Optional[Dict[str, Any]] = None,
+        simultaneous: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Executes a survey across all synthetic personas.
+        When simultaneous=True, all personas generate responses concurrently via ThreadPoolExecutor.
+        """
         personas = load_json(self.persona_path, [])
         if not personas:
             raise ValueError("No personas found in persona_pool.json! Please generate personas first.")
@@ -96,26 +110,46 @@ Focus on:
         if experiment is None:
             experiment = load_json(self.experiment_path, {})
 
-        responses = []
-        for p in personas:
-            answers = []
+        def _process_single_persona(persona_obj: Dict[str, Any]) -> tuple:
+            p_answers = []
             for q in questions:
-                ans = PersonaMemoryModule.generate_response(p, q, experiment=experiment, mode="survey")
+                ans = PersonaMemoryModule.generate_response(persona_obj, q, experiment=experiment, mode="survey")
                 stance = PersonaMemoryModule.extract_stance(ans)
                 key_phrase = extract_key_phrase(ans)
-                answers.append({
+                p_answers.append({
                     "question": q,
                     "answer": ans,
                     "sentiment": stance,
                     "key_phrase": key_phrase
                 })
-            responses.append({
-                "persona_id": p.get("id"),
-                "persona_name": p.get("name"),
-                "archetype": p.get("archetype"),
-                "answers": answers
-            })
-            PersonaMemoryModule.update_persona_pool(p, self.persona_path)
+            return persona_obj, {
+                "persona_id": persona_obj.get("id"),
+                "persona_name": persona_obj.get("name"),
+                "archetype": persona_obj.get("archetype"),
+                "answers": p_answers
+            }
+
+        responses = []
+        if simultaneous and len(personas) > 1:
+            max_workers = min(len(personas), 8)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_persona = {executor.submit(_process_single_persona, p): p for p in personas}
+                results_map = {}
+                for future in as_completed(future_to_persona):
+                    orig_p = future_to_persona[future]
+                    updated_p, resp_dict = future.result()
+                    results_map[orig_p["id"]] = (updated_p, resp_dict)
+
+            # Preserve original persona order
+            for p in personas:
+                updated_p, resp_dict = results_map[p["id"]]
+                responses.append(resp_dict)
+                PersonaMemoryModule.update_persona_pool(updated_p, self.persona_path)
+        else:
+            for p in personas:
+                updated_p, resp_dict = _process_single_persona(p)
+                responses.append(resp_dict)
+                PersonaMemoryModule.update_persona_pool(updated_p, self.persona_path)
 
         survey_payload = {
             "survey_id": f"survey_{int(datetime.now().timestamp())}",
@@ -125,8 +159,49 @@ Focus on:
             "created_at": datetime.now().isoformat()
         }
 
+        # Embed side-by-side matrix view
+        survey_payload["matrix"] = self.format_survey_matrix(survey_payload)
+
         save_json(self.output_path, survey_payload)
         return survey_payload
+
+    def format_survey_matrix(self, survey_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Transforms survey responses into a cross-persona side-by-side comparison matrix.
+        Allows API and frontend consumers to view all persona responses side-by-side per question.
+        """
+        if survey_data is None:
+            survey_data = load_json(self.output_path, {})
+
+        questions = survey_data.get("questions", [])
+        responses = survey_data.get("responses", [])
+
+        matrix_rows = []
+        for q_idx, q in enumerate(questions):
+            persona_answers = {}
+            for resp in responses:
+                if q_idx < len(resp.get("answers", [])):
+                    ans_item = resp["answers"][q_idx]
+                    persona_answers[resp["persona_id"]] = {
+                        "persona_name": resp.get("persona_name"),
+                        "archetype": resp.get("archetype"),
+                        "answer": ans_item.get("answer"),
+                        "sentiment": ans_item.get("sentiment"),
+                        "key_phrase": ans_item.get("key_phrase")
+                    }
+            matrix_rows.append({
+                "question_index": q_idx + 1,
+                "question": q,
+                "persona_answers": persona_answers
+            })
+
+        return {
+            "survey_id": survey_data.get("survey_id"),
+            "product_name": survey_data.get("product_name"),
+            "persona_count": len(responses),
+            "questions": matrix_rows,
+            "created_at": survey_data.get("created_at")
+        }
 
     def print_survey_table(self, survey_data: Dict[str, Any]) -> None:
         if HAS_RICH and console:

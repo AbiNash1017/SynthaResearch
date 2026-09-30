@@ -36,6 +36,7 @@ class SurveyRequestModel(BaseModel):
 class InterviewMessageModel(BaseModel):
     persona_id: str
     user_message: str
+    session_id: Optional[str] = None
 
 @app.get("/")
 def read_root():
@@ -54,8 +55,11 @@ def get_llm_config():
 def setup_experiment(exp: ExperimentModel):
     data = exp.model_dump()
     data["created_at"] = datetime.now().isoformat()
-    save_json("data/experiment.json", data)
-    return {"message": "Experiment workspace configured successfully", "experiment": data}
+    from utils.normalizer import normalize_experiment
+    norm_data = normalize_experiment(data)
+    norm_data.pop("_domain_profile", None)
+    save_json("data/experiment.json", norm_data)
+    return {"message": "Experiment workspace configured and normalized successfully", "experiment": norm_data}
 
 @app.get("/api/experiment")
 def get_experiment():
@@ -95,6 +99,14 @@ def run_survey(payload: SurveyRequestModel):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/api/survey-matrix")
+def get_survey_matrix():
+    """Returns side-by-side comparison matrix for the active survey."""
+    matrix = survey_agent.format_survey_matrix()
+    if not matrix.get("questions"):
+        raise HTTPException(status_code=404, detail="No active survey results found. Run /api/run-survey first.")
+    return matrix
+
 @app.post("/api/interview")
 def interview_turn(payload: InterviewMessageModel):
     personas = load_json("data/persona_pool.json", [])
@@ -111,12 +123,16 @@ def interview_turn(payload: InterviewMessageModel):
     )
     PersonaMemoryModule.update_persona_pool(persona, "data/persona_pool.json")
 
-    # Record turn in interview logs
+    # Record turn in interview logs with explicit session management
     logs = load_json("data/interview_logs.json", [])
-    session = next((s for s in logs if s.get("persona_id") == persona["id"]), None)
+    session = None
+    if payload.session_id:
+        session = next((s for s in logs if s.get("session_id") == payload.session_id), None)
+
     if not session:
+        session_id = payload.session_id or f"session_{persona['id']}_{int(datetime.now().timestamp())}"
         session = {
-            "session_id": f"session_{int(datetime.now().timestamp())}",
+            "session_id": session_id,
             "product_name": exp.get("product_name", "Product"),
             "persona_id": persona["id"],
             "persona_name": persona["name"],
@@ -135,12 +151,56 @@ def interview_turn(payload: InterviewMessageModel):
     save_json("data/interview_logs.json", logs)
 
     return {
+        "session_id": session["session_id"],
         "persona_id": persona["id"],
         "persona_name": persona["name"],
         "archetype": persona.get("archetype"),
         "user_message": payload.user_message,
         "persona_response": response
     }
+
+@app.get("/api/interviews")
+def list_interview_sessions():
+    """Lists summary of all recorded interview sessions."""
+    logs = load_json("data/interview_logs.json", [])
+    summaries = [
+        {
+            "session_id": s.get("session_id"),
+            "persona_id": s.get("persona_id"),
+            "persona_name": s.get("persona_name"),
+            "archetype": s.get("archetype"),
+            "turns_count": len(s.get("turns", [])),
+            "session_started": s.get("session_started")
+        }
+        for s in logs
+    ]
+    return {"count": len(logs), "sessions": summaries}
+
+@app.get("/api/interview/{session_id}")
+def get_interview_session(session_id: str):
+    """Retrieves full transcript and details of a specific interview session."""
+    logs = load_json("data/interview_logs.json", [])
+    session = next((s for s in logs if s.get("session_id") == session_id), None)
+    if not session:
+        raise HTTPException(status_code=404, detail=f"Interview session {session_id} not found.")
+    return session
+
+@app.post("/api/interview/reset")
+def reset_interviews():
+    """Clears interview logs for fresh testing."""
+    save_json("data/interview_logs.json", [])
+    return {"message": "Interview logs cleared successfully."}
+
+@app.get("/api/adoption-score")
+def get_adoption_score():
+    """Calculates and returns the 'Would use this product?' adoption propensity score and segment breakdown."""
+    exp = load_json("data/experiment.json", {})
+    personas = load_json("data/persona_pool.json", [])
+    survey_data = load_json("data/survey_responses.json", {})
+    if not personas:
+        raise HTTPException(status_code=400, detail="No personas found. Generate personas first.")
+    score_data = insight_agent.calculate_would_use_score(exp, personas, survey_data)
+    return score_data
 
 @app.get("/api/generate-report")
 def generate_report():

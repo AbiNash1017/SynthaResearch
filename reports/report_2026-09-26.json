@@ -1,0 +1,103 @@
+{
+  "executive_summary": "Evaluation of HydraGlow reveals actionable feedback across 3 synthetic user profiles in the Active fitness enthusiasts, desk workers struggling with daily water intake, and biohackers. space. Overall adoption potential is 23.1%.",
+  "would_use_score": {
+    "overall_score": 23.1,
+    "score_label": "Challenging Market Signal — Significant Resistance",
+    "segment_breakdown": [
+      {
+        "segment": "Budget-Conscious Pragmatist",
+        "score": 14.2,
+        "stance": "Low Adoption / High Resistance",
+        "sample_size": 1,
+        "reasoning": "Significant adoption barriers; high switching friction and sensitivity to price increases, hidden fees, or low perceived return on spend favor current tools."
+      },
+      {
+        "segment": "Power User / Optimizer",
+        "score": 27.8,
+        "stance": "Low Adoption / High Resistance",
+        "sample_size": 1,
+        "reasoning": "Significant adoption barriers; high switching friction and sensitivity to simplistic design, lack of keyboard shortcuts/apis, or performance lags favor current tools."
+      },
+      {
+        "segment": "Busy Professional / Outcome-Driven",
+        "score": 27.4,
+        "stance": "Low Adoption / High Resistance",
+        "sample_size": 1,
+        "reasoning": "Significant adoption barriers; high switching friction and sensitivity to steep learning curves, complicated setup, or unreliable workflows favor current tools."
+      }
+    ],
+    "summary_reasoning": "Cohorts exhibit notable reluctance to switch from established habits; substantial pricing or workflow concessions needed."
+  },
+  "themes": [
+    "right default (6 mentions)",
+    "default routine (6 mentions)",
+    "routine revolves (6 mentions)",
+    "switching hydraglow (6 mentions)",
+    "hydraglow require (6 mentions)"
+  ],
+  "agreement_patterns": {
+    "consensus": [
+      "Strong Objection / Critical Consensus on 'What is your single biggest frustration with current tool...': 100% expressed hesitation or friction.",
+      "Strong Objection / Critical Consensus on 'If HydraGlow could solve that problem reliably, what woul...': 100% expressed hesitation or friction.",
+      "Strong Objection / Critical Consensus on 'What pricing structure or monthly amount would you consid...': 100% expressed hesitation or friction."
+    ],
+    "polarization": [
+      "Divergence observed between price-conscious cohorts requiring free tiers and power users seeking advanced features."
+    ]
+  },
+  "sentiment_distribution": {
+    "positive": 0.0,
+    "neutral": 0.0,
+    "negative": 1.0
+  },
+  "sentiment_analysis": "User reception shows 0% positive interest balanced with practical adoption concerns.",
+  "behavioral_trends": [
+    {
+      "group": "Budget-Conscious Pragmatist",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: price increases, hidden fees, or low perceived return on spend."
+    },
+    {
+      "group": "Power User / Optimizer",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: simplistic design, lack of keyboard shortcuts/APIs, or performance lags."
+    },
+    {
+      "group": "Busy Professional / Outcome-Driven",
+      "finding": "Prioritizes: Simplicity, reliability, and immediate practical value. Churn risk triggered by: steep learning curves, complicated setup, or unreliable workflows."
+    }
+  ],
+  "critical_objections": [
+    "Switching cost and friction from established habits",
+    "Uncertainty around sustained daily utility"
+  ],
+  "top_insights": [
+    "VALUE PROPOSITION: Clear ROI messaging is vital for HydraGlow when targeting Active fitness enthusiasts, desk workers struggling with daily water intake, and biohackers..",
+    "ONBOARDING FRICTION: Minimizing time-to-first-value is the primary determinant of long-term adoption across cohorts.",
+    "PRICING MODEL: Cohorts express reluctance toward aggressive upfront commitments without hands-on trial periods.",
+    "DIFFERENTIATION: Focus core messaging on resolving specific bottlenecks rather than broad feature lists."
+  ],
+  "per_persona_breakdown": [
+    {
+      "id": "persona_001",
+      "name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "key_takeaway": "Stance shaped by: Willing to pay $50-$80 one-time hardware or $8-$12/mo for actionable health insights."
+    },
+    {
+      "id": "persona_002",
+      "name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "key_takeaway": "Stance shaped by: Willing to pay $50-$80 one-time hardware or $8-$12/mo for actionable health insights."
+    },
+    {
+      "id": "persona_003",
+      "name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "key_takeaway": "Stance shaped by: Willing to pay $50-$80 one-time hardware or $8-$12/mo for actionable health insights."
+    }
+  ],
+  "report_date": "2026-09-26",
+  "product": "HydraGlow",
+  "persona_count": 3,
+  "survey_questions_asked": 3,
+  "interview_sessions_count": 4
+}

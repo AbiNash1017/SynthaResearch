@@ -105,8 +105,18 @@ class LLMClient:
         if max_tokens:
             payload["max_tokens"] = max_tokens
 
+        candidate_models = [target_model]
+        if ":free" in target_model:
+            for bm in ["liquid/lfm-2.5-2.6b:free", "qwen/qwen3.8-27b:free"]:
+                if bm not in candidate_models:
+                    candidate_models.append(bm)
+
         last_err = None
         for attempt in range(1, retries + 1):
+            # Select model for this attempt (switch to backup if previous attempt hit 429)
+            current_model = candidate_models[(attempt - 1) % len(candidate_models)]
+            payload["model"] = current_model
+
             try:
                 response = requests.post(url, headers=headers, json=payload, timeout=60)
                 if response.status_code == 200:
@@ -114,12 +124,12 @@ class LLMClient:
                     choices = data.get("choices", [])
                     if not choices:
                         raise OpenRouterError(f"No choices returned from OpenRouter: {data}")
-                    content = choices[0].get("message", {}).get("content", "").strip()
+                    raw_msg = choices[0].get("message", {})
+                    content = (raw_msg.get("content") or "").strip()
 
-                    # Detect if a safety classification model (e.g. Nemotron content-safety) was accidentally invoked
+                    # Detect if a safety classification model was accidentally invoked
                     if content.startswith("User Safety:") or "Response Safety:" in content:
-                        # Reroute to a confirmed conversational chat model
-                        payload["model"] = "nex-agi/nex-n2.5-mini:free"
+                        payload["model"] = "liquid/lfm-2.5-2.6b:free"
                         retry_resp = requests.post(url, headers=headers, json=payload, timeout=60)
                         if retry_resp.status_code == 200:
                             retry_data = retry_resp.json()
@@ -127,15 +137,15 @@ class LLMClient:
                                 content = retry_data["choices"][0].get("message", {}).get("content", "").strip()
                     return content
                 elif response.status_code in (429, 500, 502, 503, 504):
-                    # Rate limit or temporary gateway error, backoff and retry
-                    last_err = f"HTTP {response.status_code}: {response.text}"
-                    time.sleep(2 * attempt)
+                    # Rate limit or temporary gateway error, try next candidate model with backoff
+                    last_err = f"HTTP {response.status_code} ({current_model}): {response.text}"
+                    time.sleep(1.5 * attempt)
                     continue
                 else:
                     raise OpenRouterError(f"OpenRouter API error (HTTP {response.status_code}): {response.text}")
             except requests.exceptions.RequestException as e:
                 last_err = str(e)
-                time.sleep(2 * attempt)
+                time.sleep(1.5 * attempt)
 
         raise OpenRouterError(f"Failed to communicate with OpenRouter after {retries} attempts. Error: {last_err}")
 
@@ -172,14 +182,17 @@ class LLMClient:
             except json.JSONDecodeError:
                 pass
 
-        # Try searching for outermost brackets [ ... ] or { ... }
-        b_match = re.search(r"(\[[\s\S]*\]|\{[\s\S]*\})", raw_text)
-        if b_match:
-            candidate = b_match.group(1).strip()
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pass
+        # Try repairing truncated JSON array
+        if "[" in raw_text:
+            start_bracket = raw_text.find("[")
+            trimmed = raw_text[start_bracket:].rstrip()
+            last_brace = trimmed.rfind("}")
+            if last_brace != -1:
+                repaired = trimmed[:last_brace + 1] + "\n]"
+                try:
+                    return json.loads(repaired)
+                except json.JSONDecodeError:
+                    pass
 
         raise OpenRouterError(f"Model output could not be parsed as valid JSON. Raw output:\n{raw_text}")
 
