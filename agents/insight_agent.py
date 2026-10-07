@@ -414,18 +414,86 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
         """Universal fallback synthesizer when LLM is unavailable."""
         p_name = experiment.get("product_name", "Product")
         p_desc = experiment.get("product_description", "")
-        audience = experiment.get("target_audience", "")
+        audience = experiment.get("target_audience", "Target Users")
+        domain_str = f"{p_name} {experiment.get('industry_domain', '')} {p_desc} {audience}".lower()
 
-        themes = nlp_themes if nlp_themes else [
-            "Workflow integration and setup friction",
-            "Pricing transparency and ROI justification",
-            "Reliability versus existing traditional tools",
-            "Ease of use and immediate value realization"
-        ]
+        # Domain-aligned themes if NLP themes are sparse
+        if nlp_themes and len(nlp_themes) >= 2:
+            themes = nlp_themes
+        elif any(k in domain_str for k in ["devtools", "developer", "code", "github", "api", "devops"]):
+            themes = [
+                "Pull request review velocity and CI/CD turnaround",
+                "Workflow integration into existing developer stacks",
+                "Per-seat engineering pricing and ROI justification",
+                "Reliability and precision versus manual review processes"
+            ]
+        elif any(k in domain_str for k in ["fintech", "finance", "billing", "invoic", "account", "banking", "wealth"]):
+            themes = [
+                "Automated ledger reconciliation and cash flow visibility",
+                "Data security and bank account connection trust",
+                "Subscription cost predictability and transaction overhead",
+                "Error reduction compared to manual financial spreadsheets"
+            ]
+        elif any(k in domain_str for k in ["restaurant", "kitchen", "pos", "hospitality", "food", "dining"]):
+            themes = [
+                "Peak service billing speed and kitchen ticket routing",
+                "Multi-channel delivery aggregator reconciliation",
+                "Per-outlet software subscription costs",
+                "Front-of-house staff training and offline register stability"
+            ]
+        elif any(k in domain_str for k in ["ecommerce", "e-commerce", "retail", "shop", "apparel", "rental"]):
+            themes = [
+                "Multi-channel inventory synchronization and stockouts",
+                "Checkout conversion friction and cart abandonment",
+                "Return logistics and fulfillment overhead",
+                "Monthly software investment versus direct margin lift"
+            ]
+        elif any(k in domain_str for k in ["health", "wellness", "fitness", "hydration", "biometric"]):
+            themes = [
+                "Biometric tracking precision and actionable health insights",
+                "Notification frequency and daily alert fatigue",
+                "Long-term habit adherence beyond the initial month",
+                "Hardware upfront investment versus ongoing subscription"
+            ]
+        elif any(k in domain_str for k in ["education", "edtech", "learning", "course", "upskilling"]):
+            themes = [
+                "Course completion drop-offs and asynchronous engagement",
+                "Cohort accountability and verifiable credential value",
+                "Pricing models across individual learners versus teams",
+                "Friction in existing learning management systems"
+            ]
+        else:
+            themes = [
+                "Workflow integration and setup friction",
+                "Pricing transparency and ROI justification",
+                "Reliability versus existing traditional tools",
+                "Ease of use and immediate value realization"
+            ]
 
         # Empirical calculations
         would_use_score = self.calculate_would_use_score(experiment, personas, survey_data)
         agreement_patterns = self.calculate_agreement_patterns(survey_data, personas)
+        overall = would_use_score.get("overall_score", 50.0)
+
+        # Dynamic executive summary reflecting empirical signal
+        if overall >= 65.0:
+            exec_summary = (
+                f"Evaluation of {p_name} demonstrates strong validation across {len(personas)} synthetic user profiles in the {audience} sector, "
+                f"achieving an overall adoption propensity of {overall}%. Target cohorts confirm severe daily friction with current tools "
+                f"and show substantial willingness to adopt if implementation remains streamlined."
+            )
+        elif overall >= 45.0:
+            exec_summary = (
+                f"Evaluation of {p_name} reveals moderate adoption viability across {len(personas)} synthetic user profiles in the {audience} space, "
+                f"registering an overall adoption potential of {overall}%. While core capabilities resonate, conversion depends heavily on "
+                f"transparent pricing tiers and risk-free trial periods to overcome habit inertia."
+            )
+        else:
+            exec_summary = (
+                f"Evaluation of {p_name} indicates notable market hesitation across {len(personas)} synthetic user profiles in the {audience} space, "
+                f"with an adoption score of {overall}%. Significant switching barriers, reluctance toward recurring fees, "
+                f"and deep satisfaction with legacy workflows require substantial concept refinement."
+            )
 
         behavioral_trends = []
         for p in personas:
@@ -436,11 +504,26 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
                 "finding": f"Prioritizes: {bp.get('feature_priorities', 'usability')}. Churn risk triggered by: {bp.get('churn_triggers', 'friction')}."
             })
 
+        # Dynamic top insights
         top_insights = [
-            f"VALUE PROPOSITION: Clear ROI messaging is vital for {p_name} when targeting {audience}.",
+            f"VALUE PROPOSITION: Clear ROI messaging is vital for {p_name} when targeting {audience}, addressing acute daily friction.",
             f"ONBOARDING FRICTION: Minimizing time-to-first-value is the primary determinant of long-term adoption across cohorts.",
-            f"PRICING MODEL: Cohorts express reluctance toward aggressive upfront commitments without hands-on trial periods.",
-            f"DIFFERENTIATION: Focus core messaging on resolving specific bottlenecks rather than broad feature lists."
+            f"PRICING MODEL: Cohorts express reluctance toward aggressive upfront commitments without hands-on trial periods or transparent tiers.",
+            f"DIFFERENTIATION: Focus core product messaging on resolving specific operational bottlenecks rather than generic feature lists."
+        ]
+
+        # Extract empirical objections from personas
+        raw_churns = []
+        for p in personas:
+            ct = p.get("behavioral_patterns", {}).get("churn_triggers", "")
+            if ct:
+                chunk = ct.split(",")[0].strip()
+                if chunk and len(chunk) > 10 and chunk not in raw_churns:
+                    raw_churns.append(chunk)
+
+        critical_objections = raw_churns[:3] if raw_churns else [
+            "Switching cost and friction from established habits",
+            "Uncertainty around sustained daily utility"
         ]
 
         breakdown = []
@@ -452,18 +535,22 @@ Produce an insightful, highly actionable user research synthesis in valid JSON w
                 "key_takeaway": f"Stance shaped by: {p.get('behavioral_patterns', {}).get('willingness_to_pay', 'ROI')}."
             })
 
+        pos_pct = calc_sentiment_dist.get('positive', 0) * 100
+        neg_pct = calc_sentiment_dist.get('negative', 0) * 100
+        sentiment_analysis = (
+            f"User sentiment reflects {pos_pct:.0f}% positive interest and {neg_pct:.0f}% direct skepticism, "
+            f"demonstrating that excitement for automated workflow relief is balanced by cautious evaluation of switching costs."
+        )
+
         return {
-            "executive_summary": f"Evaluation of {p_name} reveals actionable feedback across {len(personas)} synthetic user profiles in the {audience} space. Overall adoption potential is {would_use_score['overall_score']}%.",
+            "executive_summary": exec_summary,
             "would_use_score": would_use_score,
             "themes": themes,
             "agreement_patterns": agreement_patterns,
             "sentiment_distribution": calc_sentiment_dist,
-            "sentiment_analysis": f"User reception shows {calc_sentiment_dist.get('positive', 0)*100:.0f}% positive interest balanced with practical adoption concerns.",
+            "sentiment_analysis": sentiment_analysis,
             "behavioral_trends": behavioral_trends,
-            "critical_objections": [
-                "Switching cost and friction from established habits",
-                "Uncertainty around sustained daily utility"
-            ],
+            "critical_objections": critical_objections,
             "top_insights": top_insights,
             "per_persona_breakdown": breakdown
         }

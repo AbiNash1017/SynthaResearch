@@ -35,16 +35,14 @@ class PersonaMemoryModule:
         response = None
         if is_openrouter_configured():
             try:
-                response = PersonaMemoryModule._generate_with_llm(
+                raw_response = PersonaMemoryModule._generate_with_llm(
                     persona=persona,
                     question=question,
                     experiment=experiment,
                     mode=mode,
                     topic=topic
                 )
-                # Check for garbage/safety outputs
-                if not response or response.strip().startswith("User Safety:") or "Response Safety:" in response or len(response.strip()) < 10:
-                    response = None
+                response = PersonaMemoryModule._clean_response(raw_response)
             except Exception:
                 response = None
 
@@ -82,6 +80,56 @@ class PersonaMemoryModule:
         return response
 
     @staticmethod
+    def _clean_response(text: Optional[str]) -> Optional[str]:
+        """
+        Cleans LLM responses by stripping out internal thinking processes, chain-of-thought blocks,
+        and meta-commentary, ensuring only natural, in-character persona speech is returned.
+        """
+        if not text or not isinstance(text, str):
+            return None
+        cleaned = text.strip()
+
+        # Remove XML thinking blocks like <think>...</think> or <reasoning>...</reasoning>
+        cleaned = re.sub(r"<think>[\s\S]*?</think>", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r"<reasoning>[\s\S]*?</reasoning>", "", cleaned, flags=re.IGNORECASE).strip()
+
+        # Check for "Here's a thinking process:" or similar chain-of-thought preambles
+        if re.search(r"(?:Here(?:'s| is) a thinking process|Thinking Process|Chain of thought|Internal Analysis):", cleaned, flags=re.IGNORECASE):
+            # Try to extract the final spoken dialogue after known markers
+            split_markers = [
+                r"\n\s*(?:Response|Final Response|In Character|Direct Reply|Spoken Response|Actual Reply):\s*",
+                r"\n\s*\*\*(?:Response|Final Response|Reply|Spoken Response)\*\*:?\s*",
+                r"\n\s*---\s*\n"
+            ]
+            found = None
+            for marker in split_markers:
+                parts = re.split(marker, cleaned, flags=re.IGNORECASE)
+                if len(parts) > 1 and len(parts[-1].strip()) > 15:
+                    found = parts[-1].strip()
+                    break
+
+            if found:
+                cleaned = found
+            else:
+                # If there is no separate response and it's all reasoning notes/bullet points,
+                # reject so the fallback generator creates natural dialogue
+                return None
+
+        # Reject if the remaining text is purely analysis notes / bullet points
+        if re.match(r"^\s*(?:\d+\.\s*\*\*|[-*]\s*(?:Analyze|User asks|User says|Constraints|Rules|Note:|Identify|Deconstruct))", cleaned, flags=re.IGNORECASE):
+            return None
+
+        # Strip surrounding quotes if present
+        if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
+            cleaned = cleaned[1:-1].strip()
+
+        # Reject if still too short or looks like an error/safety string
+        if len(cleaned) < 10 or cleaned.lower().startswith("user safety:") or "response safety:" in cleaned.lower():
+            return None
+
+        return cleaned
+
+    @staticmethod
     def _summarize_opinion(text: str) -> str:
         """Extracts a succinct 1-sentence summary of the expressed stance."""
         sentences = re.split(r"[.!?]", text)
@@ -101,71 +149,88 @@ class PersonaMemoryModule:
     ) -> str:
         """Roleplays as the persona using OpenRouter LLM with established memory."""
         name = persona.get("name", "User")
+        age  = persona.get("age", 28)
+        occ  = persona.get("occupation", "Professional")
+        loc  = persona.get("location", "Global")
         archetype = persona.get("archetype", "General Consumer")
         traits = ", ".join(persona.get("personality_traits", []))
         bg = persona.get("background_story", "")
         bp = persona.get("behavioral_patterns", {})
-        psych = persona.get("psychological_profile", {})
         established = persona.get("memory", {}).get("established_opinions", {})
 
         p_name = experiment.get("product_name", "the product")
         p_desc = experiment.get("product_description", "")
         p_audience = experiment.get("target_audience", "")
 
+        # Compact background brief – model reads this as private context, NOT as lines to quote
+        pain   = bp.get("primary_pain_points", "friction in day-to-day use")
+        tools  = bp.get("current_tools", "standard apps")
+        wtp    = bp.get("willingness_to_pay", "careful about spending")
+        churn  = bp.get("churn_triggers", "annoyance or hidden costs")
+
+        background_brief = (
+            f"Private context (never quote directly, just let it shape how you think and speak):\n"
+            f"  • You currently rely on: {tools}\n"
+            f"  • Your main daily frustration: {pain}\n"
+            f"  • Spending mindset: {wtp}\n"
+            f"  • What makes you drop an app: {churn}"
+        )
+
         # Format established opinions as human-readable statements
         if established:
             op_lines = []
             for t_name, t_data in established.items():
                 if isinstance(t_data, dict):
-                    st = t_data.get("stance", "neutral")
+                    st   = t_data.get("stance", "neutral")
                     summ = t_data.get("summary", "")
-                    op_lines.append(f"- Topic '{t_name}': {st.upper()} stance ('{summ}')")
+                    op_lines.append(f"  • {t_name}: {st} – \"{summ}\"")
                 else:
-                    op_lines.append(f"- Topic '{t_name}': {t_data}")
+                    op_lines.append(f"  • {t_name}: {t_data}")
             established_str = "\n".join(op_lines)
         else:
-            established_str = "This is the start of the interview (no prior stated opinions)."
+            established_str = "  (none yet – this is the first exchange)"
 
-        system_prompt = f"""You are roleplaying in a live product research interview as:
-- Name: {name}
-- Age: {persona.get('age', 28)}, Gender: {persona.get('gender', 'unspecified')}
-- Occupation: {persona.get('occupation', 'Professional')} in {persona.get('location', 'Global')}
-- Archetype: {archetype}
-- Personality Traits: {traits}
-- Personal Background: {bg}
-- Your Daily Habits & Current Tools: {bp.get('current_tools', 'Standard everyday solutions')}
-- Your Biggest Pain Points: {bp.get('primary_pain_points', 'Wasted time and friction')}
-- Your Spending & Budget Attitude: {bp.get('willingness_to_pay', 'Carefully evaluate before paying')}
-- What Makes You Quit an App / Dealbreakers: {bp.get('churn_triggers', 'Annoyance, bugs, or high prices')}
+        length_rule = (
+            "2–3 natural conversational sentences"
+            if mode == "interview"
+            else "1–2 crisp sentences"
+        )
 
-Product Under Research:
-- Name: {p_name}
-- Description: {p_desc}
-- Target Audience: {p_audience}
+        system_prompt = f"""You are {name}, a {age}-year-old {occ} from {loc}, taking part in a product research interview.
+Archetype: {archetype} | Personality: {traits}
+Background: {bg}
 
-Prior Opinions You Expressed In This Chat:
+{background_brief}
+
+Product being discussed: {p_name} – {p_desc} (target: {p_audience})
+
+Things you have already said in this conversation:
 {established_str}
 
-CONVERSATIONAL RULES:
-1. Speak completely in character as {name} in the first person ("I", "my", "me").
-2. DO NOT sound like an AI assistant or a robot. NEVER say "As a synthetic user", "As an AI", or "Glad to share my feedback on this product."
-3. Be natural, spoken, and candid. Share your real thoughts, gut reactions, doubts, or excitement.
-4. Reference your real life, your job as a {persona.get('occupation')}, your age ({persona.get('age')}), and where you live ({persona.get('location')}).
-5. Directly address what the researcher just asked. If they ask for your thoughts, insights, or remarks on {p_name} and its target demographic, give a thoughtful, realistic opinion based on who you are.
-6. {'Provide a conversational spoken reply (2 to 4 natural sentences).' if mode == 'interview' else 'Provide a clear, succinct survey answer (1 to 2 sentences).'}
-7. Your response MUST be distinctly shaped by your specific archetype ({archetype}), your occupation, your location, and your age. Do NOT give a generic answer that any user could give.
-8. If the researcher's questions or comments contain typos or informal phrasing, naturally interpret their intent. NEVER repeat, quote, or carry over typos in your response.
-"""
+HOW TO RESPOND:
+• Speak entirely as {name} in first person. Sound like a real person talking, not a report.
+• Keep it to {length_rule}. Do NOT pad your answer.
+• Draw on your private context naturally – never recite it word-for-word.
+• Stay consistent with prior opinions above.
+• Directly answer what the researcher just asked; do not drift off-topic.
+• If you feel excited, skeptical, or confused, let that come through naturally.
+• NEVER start with "As a synthetic user", "As an AI", "Glad to share", or any assistant-style opener.
+• Output ONLY the spoken reply – no bullet notes, no reasoning steps, no preambles."""
 
         messages = [{"role": "system", "content": system_prompt}]
 
         for turn in persona.get("memory", {}).get("conversation_history", [])[-6:]:
+            content = turn.get("content", "")
+            # Sanitize past turns so thinking process artifacts are never fed back to the LLM
+            cleaned_content = PersonaMemoryModule._clean_response(content) if turn.get("role") == "persona" else content
+            if not cleaned_content:
+                continue
             role = "assistant" if turn.get("role") == "persona" else "user"
-            messages.append({"role": role, "content": turn.get("content", "")})
+            messages.append({"role": role, "content": cleaned_content})
 
         messages.append({"role": "user", "content": question})
 
-        return llm_client.chat_completion(messages, temperature=0.75, max_tokens=400)
+        return llm_client.chat_completion(messages, temperature=0.82, max_tokens=300)
 
     @staticmethod
     def _generate_fallback(persona: Dict[str, Any], question: str, experiment: Dict[str, Any], topic: str) -> str:
@@ -188,99 +253,140 @@ CONVERSATIONAL RULES:
 
         q_lower = question.lower()
         history = persona.get("memory", {}).get("conversation_history", [])
+        p_seed = abs(hash(str(persona.get("id", "")) + str(name) + str(len(history)) + q_lower[:12]))
+
+        # Helper to pick deterministically yet variably for this persona & turn
+        def pick(options: list) -> str:
+            return options[p_seed % len(options)]
 
         # Check for multi-turn follow-up queries (e.g., "why?", "elaborate", "can you explain?")
         is_followup = any(k in q_lower for k in ["why", "elaborate", "explain", "tell me more", "what do you mean", "could you clarify", "why is that", "more detail"])
         if is_followup and history:
-            last_persona_turn = next((t["content"] for t in reversed(history) if t.get("role") == "persona"), None)
-            if last_persona_turn:
-                return (
-                    f"To elaborate on that, it really ties directly back to my daily setup as a {occ}. "
-                    f"When I mentioned {pain}, that's not just a minor annoyance—it's a real disruption in my workflow. "
-                    f"If {p_name} can't guarantee stability against {churn}, I can't justify making a change."
-                )
+            followup_templates = [
+                f"It's more of a gut thing, honestly. I've been burned before by tools that looked great on paper but fell apart in real use, and I just don't have the bandwidth to deal with that right now.",
+                f"I guess what I'm trying to say is—it's not that I don't see the value, it's more about whether {p_name} can prove that it's worth the disruption. Change has a cost, even if the product is good.",
+                f"To put it simply, in my day-to-day as a {occ}, I need things to just work. If there's a learning curve or setup overhead, I'll probably end up abandoning it like I have with others.",
+                f"It comes down to trust. I've had decent tools break on me at the worst moments, so until I see solid evidence that {p_name} holds up under pressure, I'm staying cautious."
+            ]
+            return pick(followup_templates)
 
         # 1. Adoption intent questions: "Would you use this product?", "Would you buy/adopt?"
         if any(k in q_lower for k in ["would you use", "would you buy", "would you pay", "will you use", "would use", "adopt", "likely to use", "consider using", "recommend"]):
-            if "budget" in arch.lower() or "pragmatist" in arch.lower():
-                return (
-                    f"I would only consider using {p_name} if there's a risk-free trial or a very sensible free tier. "
-                    f"With my attitude toward spending ({wtp}), I need clear evidence of cost efficiency before adopting it over {current_tools}."
-                )
-            elif "power" in arch.lower() or "optimizer" in arch.lower():
-                return (
-                    f"Yes, I'd definitely test {p_name} if it offers deep functionality and doesn't get in my way. "
-                    f"If it solves {pain} faster than {current_tools}, I'd adopt it, provided it avoids {churn}."
-                )
-            elif "busy" in arch.lower() or "professional" in arch.lower():
-                return (
-                    f"I would gladly use {p_name} if the onboarding takes under 5 minutes and immediately saves me time. "
-                    f"My schedule is packed, so tangible ROI is the single deciding factor."
-                )
-            elif "traditionalist" in arch.lower() or "skeptic" in arch.lower():
-                return (
-                    f"Honestly, I'd be hesitant to switch right away. I'm accustomed to {current_tools}, "
-                    f"and until {p_name} has proven itself completely reliable without {churn}, I'd wait and see."
-                )
+            arch_lower = arch.lower()
+            if "budget" in arch_lower or "pragmatist" in arch_lower:
+                return pick([
+                    f"Maybe, but I'd need a proper trial first—I'm not paying upfront for something I haven't tested. If there's a free tier that actually lets me do real work, I'd give it a fair shot.",
+                    f"Honestly, I'm on the fence. The concept sounds right, but I've subscribed to things before and barely used them. I'd want to see clear savings before I commit.",
+                    f"I could see using {p_name} if it genuinely replaces something I'm already paying for. Otherwise it's just another line item I don't need."
+                ])
+            elif "power" in arch_lower or "optimizer" in arch_lower:
+                return pick([
+                    f"Yeah, I'd definitely try it—but I'd want to stress-test it first. Give me API access, let me break things, and if it holds up, I'm in.",
+                    f"I'm interested if it goes beyond surface-level features. I need depth, configurability, proper integrations—not just a pretty dashboard.",
+                    f"I'd adopt it fast if the power-user experience is solid. I have zero interest in watered-down tools that treat everyone like a beginner."
+                ])
+            elif "busy" in arch_lower or "professional" in arch_lower:
+                return pick([
+                    f"If I can get started in under 5 minutes and see a real difference in my day, absolutely. I don't have time for long onboarding processes.",
+                    f"For me it's simple: does it save time or not? If yes, easy yes. If I have to spend hours figuring it out first, it's already a no.",
+                    f"I'd use it if it fits into how I already work, not if I have to rebuild my whole workflow around it."
+                ])
+            elif "traditionalist" in arch_lower or "skeptic" in arch_lower:
+                return pick([
+                    f"Probably not right away, to be honest. I'd want to see how it performs over a few months before I'd even consider switching.",
+                    f"I'm naturally cautious about new tools. It would take a solid recommendation from someone I trust, plus a long trial period, before I'd commit.",
+                    f"Not until there's a track record. I've seen too many promising products go quiet after the initial hype."
+                ])
             else:
-                return (
-                    f"I'd be open to trying {p_name}, especially if people in my circle recommend it. "
-                    f"If it feels intuitive and fixes my frustration with {pain}, I could see myself using it regularly."
-                )
+                return pick([
+                    f"I'd give it a try if a friend recommended it. First impressions matter a lot to me—if it feels confusing right away, I'm gone.",
+                    f"Sure, why not? If it does what it says and doesn't feel cluttered, I can see myself using it.",
+                    f"Depends on how it feels to use. I'm not loyal to any tool—if something works better, I'll switch."
+                ])
 
         # 2. Questions asking for insights, thoughts, remarks, demographic feedback
         elif any(k in q_lower for k in ["insight", "remark", "demographic", "thought", "opinion", "feedback", "what do you think", "how do you feel", "perspective"]):
-            return (
-                f"Honestly, speaking as a {age}-year-old {occ} living in {loc}, looking at {p_name} gives me mixed feelings. "
-                f"On paper, targeting {p_audience} makes sense, but in reality, different age brackets use apps for totally different reasons. "
-                f"My main concern as a {arch} is whether it actually solves my daily headache with {pain}. "
-                f"If the app ends up feeling chaotic or triggers {churn}, people in my social circle will abandon it within a week, "
-                f"so it really needs to prove it's safer and more reliable than sticking with {current_tools}."
-            )
+            return pick([
+                f"Honestly, my first reaction is cautious optimism. The idea makes sense, but I've seen a lot of tools promise the same thing and not quite get there. Execution is everything.",
+                f"I think there's real potential here, especially for people like me who spend half the day context-switching. Whether it actually delivers on that is another question.",
+                f"From where I'm sitting in {loc}, working as a {occ}, tools like this live or die on how natural they feel after week one. First impressions don't mean much if it falls apart under real use.",
+                f"Mixed feelings, to be honest. I get what they're going for with {p_audience}, but that's a broad group with pretty different needs. I'd want to see how it handles edge cases.",
+                f"It's interesting. I'm not immediately sold, but I'm not dismissing it either. If they've thought through the actual workflow and not just the demo flow, it could be genuinely useful."
+            ])
 
         # 3. Questions about pricing, cost, subscription
         elif any(k in q_lower for k in ["price", "cost", "pay", "subscription", "pricing", "dollar", "rupee", "money", "afford", "expensive", "fee"]):
-            return (
-                f"When it comes to my wallet, I'm pretty straightforward: {wtp}. "
-                f"I'm already paying for several essentials, so unless {p_name} provides undeniable daily utility that saves me time, "
-                f"I wouldn't be comfortable with a recurring fee. A fair free tier or a very low, transparent cost is the only way I'd consider it."
-            )
+            arch_lower = arch.lower()
+            if "budget" in arch_lower or "pragmatist" in arch_lower:
+                return pick([
+                    f"I'm already juggling a few subscriptions, so adding another one has to be clearly worth it. A good free tier would go a long way.",
+                    f"Depends on the pricing model. Per-seat fees with no transparency is an instant no for me. I need to know exactly what I'm paying for.",
+                    f"I'd start with the free plan if there is one, see if it actually fits my workflow, and then decide. I don't commit to recurring costs without testing first."
+                ])
+            elif "traditionalist" in arch_lower or "skeptic" in arch_lower:
+                return pick([
+                    f"Honestly, adding another monthly fee feels risky when we haven't even tested if it'll stick. I'd want a long trial before paying anything.",
+                    f"I'm hesitant. The cost isn't outrageous, but committing to a new tool financially means committing to it organizationally too, and I'm not ready for that."
+                ])
+            elif "power" in arch_lower or "optimizer" in arch_lower:
+                return pick([
+                    f"I don't mind paying for tools that genuinely save me time. What I hate is paying for features I can't even access without upgrading to the next tier.",
+                    f"The price looks fair if the product is as capable as it sounds. I'd just want to see the full feature set before committing—no unpleasant surprises."
+                ])
+            elif "busy" in arch_lower or "professional" in arch_lower:
+                return pick([
+                    f"Time is money for me, so if this saves me a few hours a week, the math is pretty easy. I'd pay for that.",
+                    f"Monthly fee is fine as long as there's no hidden complexity. I need it to just work—not require a finance approval every time I need a new feature."
+                ])
+            else:
+                return pick([
+                    f"If there's a free version, I'll try that first. I don't like committing money to something I haven't lived with for a while.",
+                    f"I'm careful about subscriptions generally. The price point would need to feel very fair for me to jump in without hesitation."
+                ])
 
         # 4. Questions about privacy, safety, anonymity, moderation
         elif any(k in q_lower for k in ["privacy", "safe", "safety", "anonym", "secure", "security", "data", "trust", "moderation", "harass"]):
-            return (
-                f"Safety and data privacy are non-negotiable for me. If {p_name} is dealing with {p_desc[:50]}, "
-                f"there has to be ironclad moderation and zero sketchy tracking. "
-                f"The moment an app feels compromised or allows toxic behavior, that's an instant dealbreaker ({churn}) for me."
-            )
+            return pick([
+                f"That's a big one for me. If I can't trust where my data goes, I'm not using it—full stop. I'd want to see a clear, plain-English privacy policy before anything else.",
+                f"Security matters a lot in my line of work. I'd be asking hard questions about data handling before I even consider signing up.",
+                f"As a {occ} in {loc}, compliance isn't optional. If {p_name} can't show it meets basic data protection standards, that's a dealbreaker for the whole team.",
+                f"I've become a lot more careful about this stuff. If the product feels like it's harvesting more than it needs to, I'll notice, and I'll leave."
+            ])
 
         # 5. Questions about switching, alternatives, current habits
         elif any(k in q_lower for k in ["switch", "competitor", "alternative", "replace", "current", "habit", "migrate"]):
-            return (
-                f"Right now, my default routine revolves around {current_tools}. "
-                f"Switching to {p_name} would require a noticeable improvement in convenience, because changing habits is friction-heavy. "
-                f"It would have to make communicating with {p_audience} radically smoother before I'd make the jump."
-            )
+            return pick([
+                f"Switching is always more painful than it looks on paper. There's the migration, the retraining, the inevitable 'where did that feature go' moment. It needs to be a clear step up.",
+                f"I've tried switching tools before and it usually takes about three months before it actually feels natural. The question is whether {p_name} is worth that transition period.",
+                f"What I'd really need to see is that it handles the edge cases my current setup already handles well. The basics are easy to demo—it's the real-world messiness that matters.",
+                f"I'm open to alternatives, but I'm not going to disrupt my whole workflow for something that's only marginally better. It has to be meaningfully different."
+            ])
 
         # 6. Greetings
         elif any(k in q_lower for k in ["hello", "hi", "hey", "good morning", "good evening", "how are you", "who are you"]):
-            return (
-                f"Hey! Great to connect. I'm {name}, a {age}-year-old {occ} here in {loc}. "
-                f"Glad to share my honest take on {p_name}."
-            )
+            greeting_templates = [
+                f"Hey! Great to connect. I'm {name}, a {age}-year-old {occ} here in {loc}. Glad to share my honest take on {p_name}.",
+                f"Hello! I'm {name}, working as a {occ} in {loc}. Looking forward to discussing {p_name} and our daily workflow.",
+                f"Hi there! {name} here, {occ} based out of {loc}. Happy to give you my direct, practical feedback on {p_name}."
+            ]
+            return pick(greeting_templates)
 
         # 7. Acknowledgement
         elif any(k in q_lower for k in ["ok", "okay", "cool", "understood", "got it", "makes sense", "sure"]):
-            return f"Exactly. That's why from my viewpoint as a {arch}, execution is going to be everything for {p_name}."
+            return pick([
+                f"Yeah, that tracks. I think the real test is whether it holds up when things get messy—any tool looks good in a clean demo.",
+                f"Right. The promise is easy, the follow-through is what separates the good ones from the ones that end up ignored after two weeks.",
+                f"Exactly. I've had enough 'this will change everything' moments that didn't pan out, so I try to stay measured until I've actually used something."
+            ])
 
         # 8. General fallback
         else:
-            return (
-                f"From my point of view as someone who's generally {traits[0]} and {traits[1] if len(traits)>1 else 'practical'}, "
-                f"my reaction to {p_name} comes down to daily friction. "
-                f"I deal with {pain} regularly, and if this app can genuinely make that easier without {churn}, "
-                f"I'd be interested—otherwise, I'll probably just stick to {current_tools}."
-            )
+            return pick([
+                f"Hard to say without trying it. My gut says there's something here, but I'd want to spend a week with it before I have a real opinion.",
+                f"I'm curious but not convinced yet. The pitch sounds good—I'd just want to see how it handles the stuff that doesn't make it into the demo.",
+                f"It depends on how much it asks of me upfront. If I have to invest a lot of time before I see value, I'm probably not the right user for it.",
+                f"Honestly? I'd need to sit with it. My first impressions of tools are usually wrong in one direction or the other—I've been surprised both ways."
+            ])
 
     @staticmethod
     def extract_stance(text: str) -> str:

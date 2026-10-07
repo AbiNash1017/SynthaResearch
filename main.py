@@ -179,6 +179,9 @@ def _display_agreement_patterns(report: dict):
         table.add_column("Agreement %", justify="center", style="green")
         table.add_column("Notes", style="dim")
         for item in consensus:
+            if not isinstance(item, dict):
+                table.add_row(str(item), "", "", "")
+                continue
             table.add_row(
                 str(item.get("topic", item.get("item", ""))),
                 str(item.get("stance", item.get("shared_stance", ""))),
@@ -193,6 +196,9 @@ def _display_agreement_patterns(report: dict):
         table.add_column("Divide", justify="center")
         table.add_column("Notes", style="dim")
         for item in polarized:
+            if not isinstance(item, dict):
+                table.add_row(str(item), "", "")
+                continue
             table.add_row(
                 str(item.get("topic", item.get("item", ""))),
                 str(item.get("divide", item.get("split", ""))),
@@ -469,13 +475,24 @@ def main():
                 border_style="cyan"
             ))
             import subprocess
+            # Resolve validation script path relative to THIS file's directory
+            # so it works regardless of the user's current working directory.
+            _project_root = Path(__file__).resolve().parent
+            _validation_script = _project_root / "validation.py"
+
+            if not _validation_script.exists():
+                console.print(f"[bold red]✘ Validation script not found: {_validation_script}[/bold red]")
+                console.print("[dim]Ensure 'validation.py' exists in the project root.[/dim]")
+                continue
+
             confirm = Prompt.ask("Run validation suite now? (may take several minutes)", choices=["y", "n"], default="y")
             if confirm == "y":
-                console.print("[yellow]Running test_milestone3_validation.py...[/yellow]\n")
+                console.print(f"[yellow]Running {_validation_script.name}...[/yellow]\n")
                 result = subprocess.run(
-                    [sys.executable, "test_milestone3_validation.py"],
+                    [sys.executable, str(_validation_script)],
                     capture_output=False,
-                    text=True
+                    text=True,
+                    cwd=str(_project_root)
                 )
                 if result.returncode == 0:
                     console.print("[bold green]✔ Validation suite completed successfully![/bold green]")

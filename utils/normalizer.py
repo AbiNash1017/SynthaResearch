@@ -439,12 +439,14 @@ def normalize_experiment(experiment: Dict[str, Any]) -> Dict[str, Any]:
 
 def generate_aligned_personas_fallback(
     experiment: Dict[str, Any],
-    count: int = 5
+    count: int = 5,
+    seed: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
     Generates realistic, diverse synthetic user personas strictly aligned with
     the target customer, business requirements, and industry domain.
-    Guarantees ZERO typos in personas, authentic occupations, tools, and pain points.
+    Guarantees ZERO typos in personas, authentic occupations, tools, and pain points,
+    with a rich demographic pool and non-repetitive backgrounds across runs.
     """
     from datetime import datetime
     import random
@@ -457,27 +459,61 @@ def generate_aligned_personas_fallback(
 
     archetype_keys = list(UNIVERSAL_ARCHETYPES.keys())
 
-    # Diverse realistic demographics
-    names = [
-        "Alex Rivera", "Priya Nair", "Jordan Smith", "Elena Vance",
-        "Marcus Chen", "Sarah Miller", "Devon Washington", "Aisha Al-Mansoor"
+    # Diverse global demographics pool
+    female_names = [
+        "Maya Patel", "Sofia Rodriguez", "Chloe Bennett", "Sunita Rao", "Leila Hosseini",
+        "Amara Okafor", "Rachel Goldstein", "Mei-Ling Wu", "Freya Lindberg", "Nadia Chernova",
+        "Camila Morales", "Zahra Al-Hashimi", "Jessica Barnes", "Ananya Iyer", "Emma Watson-Hall",
+        "Yasmine Belkacem", "Olivia Vance", "Naomi Tanaka", "Fatima Al-Zahra", "Grace O'Malley",
+        "Ingrid Bergman", "Chiara Rossi", "Kavita Sharma", "Linh Nguyen", "Hannah Arendt-Meyer"
     ]
+    male_names = [
+        "Mateo Fernandez", "Rohan Mehra", "Kai Tanaka", "David Miller", "Samuel Adebayo",
+        "Liam O'Connor", "Carlos Mendez", "Tariq Hassan", "Daniel Kowalski", "Kenji Sato",
+        "Zachary Taylor", "Andre Washington", "Henrik Lindqvist", "Vikram Joshi", "Julian Rossi",
+        "Kwesi Appiah", "Lucas Silva", "Aaron Chen", "Nathan Brooks", "Aris Thorne",
+        "Dmitri Ivanov", "Marcus Vance", "Siddharth Verma", "Antoine Dubois", "Felix Weber"
+    ]
+    neutral_names = [
+        "Jordan Blake", "Morgan Ellis", "Alex Chen", "Riley Campbell", "Quinn Davies",
+        "Taylor Kim", "Casey Rivera", "Samira Jensen", "Cameron Diaz", "Avery Brooks"
+    ]
+
     locations = [
-        "Chicago, USA", "Bengaluru, India", "London, UK", "Toronto, Canada",
-        "Berlin, Germany", "Austin, USA", "Sydney, Australia", "Dubai, UAE"
+        "San Francisco, USA", "Austin, USA", "Chicago, USA", "New York, USA", "Seattle, USA",
+        "Toronto, Canada", "Vancouver, Canada", "London, UK", "Manchester, UK", "Berlin, Germany",
+        "Munich, Germany", "Amsterdam, Netherlands", "Stockholm, Sweden", "Paris, France",
+        "Dublin, Ireland", "Zurich, Switzerland", "Barcelona, Spain", "Bengaluru, India",
+        "Mumbai, India", "Singapore", "Tokyo, Japan", "Seoul, South Korea", "Sydney, Australia",
+        "Melbourne, Australia", "Dubai, UAE", "Tel Aviv, Israel", "Nairobi, Kenya",
+        "Cape Town, South Africa", "São Paulo, Brazil", "Mexico City, Mexico", "Taipei, Taiwan"
     ]
-    genders = ["Male", "Female", "Non-binary", "Female", "Male", "Female", "Male", "Female"]
-    ages = [38, 34, 42, 31, 47, 29, 36, 44]
-    incomes = ["upper-middle", "middle", "upper-middle", "middle", "upper-middle", "lower-middle", "middle", "upper-middle"]
+
     educations = [
-        "Bachelor's in Hospitality & Business",
-        "Bachelor's in Culinary Arts & Operations",
-        "Associate Degree in Business Management",
-        "BBA / Hotel & Restaurant Management",
-        "MBA in Financial Operations",
-        "Diploma in Retail & Service Management",
-        "B.S. in Information Systems",
-        "Master's in Operations Research"
+        "Bachelor's in Business Administration (BBA)",
+        "B.S. in Computer Science & Information Systems",
+        "Master of Business Administration (MBA)",
+        "Bachelor's in Hospitality & Service Operations",
+        "Associate Degree in Applied Management",
+        "B.A. in Communications & Digital Media",
+        "M.S. in Data Analytics & Operations Research",
+        "Certified Professional (Industry Accreditations)",
+        "Bachelor's in Finance & Accounting",
+        "Diploma in Technical Project Management",
+        "B.S. in Industrial Engineering",
+        "Executive Certificate in Strategic Operations",
+        "Bachelor's in Culinary Arts & Food Service",
+        "Self-Taught Practitioner with 8+ Years Industry Experience",
+        "M.S. in Human-Computer Interaction"
+    ]
+
+    incomes = ["middle", "upper-middle", "middle", "lower-middle", "upper-middle", "middle", "upper"]
+    usage_frequencies = [
+        "Daily throughout standard 8-hour operational shifts",
+        "4 to 5 times per week during peak business hours",
+        "Continuous background use throughout workdays",
+        "Twice daily during reconciliation and operational handoffs",
+        "Regularly during sprint planning and high-priority cycles"
     ]
 
     roles = prof.get("canonical_roles", [f"{audience} Lead"])
@@ -488,35 +524,76 @@ def generate_aligned_personas_fallback(
 
     personas = []
     now_iso = datetime.now().isoformat()
-    rng = random.Random(hash(p_name + str(count) + audience))
+    rng = random.Random(seed) if seed is not None else random.Random()
+
+    # Create shuffled pools for unique selection in this batch
+    shuffled_females = list(female_names)
+    shuffled_males = list(male_names)
+    shuffled_neutrals = list(neutral_names)
+    shuffled_locations = list(locations)
+    shuffled_educations = list(educations)
+    shuffled_roles = list(roles)
+    shuffled_tools = list(tools)
+    shuffled_pains = list(pains)
+
+    rng.shuffle(shuffled_females)
+    rng.shuffle(shuffled_males)
+    rng.shuffle(shuffled_neutrals)
+    rng.shuffle(shuffled_locations)
+    rng.shuffle(shuffled_educations)
+    rng.shuffle(shuffled_roles)
+    rng.shuffle(shuffled_tools)
+    rng.shuffle(shuffled_pains)
+
+    # Balanced archetype distribution with randomized ordering
+    shuffled_archetypes = []
+    while len(shuffled_archetypes) < count:
+        batch = list(archetype_keys)
+        rng.shuffle(batch)
+        shuffled_archetypes.extend(batch)
+    shuffled_archetypes = shuffled_archetypes[:count]
+
+    gender_cycle = ["Female", "Male", "Female", "Male", "Non-binary", "Male", "Female", "Male"]
+    rng.shuffle(gender_cycle)
 
     for i in range(count):
-        arch_key = archetype_keys[i % len(archetype_keys)]
+        arch_key = shuffled_archetypes[i]
         arch_data = UNIVERSAL_ARCHETYPES[arch_key]
 
-        name = names[i % len(names)]
-        loc = locations[i % len(locations)]
-        gender = genders[i % len(genders)]
-        age = ages[i % len(ages)]
-        income = incomes[i % len(incomes)]
-        edu = educations[i % len(educations)]
+        gender = gender_cycle[i % len(gender_cycle)]
+        if gender == "Female":
+            name = shuffled_females[i % len(shuffled_females)]
+        elif gender == "Male":
+            name = shuffled_males[i % len(shuffled_males)]
+        else:
+            name = shuffled_neutrals[i % len(shuffled_neutrals)]
 
-        # Role & occupation directly tailored to target customer
-        occ = roles[i % len(roles)]
-        current_tool = tools[i % len(tools)]
-        pain = pains[i % len(pains)]
+        loc = shuffled_locations[i % len(shuffled_locations)]
+        edu = shuffled_educations[i % len(shuffled_educations)]
+        income = rng.choice(incomes)
+        age = rng.randint(24, 54)
+        usage_freq = rng.choice(usage_frequencies)
+
+        occ = shuffled_roles[i % len(shuffled_roles)]
+        current_tool = shuffled_tools[i % len(shuffled_tools)]
+        pain = shuffled_pains[i % len(shuffled_pains)]
 
         # Archetype-specific willingness to pay adjustments
         if "Budget" in arch_key:
-            wtp = f"Cautious and ROI-focused: {wtp_base}. Prefers low upfront risk or clear trial period."
+            wtp = f"Cautious and ROI-focused: {wtp_base}. Prefers low upfront risk, transparent pricing, or clear trial period."
+            feat_pri = "Cost predictability, transparent tiers, essential core stability, and straightforward setup"
         elif "Power" in arch_key:
-            wtp = f"High budget tolerance for depth: {wtp_base}, provided deep customization and automation are included."
+            wtp = f"High budget tolerance for depth: {wtp_base}, provided deep customization, robust APIs, and automation are included."
+            feat_pri = "Extensibility, advanced automation, keyboard shortcuts, fast execution, and granular controls"
         elif "Busy" in arch_key:
-            wtp = f"Willing to pay a premium immediately if onboarding takes under 10 minutes and eliminates {pain.lower()[:50]}."
+            wtp = f"Willing to pay a premium immediately if onboarding takes under 5 minutes and eliminates {pain.lower()[:50]}."
+            feat_pri = "Frictionless onboarding, rapid time-to-value, mobile accessibility, and streamlined workflows"
         elif "Traditionalist" in arch_key:
-            wtp = f"Skeptical about new software fees: Requires proven track record before replacing {current_tool.split(',')[0]}."
+            wtp = f"Skeptical about new software fees: Requires proven track record and data safety before replacing {current_tool.split(',')[0]}."
+            feat_pri = "Uptime stability, data security, zero habit disruption, and backwards compatibility"
         else:
-            wtp = wtp_base
+            wtp = f"Flexible and experience-driven: {wtp_base}, with strong emphasis on intuitive UI and peer endorsements."
+            feat_pri = "Intuitive user interface, visual clarity, low cognitive load, and engaging user experience"
 
         churn_risk = arch_data["behavioral_patterns"]["churn_trigger"]
         combined_churn = f"{churn_base}, or {churn_risk}"
@@ -527,11 +604,41 @@ def generate_aligned_personas_fallback(
             for k, v in base_seeds.items()
         }
 
-        bg_story = (
-            f"{name} is a {age}-year-old {occ} based in {loc}. "
-            f"In their daily role dealing with {audience.lower()}, they currently depend on {current_tool}. "
-            f"Their primary operational bottleneck is {pain.lower()}, making them evaluate {p_name} strictly on how reliably it solves this issue."
-        )
+        # Dynamic, varied narrative structures for background stories
+        story_templates = [
+            # Style 1: Operational & Daily Workflow
+            (
+                f"{name} is a {age}-year-old {occ} based in {loc}. "
+                f"In their day-to-day work dealing with {audience.lower()}, they rely heavily on {current_tool}. "
+                f"Their primary operational bottleneck is {pain.lower()}, making them judge {p_name} strictly by how reliably it solves this issue."
+            ),
+            # Style 2: Strategic & ROI Focus
+            (
+                f"Operating out of {loc}, {name} ({age}) oversees critical operational workflows as a {occ}. "
+                f"While currently managing with {current_tool}, persistent challenges around {pain.lower()} drain valuable time and focus. "
+                f"They approach {p_name} with a clear return-on-investment expectation: it must prove tangible productivity gains to justify any migration."
+            ),
+            # Style 3: Hands-on Practitioner / Power User
+            (
+                f"With extensive practical experience in {loc}, {name} ({age}) serves as a {occ}. "
+                f"Their core operations currently depend on {current_tool}, but frustration with {pain.lower()} has created significant day-to-day friction. "
+                f"When evaluating {p_name}, they look for real architectural depth, speed, and dependable execution rather than superficial marketing promises."
+            ),
+            # Style 4: Habit Preservation & Pragmatic Skepticism
+            (
+                f"As an established {occ} in {loc}, {name} ({age}) values stability and proven reliability above all else. "
+                f"They have well-honed routines built around {current_tool}; while {pain.lower()} is a known pain point, "
+                f"they remain cautious about adopting {p_name} until long-term reliability and zero data disruption are convincingly demonstrated."
+            ),
+            # Style 5: Velocity & Cross-Functional Collaboration
+            (
+                f"Located in {loc}, {name} ({age}) is an active {occ} working closely with {audience.lower()}. "
+                f"Having cycled through tools like {current_tool}, they find {pain.lower()} to be their biggest recurring obstacle. "
+                f"They are actively seeking modern solutions like {p_name} that can streamline day-to-day workflows and eliminate administrative drag."
+            )
+        ]
+
+        bg_story = story_templates[i % len(story_templates)]
 
         persona = {
             "id": f"persona_{i+1:03d}",
@@ -546,11 +653,11 @@ def generate_aligned_personas_fallback(
             "personality_traits": list(arch_data["personality_traits"]),
             "behavioral_patterns": {
                 "current_tools": current_tool,
-                "usage_frequency": "Daily during business operations",
+                "usage_frequency": usage_freq,
                 "primary_pain_points": pain,
                 "willingness_to_pay": wtp,
                 "churn_triggers": combined_churn,
-                "feature_priorities": "Reliability, workflow speed, seamless multi-channel syncing, and immediate ease of use"
+                "feature_priorities": feat_pri
             },
             "psychological_profile": dict(arch_data["psychological_profile"]),
             "background_story": bg_story,

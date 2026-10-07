@@ -92,7 +92,9 @@ CRITICAL GENERATION RULES:
    - For example, if the product is for restaurants, cloud kitchens, POS, and food billing, personas MUST have real hospitality job titles (such as Multi-Unit Restaurant Owner, Cloud Kitchen Operations Manager, Restaurant General Manager, Food & Beverage Accounts Lead, Cafe Franchisee). NEVER generate unrelated generic professions like software developers or general consultants unless they are the direct target market.
 2. ZERO TYPO REPRODUCTION: The user's original concept notes may have contained informal typos or misspellings. Infer the true commercial intent and business use case. Under no circumstances should you copy, repeat, or carry over any typos or raw text mistakes into persona cards, tools, or pain points.
 3. AUTHENTIC TOOLS & PAIN POINTS: 'current_tools' and 'primary_pain_points' MUST describe real tools and operational bottlenecks specific to this industry.
-4. PSYCHOLOGICAL & OPINION DIVERSITY: Ensure diverse age ranges, genders, geographic locations, and distinct archetypes (pragmatists, optimizers, busy professionals, skeptics, etc.).
+4. PSYCHOLOGICAL & OPINION DIVERSITY: Ensure diverse age ranges (23 to 58), balanced gender representation, global geographic distribution (e.g. North America, Europe, Asia-Pacific, Latin America), and distinct archetypes (pragmatists, optimizers, busy professionals, skeptics, casual explorers).
+5. FRESH, UNIQUE NAMES & PERSONALITIES: Avoid repetitive placeholder names like Alex, Priya, Jordan, or John Doe. Give every persona a realistic, culturally diverse full name. Make their background story vivid and distinct, reflecting their exact daily responsibilities and individual work habits.
+6. REALISTIC ECONOMIC REALISM: Differentiate willingness to pay based on their role and business scale. Avoid uniform answers.
 
 Return a valid JSON array containing exactly {count} persona objects. Each persona object must have the following structure:
 [
@@ -137,7 +139,7 @@ Return a valid JSON array containing exactly {count} persona objects. Each perso
             {"role": "user", "content": prompt}
         ]
 
-        data = llm_client.chat_completion_json(messages, temperature=0.7)
+        data = llm_client.chat_completion_json(messages, temperature=0.7, max_tokens=4000)
         if not isinstance(data, list):
             if isinstance(data, dict) and "personas" in data:
                 data = data["personas"]
@@ -156,7 +158,16 @@ Return a valid JSON array containing exactly {count} persona objects. Each perso
             }
             cleaned_personas.append(item)
 
-        return cleaned_personas
+        # Guarantee exact requested count if LLM returned fewer items
+        if len(cleaned_personas) < count:
+            needed = count - len(cleaned_personas)
+            fallback_items = generate_aligned_personas_fallback(experiment, count=needed)
+            for fb_item in fallback_items:
+                idx = len(cleaned_personas) + 1
+                fb_item["id"] = f"persona_{idx:03d}"
+                cleaned_personas.append(fb_item)
+
+        return cleaned_personas[:count]
 
     def _generate_fallback(self, experiment: Dict[str, Any], count: int) -> List[Dict[str, Any]]:
         """Domain-aligned fallback personas guaranteeing zero typos and authentic industry roles."""

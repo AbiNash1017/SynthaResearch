@@ -167,14 +167,17 @@ class LLMClient:
             retries=retries
         )
 
+        # Strip XML thinking tags
+        clean_text = re.sub(r"<think>[\s\S]*?</think>", "", raw_text, flags=re.IGNORECASE).strip()
+
         # Attempt direct JSON parse
         try:
-            return json.loads(raw_text)
+            return json.loads(clean_text)
         except json.JSONDecodeError:
             pass
 
         # Try extracting from code block
-        match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw_text)
+        match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", clean_text)
         if match:
             candidate = match.group(1).strip()
             try:
@@ -182,13 +185,35 @@ class LLMClient:
             except json.JSONDecodeError:
                 pass
 
+        # Try finding complete array [ ... ]
+        if "[" in clean_text:
+            start_bracket = clean_text.find("[")
+            last_bracket = clean_text.rfind("]")
+            if last_bracket > start_bracket:
+                candidate = clean_text[start_bracket:last_bracket + 1].strip()
+                try:
+                    return json.loads(candidate)
+                except json.JSONDecodeError:
+                    pass
+
+        # Try finding complete object { ... }
+        if "{" in clean_text:
+            start_brace = clean_text.find("{")
+            last_brace = clean_text.rfind("}")
+            if last_brace > start_brace:
+                candidate = clean_text[start_brace:last_brace + 1].strip()
+                try:
+                    return json.loads(candidate)
+                except json.JSONDecodeError:
+                    pass
+
         # Try repairing truncated JSON array
-        if "[" in raw_text:
-            start_bracket = raw_text.find("[")
-            trimmed = raw_text[start_bracket:].rstrip()
-            last_brace = trimmed.rfind("}")
-            if last_brace != -1:
-                repaired = trimmed[:last_brace + 1] + "\n]"
+        if "[" in clean_text:
+            start_bracket = clean_text.find("[")
+            trimmed = clean_text[start_bracket:].rstrip()
+            last_delim = max(trimmed.rfind("}"), trimmed.rfind('"'))
+            if last_delim != -1:
+                repaired = trimmed[:last_delim + 1] + "\n]"
                 try:
                     return json.loads(repaired)
                 except json.JSONDecodeError:

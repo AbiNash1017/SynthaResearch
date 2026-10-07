@@ -86,12 +86,67 @@ Focus on:
             except Exception as e:
                 _print_msg(f"[dim yellow]Notice: Could not auto-generate questions via LLM ({e}), using generalized questions.[/dim yellow]")
 
-        # Dynamic fallback questions based on experiment details
-        return [
-            f"What is your single biggest frustration with current tools or methods you use in this space?",
-            f"If {p_name} could solve that problem reliably, what would make you hesitate to switch?",
-            f"What pricing structure or monthly amount would you consider fair for this solution?"
-        ]
+        # Dynamic, domain-tailored fallback questions based on product and industry profile
+        combined_text = f"{p_name} {experiment.get('industry_domain', '')} {p_desc} {audience}".lower()
+
+        if any(k in combined_text for k in ["devtools", "developer", "code", "github", "api", "software engineer", "devops", "pull request"]):
+            pool = [
+                f"How significantly do pull request review bottlenecks and CI/CD turnaround times impact your team's shipping velocity?",
+                f"Would your team adopt {p_name} if it integrated directly into GitHub/GitLab without requiring workflow reconfiguration?",
+                f"What pricing structure (e.g. per active developer vs team flat fee) would you consider fair for {p_name}?",
+                f"What are your biggest technical concerns or security dealbreakers when adopting automated developer tooling like {p_name}?",
+                f"How does your current tool stack handle these workflows, and what would make you hesitate to switch?"
+            ]
+        elif any(k in combined_text for k in ["fintech", "finance", "billing", "invoic", "account", "invest", "banking", "wealth"]):
+            pool = [
+                f"What is your biggest operational headache when managing financial tracking, automated budgeting, or recurring subscriptions today?",
+                f"Would you connect your primary accounts or payment tools to {p_name} if it automated end-to-end reconciliation reliably?",
+                f"What monthly subscription or fee structure would make {p_name} an easy ROI justification for you?",
+                f"What data privacy, encryption, or regulatory guarantees are absolute prerequisites before you would adopt {p_name}?",
+                f"What friction in your current financial routines would make you hesitate to switch to {p_name}?"
+            ]
+        elif any(k in combined_text for k in ["restaurant", "kitchen", "pos", "hospitality", "food", "dining", "cafe"]):
+            pool = [
+                f"What causes the most chaos during peak service hours between front-of-house ordering, kitchen tickets, and online delivery portals?",
+                f"Would you switch your primary register or billing workflow to {p_name} if it eliminated end-of-day reconciliation discrepancies?",
+                f"What monthly fee per outlet would you consider fair and sustainable for a unified system like {p_name}?",
+                f"How critical are offline stability and hardware compatibility when evaluating a new platform for your venue?",
+                f"What would prevent your staff from quickly adopting {p_name} during a busy service shift?"
+            ]
+        elif any(k in combined_text for k in ["ecommerce", "e-commerce", "retail", "shop", "apparel", "wardrobe", "rental", "fashion"]):
+            pool = [
+                f"What is your biggest frustration with current purchasing, rental, or return logistics in this space?",
+                f"If {p_name} delivered a seamless experience with zero hidden fees, how likely would you be to adopt it regularly?",
+                f"What monthly subscription or pricing model would you consider fair and compelling for {p_name}?",
+                f"What hygiene, reliability, or customer support concerns would make you hesitate before committing to {p_name}?",
+                f"How does your current shopping or rental routine compare, and what would make {p_name} stand out?"
+            ]
+        elif any(k in combined_text for k in ["health", "wellness", "fitness", "hydration", "medical", "clinic", "biometric"]):
+            pool = [
+                f"What is your single biggest frustration with existing wellness tracking, habit apps, or smart gear you currently use?",
+                f"Would you consistently use {p_name} in your daily routine if it provided effortless, actionable health insights?",
+                f"What upfront hardware price or monthly subscription would you consider fair and justified for {p_name}?",
+                f"How sensitive are you to notification frequency, daily charging, and data privacy when evaluating products like {p_name}?",
+                f"What typically causes you to abandon health or wellness products after the first month?"
+            ]
+        elif any(k in combined_text for k in ["education", "edtech", "learning", "course", "student", "upskilling", "career"]):
+            pool = [
+                f"What causes the greatest drop-off in motivation or course completion in your current learning setup?",
+                f"Would you adopt {p_name} if it measurably accelerated your learning progress and fit into short daily breaks?",
+                f"What pricing structure (e.g. monthly access vs per-certificate fee) would you consider fair for {p_name}?",
+                f"What features (like cohort accountability or verifiable credentials) are essential for you to stay engaged?",
+                f"What would make you hesitate to replace your existing educational resources with {p_name}?"
+            ]
+        else:
+            pool = [
+                f"What is your single biggest frustration with current tools or workflows you use when dealing with {audience}?",
+                f"If {p_name} could reliably solve your primary workflow bottleneck, what would make you hesitate to switch?",
+                f"What pricing model or monthly cost would you consider a fair investment for {p_name}?",
+                f"How does your current setup handle these challenges, and what would make {p_name} indispensable?",
+                f"What onboarding or operational dealbreakers would cause you to abandon {p_name}?"
+            ]
+
+        return pool[:count]
 
     def run_survey(
         self,
