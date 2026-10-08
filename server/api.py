@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
+from fastapi.middleware.cors import CORSMiddleware
+
 warnings.filterwarnings("ignore", message="urllib3.*doesn't match a supported version")
 
 from agents.persona_generator import PersonaGenerationAgent
@@ -18,6 +20,15 @@ app = FastAPI(
     description="Backend services for OpenRouter LLM-powered synthetic user research simulations across any product domain.",
     version="2.0.0"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 persona_agent = PersonaGenerationAgent()
 survey_agent = SurveyAgent()
