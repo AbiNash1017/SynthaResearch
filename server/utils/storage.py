@@ -4,8 +4,6 @@ from typing import Any
 
 def load_json(path: str, default: Any = None) -> Any:
     """Safely loads JSON from a file, returning default if missing or invalid."""
-    if default is None:
-        default = {}
     if not os.path.exists(path):
         return default
     try:

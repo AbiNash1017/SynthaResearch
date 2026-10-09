@@ -152,23 +152,32 @@ Focus on:
         self,
         questions: List[str],
         experiment: Optional[Dict[str, Any]] = None,
-        simultaneous: bool = True
+        simultaneous: bool = True,
+        personas: Optional[List[Dict[str, Any]]] = None,
+        save_to_file: bool = True
     ) -> Dict[str, Any]:
         """
         Executes a survey across all synthetic personas.
         When simultaneous=True, all personas generate responses concurrently via ThreadPoolExecutor.
         """
-        personas = load_json(self.persona_path, [])
+        if personas is None:
+            personas = load_json(self.persona_path, [])
         if not personas:
-            raise ValueError("No personas found in persona_pool.json! Please generate personas first.")
+            raise ValueError("No personas found! Please generate personas first.")
 
         if experiment is None:
             experiment = load_json(self.experiment_path, {})
 
         def _process_single_persona(persona_obj: Dict[str, Any]) -> tuple:
+            # Batch generate answers for all questions in 1 fast LLM call
+            batch_answers = PersonaMemoryModule.generate_survey_responses_batch(
+                persona=persona_obj,
+                questions=questions,
+                experiment=experiment
+            )
             p_answers = []
-            for q in questions:
-                ans = PersonaMemoryModule.generate_response(persona_obj, q, experiment=experiment, mode="survey")
+            for idx, q in enumerate(questions):
+                ans = batch_answers[idx] if idx < len(batch_answers) else PersonaMemoryModule.generate_response(persona_obj, q, experiment=experiment, mode="survey")
                 stance = PersonaMemoryModule.extract_stance(ans)
                 key_phrase = extract_key_phrase(ans)
                 p_answers.append({
@@ -199,12 +208,14 @@ Focus on:
             for p in personas:
                 updated_p, resp_dict = results_map[p["id"]]
                 responses.append(resp_dict)
-                PersonaMemoryModule.update_persona_pool(updated_p, self.persona_path)
+                if save_to_file:
+                    PersonaMemoryModule.update_persona_pool(updated_p, self.persona_path)
         else:
             for p in personas:
                 updated_p, resp_dict = _process_single_persona(p)
                 responses.append(resp_dict)
-                PersonaMemoryModule.update_persona_pool(updated_p, self.persona_path)
+                if save_to_file:
+                    PersonaMemoryModule.update_persona_pool(updated_p, self.persona_path)
 
         survey_payload = {
             "survey_id": f"survey_{int(datetime.now().timestamp())}",
@@ -217,7 +228,8 @@ Focus on:
         # Embed side-by-side matrix view
         survey_payload["matrix"] = self.format_survey_matrix(survey_payload)
 
-        save_json(self.output_path, survey_payload)
+        if save_to_file:
+            save_json(self.output_path, survey_payload)
         return survey_payload
 
     def format_survey_matrix(self, survey_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:

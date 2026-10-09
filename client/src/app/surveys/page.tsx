@@ -11,14 +11,12 @@ import {
   ArrowRight,
   Plus,
   Trash2,
-  Table,
   CheckCircle2,
   AlertCircle,
   Loader2,
   Smile,
   Meh,
   Frown,
-  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,40 +29,39 @@ export default function SurveysPage() {
   ]);
   const [newQuestion, setNewQuestion] = useState("");
   const [surveyResults, setSurveyResults] = useState<SurveyResults | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [viewMode, setViewMode] = useState<"matrix" | "cards">("matrix");
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
-    setLoading(true);
-    try {
-      const exp = await api.getExperiment().catch(() => null);
+    let ignore = false;
+    Promise.allSettled([
+      api.getExperiment().catch(() => null),
+      api.getSurveyMatrix().catch(() => null),
+    ]).then(([expRes, matrixRes]) => {
+      if (ignore) return;
+      const exp = expRes.status === "fulfilled" ? expRes.value : null;
       if (exp) setActiveExp(exp);
 
-      // Attempt to load existing survey matrix if available
-      const matrix = await api.getSurveyMatrix().catch(() => null);
+      const matrix = matrixRes.status === "fulfilled" ? matrixRes.value : null;
       if (matrix && matrix.questions) {
         setSurveyResults({
           survey_id: "active",
           product_name: exp?.product_name || "Active Product",
-          questions: matrix.questions,
+          questions: matrix.questions as string[],
           responses: [],
           created_at: new Date().toISOString(),
           matrix: matrix,
         });
       }
-    } catch {
-      // Continue without preloaded matrix
-    } finally {
       setLoading(false);
-    }
-  }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   async function handleSuggestQuestions() {
     setSuggesting(true);
@@ -81,10 +78,11 @@ export default function SurveysPage() {
           text: `Added ${res.suggested_questions.length} AI-suggested questions tailored to ${res.product_name}!`,
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to generate AI survey questions.";
       setStatusMsg({
         type: "error",
-        text: err.message || "Failed to generate AI survey questions.",
+        text: msg,
       });
     } finally {
       setSuggesting(false);
@@ -119,26 +117,29 @@ export default function SurveysPage() {
         type: "success",
         text: `Survey completed! Gathered responses from ${res.responses?.length || 0} synthetic respondents across ${res.questions?.length || 0} questions.`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // Check if backend actually completed and saved survey matrix to MongoDB
+      try {
+        const matrix = await api.getSurveyMatrix();
+        if (matrix && matrix.total_respondents > 0) {
+          setStatusMsg({
+            type: "success",
+            text: `Survey simulation completed and saved in database! (${matrix.total_respondents} respondents recorded)`,
+          });
+          return;
+        }
+      } catch {
+        // Fall back to original error
+      }
+      const msg = err instanceof Error ? err.message : "Failed to execute survey simulation. Check if personas are generated.";
       setStatusMsg({
         type: "error",
-        text: err.message || "Failed to execute survey simulation. Check if personas are generated.",
+        text: msg,
       });
     } finally {
       setRunning(false);
     }
   }
-
-  const getSentimentIcon = (sentiment: string) => {
-    switch (sentiment) {
-      case "positive":
-        return <Smile className="w-4 h-4 text-emerald-600 inline mr-1" />;
-      case "negative":
-        return <Frown className="w-4 h-4 text-rose-600 inline mr-1" />;
-      default:
-        return <Meh className="w-4 h-4 text-amber-600 inline mr-1" />;
-    }
-  };
 
   const getSentimentBadge = (sentiment: string) => {
     switch (sentiment) {
@@ -389,7 +390,7 @@ export default function SurveysPage() {
                                     {getSentimentBadge(answerData.sentiment)}
                                   </div>
                                   <p className="text-xs text-[#2D3522] leading-relaxed">
-                                    "{answerData.answer}"
+                                    &ldquo;{answerData.answer}&rdquo;
                                   </p>
                                 </>
                               ) : (
@@ -442,7 +443,7 @@ export default function SurveysPage() {
                             {getSentimentBadge(ans.sentiment)}
                           </div>
                           <p className="text-xs text-[#2D3522] italic bg-white p-2.5 rounded-xl border border-[#CFE1B9]/40 leading-relaxed">
-                            "{ans.answer}"
+                            &ldquo;{ans.answer}&rdquo;
                           </p>
                         </div>
                       ))}

@@ -7,24 +7,18 @@ import { api } from "@/lib/api";
 import {
   Persona,
   InterviewSessionSummary,
-  InterviewTurn,
   Experiment,
 } from "@/types/api";
 import {
-  MessageSquare,
   Send,
   Loader2,
   Users,
   RotateCcw,
-  Sparkles,
   Bot,
   User,
   History,
   CheckCircle2,
   AlertCircle,
-  Briefcase,
-  MapPin,
-  HelpCircle,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -50,67 +44,11 @@ function InterviewsContent() {
     Array<{ sender: "user" | "persona"; text: string; timestamp: string }>
   >([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    loadData();
-  }, [personaParam]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sending]);
-
-  async function loadData() {
-    setLoading(true);
-    try {
-      const [expRes, personasRes, interviewsRes] = await Promise.allSettled([
-        api.getExperiment(),
-        api.listPersonas(),
-        api.listInterviews(),
-      ]);
-
-      if (expRes.status === "fulfilled") setActiveExp(expRes.value);
-
-      let foundList: Persona[] = [];
-      if (personasRes.status === "fulfilled" && personasRes.value.personas) {
-        foundList = personasRes.value.personas;
-        setPersonas(foundList);
-      }
-
-      if (interviewsRes.status === "fulfilled" && interviewsRes.value.sessions) {
-        setPastSessions(interviewsRes.value.sessions);
-      }
-
-      // Pick selected persona
-      if (foundList.length > 0) {
-        const target = personaParam
-          ? foundList.find((p) => p.id === personaParam)
-          : foundList[0];
-        const chosen = target || foundList[0];
-        setSelectedPersona(chosen);
-
-        // Check if there is an existing session for this persona
-        if (interviewsRes.status === "fulfilled") {
-          const existing = interviewsRes.value.sessions.find(
-            (s) => s.persona_id === chosen.id
-          );
-          if (existing) {
-            loadSessionTranscript(existing.session_id, chosen);
-          } else {
-            initNewSession(chosen);
-          }
-        }
-      }
-    } catch {
-      // Handled gracefully
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function initNewSession(persona: Persona) {
     const newId = `session_${persona.id}_${Date.now()}`;
@@ -151,10 +89,61 @@ function InterviewsContent() {
       } else {
         setMessages(mapped);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     }
   }
+
+  useEffect(() => {
+    let ignore = false;
+    Promise.allSettled([
+      api.getExperiment(),
+      api.listPersonas(),
+      api.listInterviews(),
+    ]).then(([expRes, personasRes, interviewsRes]) => {
+      if (ignore) return;
+      if (expRes.status === "fulfilled") setActiveExp(expRes.value);
+
+      let foundList: Persona[] = [];
+      if (personasRes.status === "fulfilled" && personasRes.value.personas) {
+        foundList = personasRes.value.personas;
+        setPersonas(foundList);
+      }
+
+      if (interviewsRes.status === "fulfilled" && interviewsRes.value.sessions) {
+        setPastSessions(interviewsRes.value.sessions);
+      }
+
+      // Pick selected persona
+      if (foundList.length > 0) {
+        const target = personaParam
+          ? foundList.find((p) => p.id === personaParam)
+          : foundList[0];
+        const chosen = target || foundList[0];
+        setSelectedPersona(chosen);
+
+        // Check if there is an existing session for this persona
+        if (interviewsRes.status === "fulfilled") {
+          const existing = interviewsRes.value.sessions.find(
+            (s) => s.persona_id === chosen.id
+          );
+          if (existing) {
+            loadSessionTranscript(existing.session_id, chosen);
+          } else {
+            initNewSession(chosen);
+          }
+        }
+      }
+      setLoading(false);
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [personaParam]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
 
   function handleSelectPersona(p: Persona) {
     setSelectedPersona(p);
@@ -204,10 +193,11 @@ function InterviewsContent() {
 
       // Refresh past sessions list
       api.listInterviews().then((r) => setPastSessions(r.sessions)).catch(() => {});
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to receive response from synthetic persona.";
       setStatusMsg({
         type: "error",
-        text: err.message || "Failed to receive response from synthetic persona.",
+        text: msg,
       });
     } finally {
       setSending(false);
@@ -224,10 +214,11 @@ function InterviewsContent() {
         type: "success",
         text: "Interview history cleared.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to reset interviews.";
       setStatusMsg({
         type: "error",
-        text: err.message || "Failed to reset interviews.",
+        text: msg,
       });
     }
   }

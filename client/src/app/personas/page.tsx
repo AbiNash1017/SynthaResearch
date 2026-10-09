@@ -9,18 +9,13 @@ import {
   Sparkles,
   ArrowRight,
   Loader2,
-  RefreshCw,
-  Sliders,
-  DollarSign,
   Briefcase,
   MapPin,
-  HeartHandshake,
   AlertTriangle,
   Brain,
   Search,
   CheckCircle2,
   AlertCircle,
-  FileText,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -36,32 +31,26 @@ export default function PersonasPage() {
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
-    setLoading(true);
-    try {
-      const [expRes, personasRes] = await Promise.allSettled([
-        api.getExperiment(),
-        api.listPersonas(),
-      ]);
-
-      if (expRes.status === "fulfilled") {
-        setActiveExp(expRes.value);
-      }
-      if (personasRes.status === "fulfilled" && personasRes.value.personas) {
-        setPersonas(personasRes.value.personas);
-        if (personasRes.value.personas.length > 0) {
-          setSelectedPersona(personasRes.value.personas[0]);
+    let ignore = false;
+    Promise.allSettled([api.getExperiment(), api.listPersonas()]).then(
+      ([expRes, personasRes]) => {
+        if (ignore) return;
+        if (expRes.status === "fulfilled") {
+          setActiveExp(expRes.value);
         }
+        if (personasRes.status === "fulfilled" && personasRes.value.personas) {
+          setPersonas(personasRes.value.personas);
+          if (personasRes.value.personas.length > 0) {
+            setSelectedPersona(personasRes.value.personas[0]);
+          }
+        }
+        setLoading(false);
       }
-    } catch {
-      // Errors handled gracefully in UI
-    } finally {
-      setLoading(false);
-    }
-  }
+    );
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   async function handleGenerate() {
     setGenerating(true);
@@ -76,10 +65,26 @@ export default function PersonasPage() {
         type: "success",
         text: `Successfully generated ${res.personas.length} synthetic user personas aligned with ${res.product}!`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      // Check if backend actually finished and saved personas to MongoDB
+      try {
+        const checkRes = await api.listPersonas();
+        if (checkRes && checkRes.personas && checkRes.personas.length > 0) {
+          setPersonas(checkRes.personas);
+          setSelectedPersona(checkRes.personas[0]);
+          setStatusMsg({
+            type: "success",
+            text: `Personas generated and loaded successfully from database! (${checkRes.personas.length} personas)`,
+          });
+          return;
+        }
+      } catch {
+        // Fall back to original error
+      }
+      const msg = err instanceof Error ? err.message : "Failed to generate personas. Ensure the backend and LLM are configured.";
       setStatusMsg({
         type: "error",
-        text: err.message || "Failed to generate personas. Ensure the backend and LLM are configured.",
+        text: msg,
       });
     } finally {
       setGenerating(false);

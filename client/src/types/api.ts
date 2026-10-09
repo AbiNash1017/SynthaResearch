@@ -1,9 +1,26 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface LLMConfig {
-  openrouter_configured: boolean;
-  model: string;
-  api_key_present: boolean;
+  configured: boolean;
+  model: string | null;
+  has_api_key: boolean;
+  base_url?: string;
+  // Backward compatibility aliases
+  openrouter_configured?: boolean;
+  api_key_present?: boolean;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  full_name?: string;
+  created_at?: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
 }
 
 export interface Experiment {
@@ -13,7 +30,7 @@ export interface Experiment {
   research_objectives: string[];
   industry_domain?: string;
   created_at?: string;
-  _domain_profile?: any;
+  _domain_profile?: Record<string, unknown>;
 }
 
 export interface Persona {
@@ -49,8 +66,8 @@ export interface Persona {
     overall_sentiment_bias: number;
   };
   memory?: {
-    conversation_history: any[];
-    established_opinions: Record<string, any>;
+    conversation_history: Record<string, unknown>[];
+    established_opinions: Record<string, unknown>;
     last_updated: string;
   };
 }
@@ -85,17 +102,19 @@ export interface SurveyMatrixRow {
   >;
 }
 
+export interface SurveyMatrix {
+  questions: string[];
+  personas: Array<{ id: string; name: string; archetype: string }>;
+  rows: SurveyMatrixRow[];
+}
+
 export interface SurveyResults {
   survey_id: string;
   product_name: string;
   questions: string[];
   responses: PersonaSurveyResponse[];
   created_at: string;
-  matrix?: {
-    questions: string[];
-    personas: Array<{ id: string; name: string; archetype: string }>;
-    rows: SurveyMatrixRow[];
-  };
+  matrix?: SurveyMatrix;
 }
 
 export interface InterviewTurn {
@@ -124,42 +143,94 @@ export interface InterviewSessionDetail {
   session_started: string;
 }
 
+export interface SegmentAdoptionBreakdown {
+  segment: string;
+  score: number;
+  stance: string;
+  sample_size?: number;
+  reasoning: string;
+}
+
+export interface WouldUseScore {
+  overall_score: number;
+  score_label: string;
+  summary_reasoning?: string;
+  segment_breakdown: SegmentAdoptionBreakdown[];
+}
+
+export interface SentimentDistribution {
+  positive: number;
+  neutral: number;
+  negative: number;
+}
+
+export interface AgreementPatterns {
+  consensus: string[];
+  polarization: string[];
+}
+
+export interface BehavioralTrend {
+  group: string;
+  finding: string;
+}
+
+export interface PersonaBreakdownItem {
+  id?: string;
+  name: string;
+  archetype: string;
+  key_takeaway: string;
+}
+
 export interface AdoptionScoreData {
-  product_name: string;
-  adoption_score: number;
-  sentiment_label: string;
-  total_personas: number;
-  breakdown: {
-    would_use_count: number;
-    would_not_use_count: number;
-    positive_sentiment_count: number;
-    neutral_sentiment_count: number;
-    negative_sentiment_count: number;
+  product_name?: string;
+  overall_score?: number;
+  score_label?: string;
+  summary_reasoning?: string;
+  adoption_score?: number;
+  sentiment_label?: string;
+  total_personas?: number;
+  breakdown?: {
+    would_use_count?: number;
+    would_not_use_count?: number;
+    positive_sentiment_count?: number;
+    neutral_sentiment_count?: number;
+    negative_sentiment_count?: number;
+    total_responses?: number;
   };
-  segment_breakdown: Record<
+  segment_breakdown?: SegmentAdoptionBreakdown[] | Record<
     string,
     {
-      total: number;
-      positive: number;
-      negative: number;
-      percentage: number;
+      total?: number;
+      positive?: number;
+      negative?: number;
+      percentage?: number;
     }
   >;
 }
 
 export interface ResearchReport {
+  id?: string;
   report_date: string;
   product: string;
   persona_count: number;
   survey_questions_asked: number;
   interview_sessions_count: number;
   executive_summary?: string;
+
+  // Rich OpenRouter synthesis schema
+  would_use_score?: WouldUseScore;
+  themes?: string[];
+  agreement_patterns?: AgreementPatterns;
+  sentiment_distribution?: SentimentDistribution;
+  sentiment_analysis?: string;
+  behavioral_trends?: BehavioralTrend[];
+  critical_objections?: string[];
+  top_insights?: string[];
+  per_persona_breakdown?: PersonaBreakdownItem[];
+
+  // Legacy fields
   key_findings?: string[];
-  sentiment_breakdown?: {
-    positive: number;
-    neutral: number;
-    negative: number;
-  };
+  sentiment_breakdown?: SentimentDistribution;
   pain_points?: string[];
   feature_requests?: string[];
   churn_risks?: string[];

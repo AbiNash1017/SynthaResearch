@@ -42,8 +42,20 @@ ADOPTION_THRESHOLD_LOW = 40.0
 SENTIMENT_POSITIVE_THRESHOLD = 0.60
 SENTIMENT_NEGATIVE_THRESHOLD = 0.35
 MEMORY_WINDOW = 12
-DATA_DIR = "data"
-REPORTS_DIR = "reports"
+DATA_DIR = str(BASE_DIR / "data")
+REPORTS_DIR = str(BASE_DIR / "reports")
+
+# Database & Security Configuration
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017").strip()
+MONGODB_DB_NAME = os.getenv("MONGODB_DB_NAME", "syntharesearch").strip()
+SECRET_KEY = os.getenv("SECRET_KEY", "syntharesearch_super_secret_jwt_key_change_in_production").strip()
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+
+# CORS Configuration
+_raw_cors = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+CORS_ORIGINS = [origin.strip() for origin in _raw_cors.split(",") if origin.strip()]
 
 def is_openrouter_configured() -> bool:
     """Checks if both OPENROUTER_API_KEY and OPENROUTER_MODEL are present in environment."""

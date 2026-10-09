@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from config.settings import is_openrouter_configured
 from config.topic_map import detect_topic
 from utils.llm_client import llm_client
@@ -99,21 +99,25 @@ class PersonaMemoryModule:
             split_markers = [
                 r"\n\s*(?:Response|Final Response|In Character|Direct Reply|Spoken Response|Actual Reply):\s*",
                 r"\n\s*\*\*(?:Response|Final Response|Reply|Spoken Response)\*\*:?\s*",
-                r"\n\s*---\s*\n"
+                r"\n\s*---\s*\n",
+                r"\n\s*(?:Draft(?:\s*-\s*Spoken Response)?):\s*"
             ]
             found = None
             for marker in split_markers:
                 parts = re.split(marker, cleaned, flags=re.IGNORECASE)
-                if len(parts) > 1 and len(parts[-1].strip()) > 15:
+                if len(parts) > 1 and len(parts[-1].strip()) > 10:
                     found = parts[-1].strip()
                     break
 
             if found:
                 cleaned = found
             else:
-                # If there is no separate response and it's all reasoning notes/bullet points,
-                # reject so the fallback generator creates natural dialogue
-                return None
+                # Look for quoted dialogue inside the thinking block
+                quotes = re.findall(r'"([^"\n]{20,})"', cleaned)
+                if quotes:
+                    cleaned = quotes[-1].strip()
+                else:
+                    return None
 
         # Reject if the remaining text is purely analysis notes / bullet points
         if re.match(r"^\s*(?:\d+\.\s*\*\*|[-*]\s*(?:Analyze|User asks|User says|Constraints|Rules|Note:|Identify|Deconstruct))", cleaned, flags=re.IGNORECASE):
@@ -157,6 +161,7 @@ class PersonaMemoryModule:
         bg = persona.get("background_story", "")
         bp = persona.get("behavioral_patterns", {})
         established = persona.get("memory", {}).get("established_opinions", {})
+        history_turns = persona.get("memory", {}).get("conversation_history", [])
 
         p_name = experiment.get("product_name", "the product")
         p_desc = experiment.get("product_description", "")
@@ -188,12 +193,19 @@ class PersonaMemoryModule:
                     op_lines.append(f"  • {t_name}: {t_data}")
             established_str = "\n".join(op_lines)
         else:
-            established_str = "  (none yet – this is the first exchange)"
+            established_str = "  (none yet)"
 
         length_rule = (
             "2–3 natural conversational sentences"
             if mode == "interview"
             else "1–2 crisp sentences"
+        )
+
+        is_first_turn = len(history_turns) == 0
+        intro_rule = (
+            "If this is the very beginning of the interview, greet naturally in 1 sentence."
+            if is_first_turn
+            else "CRITICAL: DO NOT RE-INTRODUCE YOURSELF. You already introduced yourself earlier in the conversation. NEVER repeat your name, age, job title, or greeting lines. Directly answer the user's question."
         )
 
         system_prompt = f"""You are {name}, a {age}-year-old {occ} from {loc}, taking part in a product research interview.
@@ -207,21 +219,20 @@ Product being discussed: {p_name} – {p_desc} (target: {p_audience})
 Things you have already said in this conversation:
 {established_str}
 
-HOW TO RESPOND:
-• Speak entirely as {name} in first person. Sound like a real person talking, not a report.
+CONVERSATIONAL RULES:
+• {intro_rule}
+• Speak entirely as {name} in first person. Sound like a real person talking, not a report or chatbot.
 • Keep it to {length_rule}. Do NOT pad your answer.
 • Draw on your private context naturally – never recite it word-for-word.
-• Stay consistent with prior opinions above.
-• Directly answer what the researcher just asked; do not drift off-topic.
-• If you feel excited, skeptical, or confused, let that come through naturally.
-• NEVER start with "As a synthetic user", "As an AI", "Glad to share", or any assistant-style opener.
-• Output ONLY the spoken reply – no bullet notes, no reasoning steps, no preambles."""
+• Directly and substantively answer what the researcher just asked.
+• If asked about a feature (e.g. voice, audio transcripts, pricing, UI), give your candid opinion on how it impacts your daily habits.
+• NEVER start with "As a synthetic user", "As an AI", "Glad to share", or assistant preambles.
+• Output ONLY the spoken reply – no bullet notes, no reasoning steps, no thinking process."""
 
         messages = [{"role": "system", "content": system_prompt}]
 
-        for turn in persona.get("memory", {}).get("conversation_history", [])[-6:]:
+        for turn in history_turns[-8:]:
             content = turn.get("content", "")
-            # Sanitize past turns so thinking process artifacts are never fed back to the LLM
             cleaned_content = PersonaMemoryModule._clean_response(content) if turn.get("role") == "persona" else content
             if not cleaned_content:
                 continue
@@ -230,7 +241,109 @@ HOW TO RESPOND:
 
         messages.append({"role": "user", "content": question})
 
-        return llm_client.chat_completion(messages, temperature=0.82, max_tokens=300)
+        return llm_client.chat_completion(messages, temperature=0.82, max_tokens=750)
+
+    @staticmethod
+    def generate_survey_responses_batch(
+        persona: Dict[str, Any],
+        questions: List[str],
+        experiment: Optional[Dict[str, Any]] = None
+    ) -> List[str]:
+        """
+        Generates responses for all survey questions in a single LLM invocation per persona.
+        Cuts LLM requests from N to 1 per persona, delivering up to 3x-4x speedups.
+        """
+        if not questions:
+            return []
+
+        if experiment is None:
+            experiment = load_json("data/experiment.json", {})
+        from utils.normalizer import normalize_experiment
+        experiment = normalize_experiment(experiment)
+
+        if not is_openrouter_configured():
+            return [
+                PersonaMemoryModule.generate_response(persona, q, experiment=experiment, mode="survey")
+                for q in questions
+            ]
+
+        name = persona.get("name", "User")
+        age  = persona.get("age", 28)
+        occ  = persona.get("occupation", "Professional")
+        loc  = persona.get("location", "Global")
+        archetype = persona.get("archetype", "General Consumer")
+        traits = ", ".join(persona.get("personality_traits", []))
+        bg = persona.get("background_story", "")
+        bp = persona.get("behavioral_patterns", {})
+
+        p_name = experiment.get("product_name", "the product")
+        p_desc = experiment.get("product_description", "")
+        p_audience = experiment.get("target_audience", "")
+
+        pain   = bp.get("primary_pain_points", "friction in day-to-day use")
+        tools  = bp.get("current_tools", "standard apps")
+        wtp    = bp.get("willingness_to_pay", "careful about spending")
+        churn  = bp.get("churn_triggers", "annoyance or hidden costs")
+
+        background_brief = (
+            f"Private context (let it shape how you think):\n"
+            f"  • Tools you rely on: {tools}\n"
+            f"  • Primary frustration: {pain}\n"
+            f"  • Spending mindset: {wtp}\n"
+            f"  • Dealbreakers: {churn}"
+        )
+
+        formatted_questions = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions)])
+
+        system_prompt = f"""You are {name}, a {age}-year-old {occ} from {loc}.
+Archetype: {archetype} | Personality: {traits}
+Background: {bg}
+
+{background_brief}
+
+Product being researched: {p_name} – {p_desc} (target: {p_audience})
+
+You are participating in a brief user research survey with {len(questions)} questions.
+HOW TO RESPOND:
+• Answer entirely in first-person as {name}. Sound like an authentic, real person, not an AI assistant.
+• For EACH question, give 1–2 crisp, realistic sentences.
+• Draw naturally on your private context and everyday habits.
+• Return ONLY a valid JSON array of {len(questions)} strings corresponding to your answers in order.
+Example:
+["My answer to question 1...", "My answer to question 2..."]"""
+
+        user_content = f"Questions:\n{formatted_questions}\n\nReturn ONLY the JSON array of {len(questions)} answer strings:"
+
+        try:
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content}
+            ]
+            parsed = llm_client.chat_completion_json(messages, temperature=0.75, max_tokens=700)
+            if isinstance(parsed, list) and len(parsed) >= len(questions):
+                results = []
+                for a in parsed[:len(questions)]:
+                    raw_str = str(a).strip()
+                    cleaned = PersonaMemoryModule._clean_response(raw_str)
+                    results.append(cleaned if cleaned else raw_str)
+                return results
+            elif isinstance(parsed, list) and len(parsed) > 0:
+                results = []
+                for a in parsed:
+                    raw_str = str(a).strip()
+                    cleaned = PersonaMemoryModule._clean_response(raw_str)
+                    results.append(cleaned if cleaned else raw_str)
+                for missing_q in questions[len(results):]:
+                    results.append(PersonaMemoryModule.generate_response(persona, missing_q, experiment=experiment, mode="survey"))
+                return results
+        except Exception:
+            pass
+
+        # Robust fallback: sequential call
+        return [
+            PersonaMemoryModule.generate_response(persona, q, experiment=experiment, mode="survey")
+            for q in questions
+        ]
 
     @staticmethod
     def _generate_fallback(persona: Dict[str, Any], question: str, experiment: Dict[str, Any], topic: str) -> str:
@@ -259,8 +372,12 @@ HOW TO RESPOND:
         def pick(options: list) -> str:
             return options[p_seed % len(options)]
 
+        def has_word(words: list, text: str) -> bool:
+            pattern = r"\b(" + "|".join(re.escape(w) for w in words) + r")\b"
+            return bool(re.search(pattern, text, flags=re.IGNORECASE))
+
         # Check for multi-turn follow-up queries (e.g., "why?", "elaborate", "can you explain?")
-        is_followup = any(k in q_lower for k in ["why", "elaborate", "explain", "tell me more", "what do you mean", "could you clarify", "why is that", "more detail"])
+        is_followup = has_word(["why", "elaborate", "explain", "clarify", "detail"], q_lower) or any(k in q_lower for k in ["tell me more", "what do you mean", "could you clarify", "why is that", "more detail"])
         if is_followup and history:
             followup_templates = [
                 f"It's more of a gut thing, honestly. I've been burned before by tools that looked great on paper but fell apart in real use, and I just don't have the bandwidth to deal with that right now.",
@@ -270,8 +387,17 @@ HOW TO RESPOND:
             ]
             return pick(followup_templates)
 
-        # 1. Adoption intent questions: "Would you use this product?", "Would you buy/adopt?"
-        if any(k in q_lower for k in ["would you use", "would you buy", "would you pay", "will you use", "would use", "adopt", "likely to use", "consider using", "recommend"]):
+        # 1. Voice, audio, transcript, feature, UX/UI queries
+        if has_word(["voice", "audio", "transcript", "transcription", "transcripts", "feature", "ux", "ui", "interface", "experience", "recording", "listen"], q_lower) or any(k in q_lower for k in ["new feature", "audio transcript", "user experience with voice"]):
+            return pick([
+                f"Voice is great for spontaneous emotion, but audio transcripts are a non-negotiable must-have for me. When I'm in public transit or at work, I can't listen with sound on. Having fast, accurate transcripts makes {p_name} way more usable.",
+                f"I really like the idea of audio transcripts. Voice notes can get rambling, so having a quick text summary or transcript lets me skim before deciding to listen. That would definitely increase how often I check {p_name}.",
+                f"Listening to voice requires dedicated focus, which can create friction. If you introduce searchable audio transcripts, that removes a major barrier and makes async voice conversations much more practical.",
+                f"I'd definitely vote for an audio transcript feature. Sometimes you just want to read silently without fishing out earphones. As long as it's accurate and quick, it's an essential upgrade."
+            ])
+
+        # 2. Adoption intent questions: "Would you use this product?", "Would you buy/adopt?"
+        elif has_word(["adopt", "recommend"], q_lower) or any(k in q_lower for k in ["would you use", "would you buy", "would you pay", "will you use", "would use", "likely to use", "consider using"]):
             arch_lower = arch.lower()
             if "budget" in arch_lower or "pragmatist" in arch_lower:
                 return pick([
@@ -304,8 +430,8 @@ HOW TO RESPOND:
                     f"Depends on how it feels to use. I'm not loyal to any tool—if something works better, I'll switch."
                 ])
 
-        # 2. Questions asking for insights, thoughts, remarks, demographic feedback
-        elif any(k in q_lower for k in ["insight", "remark", "demographic", "thought", "opinion", "feedback", "what do you think", "how do you feel", "perspective"]):
+        # 3. Questions asking for insights, thoughts, remarks, demographic feedback
+        elif has_word(["insight", "remark", "demographic", "thought", "opinion", "feedback", "perspective"], q_lower) or any(k in q_lower for k in ["what do you think", "how do you feel"]):
             return pick([
                 f"Honestly, my first reaction is cautious optimism. The idea makes sense, but I've seen a lot of tools promise the same thing and not quite get there. Execution is everything.",
                 f"I think there's real potential here, especially for people like me who spend half the day context-switching. Whether it actually delivers on that is another question.",
@@ -314,8 +440,8 @@ HOW TO RESPOND:
                 f"It's interesting. I'm not immediately sold, but I'm not dismissing it either. If they've thought through the actual workflow and not just the demo flow, it could be genuinely useful."
             ])
 
-        # 3. Questions about pricing, cost, subscription
-        elif any(k in q_lower for k in ["price", "cost", "pay", "subscription", "pricing", "dollar", "rupee", "money", "afford", "expensive", "fee"]):
+        # 4. Questions about pricing, cost, subscription
+        elif has_word(["price", "cost", "pay", "subscription", "pricing", "dollar", "rupee", "money", "afford", "expensive", "fee"], q_lower):
             arch_lower = arch.lower()
             if "budget" in arch_lower or "pragmatist" in arch_lower:
                 return pick([
@@ -344,8 +470,8 @@ HOW TO RESPOND:
                     f"I'm careful about subscriptions generally. The price point would need to feel very fair for me to jump in without hesitation."
                 ])
 
-        # 4. Questions about privacy, safety, anonymity, moderation
-        elif any(k in q_lower for k in ["privacy", "safe", "safety", "anonym", "secure", "security", "data", "trust", "moderation", "harass"]):
+        # 5. Questions about privacy, safety, anonymity, moderation
+        elif has_word(["privacy", "safe", "safety", "anonymous", "anonymity", "secure", "security", "data", "trust", "moderation", "harass"], q_lower):
             return pick([
                 f"That's a big one for me. If I can't trust where my data goes, I'm not using it—full stop. I'd want to see a clear, plain-English privacy policy before anything else.",
                 f"Security matters a lot in my line of work. I'd be asking hard questions about data handling before I even consider signing up.",
@@ -353,8 +479,8 @@ HOW TO RESPOND:
                 f"I've become a lot more careful about this stuff. If the product feels like it's harvesting more than it needs to, I'll notice, and I'll leave."
             ])
 
-        # 5. Questions about switching, alternatives, current habits
-        elif any(k in q_lower for k in ["switch", "competitor", "alternative", "replace", "current", "habit", "migrate"]):
+        # 6. Questions about switching, alternatives, current habits
+        elif has_word(["switch", "competitor", "alternative", "replace", "current", "habit", "migrate"], q_lower):
             return pick([
                 f"Switching is always more painful than it looks on paper. There's the migration, the retraining, the inevitable 'where did that feature go' moment. It needs to be a clear step up.",
                 f"I've tried switching tools before and it usually takes about three months before it actually feels natural. The question is whether {p_name} is worth that transition period.",
@@ -362,24 +488,30 @@ HOW TO RESPOND:
                 f"I'm open to alternatives, but I'm not going to disrupt my whole workflow for something that's only marginally better. It has to be meaningfully different."
             ])
 
-        # 6. Greetings
-        elif any(k in q_lower for k in ["hello", "hi", "hey", "good morning", "good evening", "how are you", "who are you"]):
+        # 7. Greetings (Strict word boundary only!)
+        elif has_word(["hello", "hi", "hey", "howdy", "greetings"], q_lower) or any(k in q_lower for k in ["good morning", "good evening", "how are you", "who are you"]):
+            if history:
+                return pick([
+                    f"Hey, good to keep talking. What specific feature or workflow in {p_name} would you like my perspective on?",
+                    f"Right, I'm here! What else would you like to explore regarding my daily habits or tools?",
+                    f"Still listening. What other questions do you have about whether I'd use this?"
+                ])
             greeting_templates = [
-                f"Hey! Great to connect. I'm {name}, a {age}-year-old {occ} here in {loc}. Glad to share my honest take on {p_name}.",
-                f"Hello! I'm {name}, working as a {occ} in {loc}. Looking forward to discussing {p_name} and our daily workflow.",
+                f"Hey! Great to connect. I'm {name}, working as a {occ} in {loc}. Glad to share my honest take on {p_name}.",
+                f"Hello! I'm {name}, a {occ} based in {loc}. Looking forward to discussing {p_name} and our daily workflow.",
                 f"Hi there! {name} here, {occ} based out of {loc}. Happy to give you my direct, practical feedback on {p_name}."
             ]
             return pick(greeting_templates)
 
-        # 7. Acknowledgement
-        elif any(k in q_lower for k in ["ok", "okay", "cool", "understood", "got it", "makes sense", "sure"]):
+        # 8. Acknowledgement
+        elif has_word(["ok", "okay", "cool", "understood", "makes sense", "sure"], q_lower):
             return pick([
                 f"Yeah, that tracks. I think the real test is whether it holds up when things get messy—any tool looks good in a clean demo.",
                 f"Right. The promise is easy, the follow-through is what separates the good ones from the ones that end up ignored after two weeks.",
                 f"Exactly. I've had enough 'this will change everything' moments that didn't pan out, so I try to stay measured until I've actually used something."
             ])
 
-        # 8. General fallback
+        # 9. General fallback
         else:
             return pick([
                 f"Hard to say without trying it. My gut says there's something here, but I'd want to spend a week with it before I have a real opinion.",

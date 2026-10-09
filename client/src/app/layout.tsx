@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/Navigation";
+import { AuthProvider } from "@/lib/authContext";
+import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "SynthaResearch | Universal Synthetic User Research Platform",
@@ -16,10 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex bg-[#F8FAF7] text-[#1C2417]">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-          {children}
-        </div>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

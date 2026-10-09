@@ -3,19 +3,16 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Navigation";
 import { api } from "@/lib/api";
-import { Experiment, LLMConfig } from "@/types/api";
+import { Experiment } from "@/types/api";
 import {
-  Compass,
   Sparkles,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
   Layers,
   Target,
-  FileText,
   Loader2,
   RefreshCw,
-  Building2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,9 +21,14 @@ const DOMAIN_SUGGESTIONS = [
   "FinTech & Payments",
   "Health & Wellness",
   "E-Commerce & Retail",
+  "Food & Beverage",
+  "Social Media & Community",
   "Developer Tools & AI",
   "EdTech & Learning",
   "Gaming & Entertainment",
+  "Travel & Hospitality",
+  "Media & Streaming",
+  "Mobility & Logistics",
 ];
 
 const PRESETS = [
@@ -39,6 +41,28 @@ const PRESETS = [
       "Assess willingness to pay for autonomous calendar blocking",
       "Identify churn risks around privacy and background tracking",
       "Discover the most critical integrations required for daily adoption",
+    ],
+  },
+  {
+    name: "MealCraft AI",
+    domain: "Food & Beverage",
+    desc: "A smart culinary assistant that creates hyper-personalized weekly meal plans, tracks pantry ingredients, and coordinates automated grocery delivery with zero food waste.",
+    audience: "Busy urban professionals, fitness enthusiasts, and dual-income households who value fresh home cooking.",
+    objectives: [
+      "Assess willingness to subscribe to automated weekly grocery basket checkouts",
+      "Understand price tolerance for customized dietary optimization plans",
+      "Identify churn risks related to ingredient substitution accuracy",
+    ],
+  },
+  {
+    name: "VibeCircle",
+    domain: "Social Media & Community",
+    desc: "An intentional micro-community network where verified interest groups share 60-second voice journals and coordinate curated real-world meetups without algorithmic ragebait.",
+    audience: "Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.",
+    objectives: [
+      "Gauge willingness to engage in voice-first social interactions",
+      "Uncover privacy comfort levels with local interest meetup discovery",
+      "Identify engagement loops that prevent app abandonment",
     ],
   },
   {
@@ -153,10 +177,11 @@ export default function WorkspacePage() {
         type: "success",
         text: `Workspace saved! Domain profile and experiment configured for "${res.experiment.product_name}".`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to configure experiment workspace.";
       setStatusMsg({
         type: "error",
-        text: err.message || "Failed to configure experiment workspace.",
+        text: msg,
       });
     } finally {
       setLoading(false);
@@ -264,13 +289,13 @@ export default function WorkspacePage() {
                 <label className="block text-xs font-bold text-[#5B6845] uppercase tracking-wider mb-2">
                   Industry / Domain
                 </label>
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2">
                   {DOMAIN_SUGGESTIONS.map((d) => (
                     <button
                       key={d}
                       type="button"
                       onClick={() => setDomain(d)}
-                      className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all ${
+                      className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
                         domain === d
                           ? "bg-[#728156] text-white border-[#728156] shadow-xs"
                           : "bg-[#F8FAF7] text-[#5B6845] border-[#CFE1B9] hover:bg-[#E7F5DC]"
@@ -280,13 +305,6 @@ export default function WorkspacePage() {
                     </button>
                   ))}
                 </div>
-                <input
-                  type="text"
-                  value={domain}
-                  onChange={(e) => setDomain(e.target.value)}
-                  placeholder="Or enter custom industry domain..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAF7] border border-[#CFE1B9] focus:outline-none focus:ring-2 focus:ring-[#728156] text-xs text-[#2D3522]"
-                />
               </div>
 
               <div>

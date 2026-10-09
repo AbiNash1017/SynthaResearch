@@ -285,6 +285,73 @@ DOMAIN_PROFILES = {
         ],
         "canonical_wtp": "Willing to pay $30–$90/month if it measurably boosts cohort completion rates and saves grading time",
         "canonical_churn": "Clunky student mobile experience, rigid non-customizable course structures, or poor export options"
+    },
+    "social_media_community": {
+        "keywords": [
+            "social", "community", "audio", "voice", "podcast", "creator", "meetup",
+            "hobby", "hobbyist", "friendship", "feed", "network", "micro-community",
+            "vibecircle", "anti-doomscroll", "affinity", "burnout"
+        ],
+        "canonical_domain": "Social Media, Audio Communities & Interest Networks",
+        "canonical_roles": [
+            "Creative Audio Micro-Blogger & Hobbyist",
+            "Local Interest Group & Meetup Organizer",
+            "Digital Wellbeing Advocate & Community Moderator",
+            "Casual Social Audio Explorer & Listener",
+            "Independent Creator & Storyteller",
+            "Active Affinity Club Member"
+        ],
+        "canonical_tools": [
+            "Discord, Voice Memos app, and local meetup WhatsApp groups",
+            "Substack, Spotify podcasts, and Instagram broadcast channels",
+            "Clubhouse, Telegram interest groups, and Notion hobby journals",
+            "BeReal, Apple Voice Notes, and event ticketing apps",
+            "Reddit micro-subreddits and community Discord servers",
+            "Luma event RSVPs and group chats"
+        ],
+        "canonical_pains": [
+            "Exhausting algorithmic ragebait feeds that induce social burnout and anxiety",
+            "Difficulty finding genuine, high-trust local connections with shared creative interests",
+            "Awkwardness and friction in audio-only interactions without transcripts or visual context",
+            "Invasive data tracking, ads, and engagement traps designed to hook screen time",
+            "Toxicity and low-quality anonymous trolling in large unmoderated social platforms",
+            "Lack of accessible audio tools (like smart transcripts, highlights, or searchability)"
+        ],
+        "canonical_wtp": "Willing to pay $5–$15/month for private, ad-free community spaces with verified members and high-trust moderation",
+        "canonical_churn": "Spam accounts, creepy direct messages, buggy voice playback, or toxic feed algorithms"
+    },
+    "food_beverage": {
+        "keywords": [
+            "food", "recipe", "cooking", "grocery", "meal", "pantry", "beverage",
+            "culinary", "ingredient", "diet", "mealcraft", "kitchen", "cook", "eater"
+        ],
+        "canonical_domain": "Food, Culinary Planning & Grocery Technology",
+        "canonical_roles": [
+            "Busy Professional & Home Cook",
+            "Weekly Family Meal Planner & Grocery Buyer",
+            "Nutrition-Focused Culinary Enthusiast",
+            "Budget-Conscious Household Shopper",
+            "Specialty Diet & Allergy Meal Coordinator",
+            "Food Waste Reduction & Eco-Living Advocate"
+        ],
+        "canonical_tools": [
+            "Instacart, Apple Notes grocery lists, and Paprika Recipe Manager",
+            "Google Keep pantry checklists, NYT Cooking, and supermarket apps",
+            "Mealime, MyFitnessPal, and refrigerator magnetic whiteboard",
+            "HelloFresh delivery portal and Pinterest recipe boards",
+            "Yummly and physical handwritten family recipe notebooks",
+            "Amazon Fresh cart and spreadsheet weekly meal calendars"
+        ],
+        "canonical_pains": [
+            "Hours wasted every weekend deciding what to cook and drafting fragmented grocery lists",
+            "Fresh produce spoiling in the fridge and costly ingredient food waste",
+            "Unreliable grocery delivery substitutions that ruin planned dinner recipes",
+            "Juggling multiple conflicting dietary preferences and allergies within one household",
+            "Cluttered recipe websites filled with invasive popups and endless life stories",
+            "Difficulty budgeting grocery expenses amid rising supermarket food inflation"
+        ],
+        "canonical_wtp": "Willing to pay $8–$20/month if it saves 2+ hours of meal planning and eliminates weekly grocery waste",
+        "canonical_churn": "Unrealistic or overly complex recipe ingredients, inaccurate grocery cart synchronization, or repetitive suggestions"
     }
 }
 
@@ -345,18 +412,23 @@ def detect_domain_profile(product_name: str, industry: str, description: str, au
 
     # Dynamic fallback: synthesize aligned profile from audience words
     clean_aud = clean_typos(audience)
-    words = [w.capitalize() for w in re.findall(r"\b[A-Za-z]{3,}\b", clean_aud) if w.lower() not in ["and", "for", "the", "with"]]
-    role_base = " ".join(words[:2]) if words else "Target Customer"
+    # Filter out non-profession demographic words
+    excluded_words = {
+        "and", "for", "the", "with", "gen", "millennial", "aged", "years", "who", "are",
+        "all", "any", "seeking", "experiencing", "their", "our", "from", "into"
+    }
+    words = [w.capitalize() for w in re.findall(r"\b[A-Za-z]{3,}\b", clean_aud) if w.lower() not in excluded_words]
+    role_base = words[0] if words else "Active Participant"
 
     return {
         "canonical_domain": clean_typos(industry) or "General Business & Technology",
         "canonical_roles": [
             f"{role_base} Specialist",
-            f"Lead {role_base} Operator",
-            f"Independent {role_base} Consultant",
-            f"Senior {role_base} Manager",
-            f"Front-line {role_base} User",
-            f"Executive {role_base} Director"
+            f"Active {role_base} Enthusiast",
+            f"Independent {role_base} Explorer",
+            f"Senior {role_base} Coordinator",
+            f"Daily {role_base} User",
+            f"Experienced {role_base} Practitioner"
         ],
         "canonical_tools": [
             f"Standard industry software, spreadsheets, and manual daily tracking registers for {clean_aud}",

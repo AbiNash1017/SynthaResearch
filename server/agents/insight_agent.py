@@ -1,7 +1,7 @@
 import json
 import sys
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from pathlib import Path
 
 # Ensure venv site-packages is discoverable if present
@@ -48,11 +48,22 @@ class InsightExtractionAgent:
         self.experiment_path = experiment_path
         self.report_dir = report_dir
 
-    def generate_report(self) -> Dict[str, Any]:
-        survey_data = load_json(self.survey_path, {})
-        interview_logs = load_json(self.interview_path, [])
-        personas = load_json(self.persona_path, [])
-        experiment = load_json(self.experiment_path, {})
+    def generate_report(
+        self,
+        experiment: Optional[Dict[str, Any]] = None,
+        personas: Optional[List[Dict[str, Any]]] = None,
+        survey_data: Optional[Dict[str, Any]] = None,
+        interview_logs: Optional[List[Dict[str, Any]]] = None,
+        save_to_file: bool = True
+    ) -> Dict[str, Any]:
+        if survey_data is None:
+            survey_data = load_json(self.survey_path, {})
+        if interview_logs is None:
+            interview_logs = load_json(self.interview_path, [])
+        if personas is None:
+            personas = load_json(self.persona_path, [])
+        if experiment is None:
+            experiment = load_json(self.experiment_path, {})
         from utils.normalizer import normalize_experiment
         experiment = normalize_experiment(experiment)
 
@@ -129,11 +140,11 @@ class InsightExtractionAgent:
         report_data["survey_questions_asked"] = len(survey_data.get("questions", []))
         report_data["interview_sessions_count"] = len(interview_logs)
 
-        json_path = f"{self.report_dir}/report_{date_str}.json"
-        pdf_path = f"{self.report_dir}/report_{date_str}.pdf"
-
-        save_json(json_path, report_data)
-        export_pdf(report_data, pdf_path)
+        if save_to_file:
+            json_path = f"{self.report_dir}/report_{date_str}.json"
+            pdf_path = f"{self.report_dir}/report_{date_str}.pdf"
+            save_json(json_path, report_data)
+            export_pdf(report_data, pdf_path)
         return report_data
 
     def calculate_agreement_patterns(self, survey_data: Dict[str, Any], personas: List[Dict[str, Any]]) -> Dict[str, List[str]]:

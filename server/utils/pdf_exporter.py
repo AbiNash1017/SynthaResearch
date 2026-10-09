@@ -94,23 +94,27 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         # Segment breakdown table
         segments = would_use.get("segment_breakdown", [])
         if segments:
-            seg_table_data = [["Persona Segment / Archetype", "Adoption Score", "Stance", "Segment Reasoning"]]
+            seg_table_data = [[
+                Paragraph("<b>Persona Segment / Archetype</b>", bold_style),
+                Paragraph("<b>Score</b>", bold_style),
+                Paragraph("<b>Stance</b>", bold_style),
+                Paragraph("<b>Segment Reasoning</b>", bold_style)
+            ]]
             for seg in segments:
                 seg_table_data.append([
-                    seg.get("segment", "Segment"),
-                    f"{seg.get('score', 0)}%",
-                    seg.get("stance", "N/A"),
-                    seg.get("reasoning", "N/A")
+                    Paragraph(str(seg.get("segment", "Segment")), bold_style),
+                    Paragraph(f"<b>{seg.get('score', 0)}%</b>", body_style),
+                    Paragraph(str(seg.get("stance", "N/A")), body_style),
+                    Paragraph(str(seg.get("reasoning", "N/A")), body_style)
                 ])
-            t_seg = Table(seg_table_data, colWidths=[130, 80, 110, 210])
+            t_seg = Table(seg_table_data, colWidths=[130, 55, 105, 240])
             t_seg.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor("#1A202C")),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('LEADING', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('LEFTPADDING', (0, 0), (-1, -1), 5),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 5),
                 ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]))
@@ -118,13 +122,24 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         story.append(Spacer(1, 10))
 
     # 2. Sentiment Distribution
+    def _fmt_pct(v):
+        if v is None:
+            return "0.0%"
+        try:
+            val = float(v)
+            if val <= 1.0:
+                return f"{val * 100:.1f}%"
+            return f"{val:.1f}%"
+        except (ValueError, TypeError):
+            return "0.0%"
+
     story.append(Paragraph("2. Sentiment & Response Distribution", h2_style))
     dist = report.get("sentiment_distribution", {})
     sentiment_data = [
         ["Sentiment Stance", "Percentage Share"],
-        ["Positive Stance", f"{dist.get('positive', 0)*100:.1f}%"],
-        ["Neutral Stance", f"{dist.get('neutral', 0)*100:.1f}%"],
-        ["Negative / Critical Stance", f"{dist.get('negative', 0)*100:.1f}%"]
+        ["Positive Stance", _fmt_pct(dist.get('positive', 0))],
+        ["Neutral Stance", _fmt_pct(dist.get('neutral', 0))],
+        ["Negative / Critical Stance", _fmt_pct(dist.get('negative', 0))]
     ]
     t_sent = Table(sentiment_data, colWidths=[200, 150])
     t_sent.setStyle(TableStyle([
