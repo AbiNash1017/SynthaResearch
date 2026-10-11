@@ -13,6 +13,9 @@ import {
   Target,
   Loader2,
   RefreshCw,
+  Plus,
+  History,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -92,6 +95,9 @@ export default function WorkspacePage() {
   const [loading, setLoading] = useState(false);
   const [fetchingExp, setFetchingExp] = useState(true);
   const [activeExp, setActiveExp] = useState<Experiment | null>(null);
+  const [allExperiments, setAllExperiments] = useState<Experiment[]>([]);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [switchingId, setSwitchingId] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Form states
@@ -113,7 +119,58 @@ export default function WorkspacePage() {
   async function loadExperiment() {
     setFetchingExp(true);
     try {
-      const exp = await api.getExperiment();
+      const [exp, listRes] = await Promise.all([
+        api.getExperiment().catch(() => null),
+        api.listExperiments().catch(() => ({ count: 0, experiments: [] })),
+      ]);
+
+      if (listRes?.experiments) {
+        setAllExperiments(listRes.experiments);
+      }
+
+      if (exp) {
+        setActiveExp(exp);
+        if (!isCreatingNew) {
+          setProductName(exp.product_name || "");
+          setProductDesc(exp.product_description || "");
+          setTargetAudience(exp.target_audience || "");
+          setDomain(exp.industry_domain || "SaaS & Productivity");
+          if (exp.research_objectives && exp.research_objectives.length > 0) {
+            setObjectives(exp.research_objectives);
+          }
+        }
+      } else {
+        applyPreset(PRESETS[0]);
+      }
+    } finally {
+      setFetchingExp(false);
+    }
+  }
+
+  function startNewProduct() {
+    setIsCreatingNew(true);
+    setProductName("");
+    setProductDesc("");
+    setTargetAudience("");
+    setDomain("SaaS & Productivity");
+    setObjectives([
+      "Evaluate core value proposition and initial reaction",
+      "Identify price sensitivity and willingness to pay",
+      "Discover dealbreaker churn risks and missing capabilities",
+    ]);
+    setStatusMsg({
+      type: "success",
+      text: "Form cleared! Enter your new product details or pick a template, then save to initialize a fresh workspace.",
+    });
+  }
+
+  async function switchToExperiment(exp: Experiment) {
+    if (!exp.id) return;
+    setSwitchingId(exp.id);
+    setStatusMsg(null);
+    try {
+      await api.activateExperiment(exp.id);
+      setIsCreatingNew(false);
       setActiveExp(exp);
       setProductName(exp.product_name || "");
       setProductDesc(exp.product_description || "");
@@ -122,11 +179,19 @@ export default function WorkspacePage() {
       if (exp.research_objectives && exp.research_objectives.length > 0) {
         setObjectives(exp.research_objectives);
       }
-    } catch {
-      // No experiment yet, default state is fine
-      applyPreset(PRESETS[0]);
+      // Refresh experiments list to update active badges
+      const listRes = await api.listExperiments().catch(() => null);
+      if (listRes?.experiments) setAllExperiments(listRes.experiments);
+
+      setStatusMsg({
+        type: "success",
+        text: `Switched active product to "${exp.product_name}". All its personas, surveys, and interviews are now loaded!`,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to switch active product.";
+      setStatusMsg({ type: "error", text: msg });
     } finally {
-      setFetchingExp(false);
+      setSwitchingId(null);
     }
   }
 
@@ -172,10 +237,14 @@ export default function WorkspacePage() {
         research_objectives: objectives.filter((o) => o.trim().length > 0),
         industry_domain: domain,
       });
+      setIsCreatingNew(false);
       setActiveExp(res.experiment);
+      const listRes = await api.listExperiments().catch(() => null);
+      if (listRes?.experiments) setAllExperiments(listRes.experiments);
+
       setStatusMsg({
         type: "success",
-        text: `Workspace saved! Domain profile and experiment configured for "${res.experiment.product_name}".`,
+        text: `Product workspace "${res.experiment.product_name}" configured! Personas, surveys, and chats for this product start fresh.`,
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to configure experiment workspace.";
@@ -194,15 +263,25 @@ export default function WorkspacePage() {
         title="Workspace & Experiment Setup"
         subtitle="Define your product specifications and research goals to anchor synthetic simulations"
         actions={
-          activeExp && (
-            <Link
-              href="/personas"
-              className="px-4 py-2 bg-[#728156] hover:bg-[#5B6845] text-white text-sm font-semibold rounded-xl shadow-xs flex items-center gap-2 transition-all"
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={startNewProduct}
+              className="px-3.5 py-2 bg-[#E7F5DC] hover:bg-[#CFE1B9] text-[#465135] text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
-              <span>Next: Persona Pool</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          )
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create New Product</span>
+            </button>
+            {activeExp && (
+              <Link
+                href="/personas"
+                className="px-4 py-2 bg-[#728156] hover:bg-[#5B6845] text-white text-sm font-semibold rounded-xl shadow-xs flex items-center gap-2 transition-all"
+              >
+                <span>Next: Persona Pool</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
         }
       />
 
@@ -266,9 +345,20 @@ export default function WorkspacePage() {
           {/* Main Specs Column */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-3xl p-7 border border-[#CFE1B9]/60 shadow-xs space-y-6">
-              <div className="flex items-center gap-2.5 pb-2 border-b border-[#F4F7F4]">
-                <Layers className="w-5 h-5 text-[#728156]" />
-                <h3 className="font-bold text-lg text-[#2D3522]">Product Parameters</h3>
+              <div className="flex items-center justify-between pb-2 border-b border-[#F4F7F4]">
+                <div className="flex items-center gap-2.5">
+                  <Layers className="w-5 h-5 text-[#728156]" />
+                  <h3 className="font-bold text-lg text-[#2D3522]">Product Parameters</h3>
+                </div>
+                {isCreatingNew ? (
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#E7F5DC] text-[#465135] border border-[#CFE1B9]">
+                    ✨ New Product Workspace
+                  </span>
+                ) : activeExp ? (
+                  <span className="text-xs text-[#88976C]">
+                    Current: <strong className="text-[#465135]">{activeExp.product_name}</strong>
+                  </span>
+                ) : null}
               </div>
 
               <div>
@@ -474,6 +564,84 @@ export default function WorkspacePage() {
               ) : (
                 <div className="text-center py-6 text-xs text-[#88976C]">
                   No active experiment configured yet. Fill out the form or choose a template to begin.
+                </div>
+              )}
+            </div>
+
+            {/* Product Switcher & History */}
+            <div className="bg-white rounded-3xl p-6 border border-[#CFE1B9]/60 shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <History className="w-4 h-4 text-[#728156]" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#2D3522]">
+                    Your Products ({allExperiments.length})
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={startNewProduct}
+                  className="text-[11px] font-bold text-[#728156] hover:text-[#5B6845] flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>New</span>
+                </button>
+              </div>
+
+              <p className="text-[11px] text-[#88976C]">
+                Switch between products anytime to view and resume each product&apos;s isolated personas, surveys, and chats.
+              </p>
+
+              {allExperiments.length === 0 ? (
+                <div className="text-center py-4 text-xs text-[#88976C]">
+                  No saved products yet.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  {allExperiments.map((exp) => {
+                    const isActive = exp.id === activeExp?.id;
+                    const isSwitching = switchingId === exp.id;
+                    return (
+                      <div
+                        key={exp.id || exp.product_name}
+                        className={`p-3 rounded-2xl border transition-all ${
+                          isActive
+                            ? "bg-[#E7F5DC]/70 border-[#728156] shadow-2xs"
+                            : "bg-[#F8FAF7] border-[#CFE1B9]/60 hover:bg-[#F4F7F4]"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <h5 className="font-bold text-xs text-[#2D3522] truncate">
+                              {exp.product_name}
+                            </h5>
+                            <span className="text-[10px] text-[#728156] font-medium">
+                              {exp.industry_domain || "General"}
+                            </span>
+                          </div>
+
+                          {isActive ? (
+                            <span className="px-2 py-0.5 rounded-full bg-[#728156] text-white text-[10px] font-bold flex items-center gap-1 shrink-0">
+                              <Check className="w-2.5 h-2.5" />
+                              <span>Active</span>
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => switchToExperiment(exp)}
+                              disabled={isSwitching}
+                              className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#E7F5DC] text-[#465135] text-[10px] font-bold border border-[#CFE1B9] transition-all shrink-0 cursor-pointer disabled:opacity-50"
+                            >
+                              {isSwitching ? (
+                                <Loader2 className="w-3 h-3 animate-spin text-[#728156]" />
+                              ) : (
+                                "Switch"
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

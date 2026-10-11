@@ -12,9 +12,10 @@ import {
   AuthResponse,
   User,
 } from "@/types/api";
+import { ENV } from "@/config/env";
 import { getStoredToken, setStoredToken, clearStoredAuth } from "./auth";
 
-const DEFAULT_TIMEOUT_MS = 120000;
+const DEFAULT_TIMEOUT_MS = ENV.API_TIMEOUT_MS;
 
 interface FetchOptions extends RequestInit {
   timeoutMs?: number;
@@ -197,7 +198,12 @@ export const api = {
     }),
 
   // Personas
-  listPersonas: () => fetchJson<{ count: number; personas: Persona[] }>("/api/personas"),
+  listPersonas: (experimentId?: string) =>
+    fetchJson<{ count: number; personas: Persona[] }>(
+      experimentId
+        ? `/api/personas?experiment_id=${encodeURIComponent(experimentId)}`
+        : "/api/personas"
+    ),
   generatePersonas: (count: number = 5) =>
     fetchJson<{ count: number; product: string; personas: Persona[] }>(
       `/api/generate-personas?count=${count}`,
@@ -219,8 +225,12 @@ export const api = {
   getSurveyMatrix: () => fetchJson<SurveyMatrix>("/api/survey-matrix"),
 
   // 1-on-1 Interactive Interviews
-  listInterviews: () =>
-    fetchJson<{ count: number; sessions: InterviewSessionSummary[] }>("/api/interviews"),
+  listInterviews: (experimentId?: string) =>
+    fetchJson<{ count: number; sessions: InterviewSessionSummary[] }>(
+      experimentId
+        ? `/api/interviews?experiment_id=${encodeURIComponent(experimentId)}`
+        : "/api/interviews"
+    ),
   getInterviewSession: (sessionId: string) =>
     fetchJson<InterviewSessionDetail>(`/api/interview/${sessionId}`),
   sendInterviewMessage: (data: {
@@ -253,8 +263,12 @@ export const api = {
     }),
   getLatestReport: () =>
     fetchJson<{ report: ResearchReport | null }>("/api/reports/latest"),
-  listReports: () =>
-    fetchJson<{ count: number; reports: ResearchReport[] }>("/api/reports"),
+  listReports: (experimentId?: string) =>
+    fetchJson<{ count: number; reports: ResearchReport[] }>(
+      experimentId
+        ? `/api/reports?experiment_id=${encodeURIComponent(experimentId)}`
+        : "/api/reports"
+    ),
   downloadReportPdfBlob: async (reportId?: string): Promise<Blob> => {
     const token = getStoredToken();
     const endpoint = reportId ? `/api/reports/${reportId}/pdf` : "/api/reports/latest/pdf";

@@ -50,23 +50,27 @@ function InterviewsContent() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  function initNewSession(persona: Persona) {
+  function initNewSession(persona: Persona, prodName?: string) {
     const newId = `session_${persona.id}_${Date.now()}`;
     setActiveSessionId(newId);
+    const pName = prodName || activeExp?.product_name || "this product";
     setMessages([
       {
         sender: "persona",
-        text: `Hi there! I'm ${persona.name}, working as ${persona.occupation}. Happy to share my thoughts on ${
-          activeExp?.product_name || "this product"
-        }. What would you like to explore?`,
+        text: `Hi there! I'm ${persona.name}, working as ${persona.occupation}. Happy to share my thoughts on ${pName}. What would you like to explore?`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },
     ]);
   }
 
-  async function loadSessionTranscript(sessionId: string, persona?: Persona) {
+  async function loadSessionTranscript(sessionId: string, persona?: Persona, prodName?: string) {
     try {
       const detail = await api.getInterviewSession(sessionId);
+      // Strictly ensure transcript persona matches the selected persona
+      if (persona && detail.persona_id && detail.persona_id !== persona.id) {
+        initNewSession(persona, prodName);
+        return;
+      }
       setActiveSessionId(detail.session_id);
       if (persona) setSelectedPersona(persona);
 
@@ -85,12 +89,13 @@ function InterviewsContent() {
       });
 
       if (mapped.length === 0 && persona) {
-        initNewSession(persona);
+        initNewSession(persona, prodName);
       } else {
         setMessages(mapped);
       }
     } catch (err: unknown) {
       console.error(err);
+      if (persona) initNewSession(persona, prodName);
     }
   }
 
@@ -102,7 +107,11 @@ function InterviewsContent() {
       api.listInterviews(),
     ]).then(([expRes, personasRes, interviewsRes]) => {
       if (ignore) return;
-      if (expRes.status === "fulfilled") setActiveExp(expRes.value);
+      let exp: Experiment | null = null;
+      if (expRes.status === "fulfilled") {
+        exp = expRes.value;
+        setActiveExp(exp);
+      }
 
       let foundList: Persona[] = [];
       if (personasRes.status === "fulfilled" && personasRes.value.personas) {
@@ -110,9 +119,8 @@ function InterviewsContent() {
         setPersonas(foundList);
       }
 
-      if (interviewsRes.status === "fulfilled" && interviewsRes.value.sessions) {
-        setPastSessions(interviewsRes.value.sessions);
-      }
+      const sessions = interviewsRes.status === "fulfilled" ? (interviewsRes.value.sessions || []) : [];
+      setPastSessions(sessions);
 
       // Pick selected persona
       if (foundList.length > 0) {
@@ -122,17 +130,16 @@ function InterviewsContent() {
         const chosen = target || foundList[0];
         setSelectedPersona(chosen);
 
-        // Check if there is an existing session for this persona
-        if (interviewsRes.status === "fulfilled") {
-          const existing = interviewsRes.value.sessions.find(
-            (s) => s.persona_id === chosen.id
-          );
-          if (existing) {
-            loadSessionTranscript(existing.session_id, chosen);
-          } else {
-            initNewSession(chosen);
-          }
+        // Check if there is an existing session for this persona in this product
+        const existing = sessions.find((s) => s.persona_id === chosen.id);
+        if (existing && existing.turns_count > 0) {
+          loadSessionTranscript(existing.session_id, chosen, exp?.product_name);
+        } else {
+          initNewSession(chosen, exp?.product_name);
         }
+      } else {
+        setSelectedPersona(null);
+        setMessages([]);
       }
       setLoading(false);
     });
@@ -148,10 +155,10 @@ function InterviewsContent() {
   function handleSelectPersona(p: Persona) {
     setSelectedPersona(p);
     const existing = pastSessions.find((s) => s.persona_id === p.id);
-    if (existing) {
-      loadSessionTranscript(existing.session_id, p);
+    if (existing && existing.turns_count > 0) {
+      loadSessionTranscript(existing.session_id, p, activeExp?.product_name);
     } else {
-      initNewSession(p);
+      initNewSession(p, activeExp?.product_name);
     }
   }
 
@@ -272,7 +279,27 @@ function InterviewsContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-210px)] min-h-[640px]">
+        {personas.length === 0 ? (
+          <div className="bg-white rounded-3xl p-16 text-center border border-[#CFE1B9]/70 space-y-4 shadow-xs">
+            <Users className="w-12 h-12 text-[#98A77C] mx-auto" />
+            <h3 className="text-base font-bold text-[#2D3522]">
+              No Personas Available for {activeExp?.product_name || "this Product"}
+            </h3>
+            <p className="text-xs text-[#647460] max-w-md mx-auto leading-relaxed">
+              This product is freshly configured and has no synthetic personas generated yet. Generate personas in Step 2 before conducting qualitative 1-on-1 interviews.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/personas"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#728156] hover:bg-[#5B6845] text-white text-xs font-semibold rounded-xl transition-all shadow-xs"
+              >
+                <span>Go to Persona Pool</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-210px)] min-h-[640px]">
           {/* Persona selector sidebar */}
           <div className="lg:col-span-4 bg-white rounded-3xl border border-[#CFE1B9]/70 shadow-xs flex flex-col overflow-hidden">
             <div className="p-4 border-b border-[#F4F7F4] flex items-center justify-between">
@@ -480,7 +507,8 @@ function InterviewsContent() {
               </button>
             </form>
           </div>
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );

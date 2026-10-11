@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { LLMConfig } from "@/types/api";
+import { LLMConfig, Experiment } from "@/types/api";
 import { useAuth } from "@/lib/authContext";
 
 const NAV_ITEMS = [
@@ -56,6 +56,7 @@ export function Sidebar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [llmConfig, setLlmConfig] = useState<LLMConfig | null>(null);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
+  const [activeExp, setActiveExp] = useState<Experiment | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -68,7 +69,12 @@ export function Sidebar() {
       .catch(() => {
         setServerOnline(false);
       });
-  }, [isAuthenticated]);
+
+    api
+      .getExperiment()
+      .then((exp) => setActiveExp(exp))
+      .catch(() => setActiveExp(null));
+  }, [isAuthenticated, pathname]);
 
   if (!isAuthenticated || pathname === "/login" || pathname === "/register") {
     return null;
@@ -99,8 +105,28 @@ export function Sidebar() {
           </div>
         </div>
 
+        {/* Active Product Widget */}
+        {activeExp && (
+          <div className="mx-4 mt-4 p-3 rounded-2xl bg-[#F8FAF7] border border-[#CFE1B9]/70 flex items-center justify-between">
+            <div className="min-w-0 pr-2">
+              <span className="text-[9px] font-bold tracking-wider text-[#728156] uppercase block">
+                Active Product
+              </span>
+              <p className="text-xs font-bold text-[#2D3522] truncate">
+                {activeExp.product_name}
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="text-[10px] font-bold text-[#5B6845] hover:text-[#2D3522] px-2 py-1 rounded-lg bg-white border border-[#CFE1B9] shrink-0 transition-colors shadow-2xs"
+            >
+              Switch
+            </Link>
+          </div>
+        )}
+
         {/* Navigation items */}
-        <div className="px-4 py-6 space-y-1.5">
+        <div className="px-4 py-5 space-y-1.5">
           <div className="px-3 pb-2 text-[10px] font-bold tracking-wider text-[#728156] uppercase">
             Simulation Pipeline
           </div>

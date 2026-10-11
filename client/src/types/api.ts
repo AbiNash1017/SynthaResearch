@@ -1,4 +1,5 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_BASE } from "@/config/env";
+export { API_BASE };
 
 export interface LLMConfig {
   configured: boolean;
@@ -24,11 +25,13 @@ export interface AuthResponse {
 }
 
 export interface Experiment {
+  id?: string;
   product_name: string;
   product_description: string;
   target_audience: string;
   research_objectives: string[];
   industry_domain?: string;
+  is_active?: boolean;
   created_at?: string;
   _domain_profile?: Record<string, unknown>;
 }
@@ -106,6 +109,7 @@ export interface SurveyMatrix {
   questions: string[];
   personas: Array<{ id: string; name: string; archetype: string }>;
   rows: SurveyMatrixRow[];
+  total_respondents?: number;
 }
 
 export interface SurveyResults {

@@ -121,10 +121,11 @@ export default function SurveysPage() {
       // Check if backend actually completed and saved survey matrix to MongoDB
       try {
         const matrix = await api.getSurveyMatrix();
-        if (matrix && matrix.total_respondents > 0) {
+        if (matrix && (matrix.total_respondents ?? matrix.rows?.length ?? 0) > 0) {
+          const count = matrix.total_respondents ?? matrix.rows?.length ?? 0;
           setStatusMsg({
             type: "success",
-            text: `Survey simulation completed and saved in database! (${matrix.total_respondents} respondents recorded)`,
+            text: `Survey simulation completed and saved in database! (${count} respondents recorded)`,
           });
           return;
         }

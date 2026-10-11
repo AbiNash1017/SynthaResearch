@@ -1,12 +1,12 @@
 [
   {
     "id": "persona_001",
-    "name": "Henrik Lindqvist",
-    "age": 43,
-    "gender": "Male",
-    "occupation": "Creative Audio Micro-Blogger & Hobbyist",
-    "location": "Chicago, USA",
-    "income_bracket": "upper",
+    "name": "Mei-Ling Wu",
+    "age": 35,
+    "gender": "Female",
+    "occupation": "Boutique Fitness Studio Founder & Trainer",
+    "location": "Paris, France",
+    "income_bracket": "middle",
     "education": "Executive Certificate in Strategic Operations",
     "archetype": "Casual Explorer",
     "personality_traits": [
@@ -16,11 +16,11 @@
       "easily distracted"
     ],
     "behavioral_patterns": {
-      "current_tools": "Standard industry software, spreadsheets, and manual daily tracking registers for Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.",
-      "usage_frequency": "Continuous background use throughout workdays",
-      "primary_pain_points": "Unreliable software performance and slow customer support during busy work cycles",
-      "willingness_to_pay": "Flexible and experience-driven: Strictly value-driven; requires clear proof of time and cost savings before purchase, with strong emphasis on intuitive UI and peer endorsements.",
-      "churn_triggers": "Steep learning curves, complicated setup, price increases, or unaddressed bugs, or rigid setup, overwhelming cognitive load, or early paywalls",
+      "current_tools": "Mindbody, paper intake forms, and Google Sheets client scheduling",
+      "usage_frequency": "Regularly during sprint planning and high-priority cycles",
+      "primary_pain_points": "Tedious manual client intake paperwork and scheduling double-bookings",
+      "willingness_to_pay": "Flexible and experience-driven: Willing to pay $40–$120/month if it improves client retention and cuts administrative booking overhead, with strong emphasis on intuitive UI and peer endorsements.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or rigid setup, overwhelming cognitive load, or early paywalls",
       "feature_priorities": "Intuitive user interface, visual clarity, low cognitive load, and engaging user experience"
     },
     "psychological_profile": {
@@ -30,74 +30,29 @@
       "decision_style": "spontaneous",
       "attention_span": "short"
     },
-    "background_story": "Henrik Lindqvist is a 43-year-old Executive Gen Millennial Director based in Chicago, USA. In their day-to-day work dealing with gen z & millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships., they rely heavily on Standard industry software, spreadsheets, and manual daily tracking registers for Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.. Their primary operational bottleneck is unreliable software performance and slow customer support during busy work cycles, making them judge Vibecircle strictly by how reliably it solves this issue.",
+    "background_story": "Mei-Ling Wu is a 35-year-old Boutique Fitness Studio Founder & Trainer based in Paris, France. In their day-to-day work dealing with gen z & millennial, and first-time pet owners who are seeking genuine pet care, help and a marketplace to get anything all at one place, they rely heavily on Mindbody, paper intake forms, and Google Sheets client scheduling. Their primary operational bottleneck is tedious manual client intake paperwork and scheduling double-bookings, making them judge Peto strictly by how reliably it solves this issue.",
     "opinion_seeds": {
-      "price_sensitivity": 0.75,
-      "openness_to_change": 0.81,
-      "tech_comfort": 0.69,
-      "feature_complexity_tolerance": 0.32,
-      "overall_sentiment_bias": 0.61
+      "price_sensitivity": 0.76,
+      "openness_to_change": 0.72,
+      "tech_comfort": 0.68,
+      "feature_complexity_tolerance": 0.18,
+      "overall_sentiment_bias": 0.47
     },
     "memory": {
       "conversation_history": [],
       "established_opinions": {},
-      "last_updated": "2026-10-09T23:02:36.937412"
+      "last_updated": "2026-10-11T13:18:35.297692"
     }
   },
   {
     "id": "persona_002",
-    "name": "Lucas Silva",
-    "age": 24,
+    "name": "Julian Rossi",
+    "age": 39,
     "gender": "Male",
-    "occupation": "Creative Audio Micro-Blogger & Hobbyist",
-    "location": "Mumbai, India",
-    "income_bracket": "upper-middle",
-    "education": "B.A. in Communications & Digital Media",
-    "archetype": "Power User / Optimizer",
-    "personality_traits": [
-      "analytical",
-      "exacting",
-      "tech-savvy",
-      "detail-oriented"
-    ],
-    "behavioral_patterns": {
-      "current_tools": "Specialized niche software and legacy databases for Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.",
-      "usage_frequency": "Continuous background use throughout workdays",
-      "primary_pain_points": "Difficulty customizing existing software to match the unique daily needs of Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.",
-      "willingness_to_pay": "High budget tolerance for depth: Strictly value-driven; requires clear proof of time and cost savings before purchase, provided deep customization, robust APIs, and automation are included.",
-      "churn_triggers": "Steep learning curves, complicated setup, price increases, or unaddressed bugs, or simplistic design, lack of keyboard shortcuts/APIs, or performance lags",
-      "feature_priorities": "Extensibility, advanced automation, keyboard shortcuts, fast execution, and granular controls"
-    },
-    "psychological_profile": {
-      "mbti": "INTJ",
-      "risk_tolerance": "high",
-      "motivation_type": "intrinsic-mastery",
-      "decision_style": "evidence-based",
-      "attention_span": "long and meticulous"
-    },
-    "background_story": "Operating out of Mumbai, India, Lucas Silva (24) oversees critical operational workflows as a Gen Millennial Specialist. While currently managing with Specialized niche software and legacy databases for Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships., persistent challenges around difficulty customizing existing software to match the unique daily needs of gen z & millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships. drain valuable time and focus. They approach Vibecircle with a clear return-on-investment expectation: it must prove tangible productivity gains to justify any migration.",
-    "opinion_seeds": {
-      "price_sensitivity": 0.26,
-      "openness_to_change": 0.9,
-      "tech_comfort": 0.98,
-      "feature_complexity_tolerance": 0.96,
-      "overall_sentiment_bias": 0.58
-    },
-    "memory": {
-      "conversation_history": [],
-      "established_opinions": {},
-      "last_updated": "2026-10-09T23:02:36.937412"
-    }
-  },
-  {
-    "id": "persona_003",
-    "name": "Aris Thorne",
-    "age": 33,
-    "gender": "Male",
-    "occupation": "Creative Audio Micro-Blogger & Hobbyist",
-    "location": "Austin, USA",
-    "income_bracket": "lower-middle",
-    "education": "M.S. in Human-Computer Interaction",
+    "occupation": "Health-Conscious Active Professional",
+    "location": "Nairobi, Kenya",
+    "income_bracket": "middle",
+    "education": "Diploma in Technical Project Management",
     "archetype": "Busy Professional / Outcome-Driven",
     "personality_traits": [
       "goal-oriented",
@@ -106,11 +61,11 @@
       "impatient"
     ],
     "behavioral_patterns": {
-      "current_tools": "Traditional tools and email threads commonly used by Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.",
-      "usage_frequency": "Twice daily during reconciliation and operational handoffs",
-      "primary_pain_points": "Lack of unified workflow integration causing errors and delays for Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships.",
-      "willingness_to_pay": "Willing to pay a premium immediately if onboarding takes under 5 minutes and eliminates lack of unified workflow integration causing error.",
-      "churn_triggers": "Steep learning curves, complicated setup, price increases, or unaddressed bugs, or steep learning curves, complicated setup, or unreliable workflows",
+      "current_tools": "Trainerize and direct Instagram direct messages with clients",
+      "usage_frequency": "Continuous background use throughout workdays",
+      "primary_pain_points": "Cluttered patient apps requiring too much manual daily data entry",
+      "willingness_to_pay": "Willing to pay a premium immediately if onboarding takes under 5 minutes and eliminates cluttered patient apps requiring too much manual d.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or steep learning curves, complicated setup, or unreliable workflows",
       "feature_priorities": "Frictionless onboarding, rapid time-to-value, mobile accessibility, and streamlined workflows"
     },
     "psychological_profile": {
@@ -120,18 +75,153 @@
       "decision_style": "ROI-driven",
       "attention_span": "short-burst and task-focused"
     },
-    "background_story": "With extensive practical experience in Austin, USA, Aris Thorne (33) serves as a Lead Gen Millennial Operator. Their core operations currently depend on Traditional tools and email threads commonly used by Gen Z & Millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships., but frustration with lack of unified workflow integration causing errors and delays for gen z & millennial creative hobbyists experiencing social feed burnout and seeking genuine affinity friendships. has created significant day-to-day friction. When evaluating Vibecircle, they look for real architectural depth, speed, and dependable execution rather than superficial marketing promises.",
+    "background_story": "Operating out of Nairobi, Kenya, Julian Rossi (39) oversees critical operational workflows as a Health-Conscious Active Professional. While currently managing with Trainerize and direct Instagram direct messages with clients, persistent challenges around cluttered patient apps requiring too much manual daily data entry drain valuable time and focus. They approach Peto with a clear return-on-investment expectation: it must prove tangible productivity gains to justify any migration.",
     "opinion_seeds": {
-      "price_sensitivity": 0.42,
-      "openness_to_change": 0.76,
-      "tech_comfort": 0.73,
-      "feature_complexity_tolerance": 0.45,
-      "overall_sentiment_bias": 0.71
+      "price_sensitivity": 0.38,
+      "openness_to_change": 0.66,
+      "tech_comfort": 0.82,
+      "feature_complexity_tolerance": 0.53,
+      "overall_sentiment_bias": 0.67
     },
     "memory": {
       "conversation_history": [],
       "established_opinions": {},
-      "last_updated": "2026-10-09T23:02:36.937412"
+      "last_updated": "2026-10-11T13:18:35.297692"
+    }
+  },
+  {
+    "id": "persona_003",
+    "name": "Nadia Chernova",
+    "age": 49,
+    "gender": "Female",
+    "occupation": "Holistic Healthcare Practitioner",
+    "location": "Dublin, Ireland",
+    "income_bracket": "upper-middle",
+    "education": "Bachelor's in Business Administration (BBA)",
+    "archetype": "Power User / Optimizer",
+    "personality_traits": [
+      "analytical",
+      "exacting",
+      "tech-savvy",
+      "detail-oriented"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "SimplePractice, Stripe payments, and encrypted telehealth video",
+      "usage_frequency": "Twice daily during reconciliation and operational handoffs",
+      "primary_pain_points": "Fragmented health data across wearables, apps, and clinical records",
+      "willingness_to_pay": "High budget tolerance for depth: Willing to pay $40–$120/month if it improves client retention and cuts administrative booking overhead, provided deep customization, robust APIs, and automation are included.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or simplistic design, lack of keyboard shortcuts/APIs, or performance lags",
+      "feature_priorities": "Extensibility, advanced automation, keyboard shortcuts, fast execution, and granular controls"
+    },
+    "psychological_profile": {
+      "mbti": "INTJ",
+      "risk_tolerance": "high",
+      "motivation_type": "intrinsic-mastery",
+      "decision_style": "evidence-based",
+      "attention_span": "long and meticulous"
+    },
+    "background_story": "With extensive practical experience in Dublin, Ireland, Nadia Chernova (49) serves as a Holistic Healthcare Practitioner. Their core operations currently depend on SimplePractice, Stripe payments, and encrypted telehealth video, but frustration with fragmented health data across wearables, apps, and clinical records has created significant day-to-day friction. When evaluating Peto, they look for real architectural depth, speed, and dependable execution rather than superficial marketing promises.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.28,
+      "openness_to_change": 0.92,
+      "tech_comfort": 0.94,
+      "feature_complexity_tolerance": 0.86,
+      "overall_sentiment_bias": 0.63
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-11T13:18:35.297692"
+    }
+  },
+  {
+    "id": "persona_004",
+    "name": "Andre Washington",
+    "age": 32,
+    "gender": "Male",
+    "occupation": "Private Wellness Clinic Operations Lead",
+    "location": "Dubai, UAE",
+    "income_bracket": "upper",
+    "education": "B.A. in Communications & Digital Media",
+    "archetype": "Skeptical Traditionalist",
+    "personality_traits": [
+      "conservative",
+      "thorough",
+      "cautious",
+      "habit-driven"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Cliniko EHR and paper patient appointment cards",
+      "usage_frequency": "Continuous background use throughout workdays",
+      "primary_pain_points": "Low long-term client adherence and high drop-off after the first 30 days",
+      "willingness_to_pay": "Skeptical about new software fees: Requires proven track record and data safety before replacing Cliniko EHR and paper patient appointment cards.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or bugs, unannounced UI overhauls, or feeling patronized",
+      "feature_priorities": "Uptime stability, data security, zero habit disruption, and backwards compatibility"
+    },
+    "psychological_profile": {
+      "mbti": "ISFJ",
+      "risk_tolerance": "very low",
+      "motivation_type": "status-quo preservation",
+      "decision_style": "risk-averse",
+      "attention_span": "methodical"
+    },
+    "background_story": "As an established Private Wellness Clinic Operations Lead in Dubai, UAE, Andre Washington (32) values stability and proven reliability above all else. They have well-honed routines built around Cliniko EHR and paper patient appointment cards; while low long-term client adherence and high drop-off after the first 30 days is a known pain point, they remain cautious about adopting Peto until long-term reliability and zero data disruption are convincingly demonstrated.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.6,
+      "openness_to_change": 0.18,
+      "tech_comfort": 0.49,
+      "feature_complexity_tolerance": 0.31,
+      "overall_sentiment_bias": 0.38
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-11T13:18:35.297692"
+    }
+  },
+  {
+    "id": "persona_005",
+    "name": "Cameron Diaz",
+    "age": 50,
+    "gender": "Non-binary",
+    "occupation": "Physical Therapist & Rehabilitation Specialist",
+    "location": "Berlin, Germany",
+    "income_bracket": "upper-middle",
+    "education": "Bachelor's in Finance & Accounting",
+    "archetype": "Budget-Conscious Pragmatist",
+    "personality_traits": [
+      "practical",
+      "frugal",
+      "analytical",
+      "value-driven"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "MyFitnessPal, Apple Health, and WhatsApp client check-ins",
+      "usage_frequency": "Twice daily during reconciliation and operational handoffs",
+      "primary_pain_points": "Complex medical billing and insurance reimbursement claim rejections",
+      "willingness_to_pay": "Cautious and ROI-focused: Willing to pay $40–$120/month if it improves client retention and cuts administrative booking overhead. Prefers low upfront risk, transparent pricing, or clear trial period.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or price increases, hidden fees, or low perceived return on spend",
+      "feature_priorities": "Cost predictability, transparent tiers, essential core stability, and straightforward setup"
+    },
+    "psychological_profile": {
+      "mbti": "ISTJ",
+      "risk_tolerance": "low",
+      "motivation_type": "extrinsic-economic",
+      "decision_style": "value-maximizing",
+      "attention_span": "focused on terms and pricing"
+    },
+    "background_story": "Located in Berlin, Germany, Cameron Diaz (50) is an active Physical Therapist & Rehabilitation Specialist working closely with gen z & millennial, and first-time pet owners who are seeking genuine pet care, help and a marketplace to get anything all at one place. Having cycled through tools like MyFitnessPal, Apple Health, and WhatsApp client check-ins, they find complex medical billing and insurance reimbursement claim rejections to be their biggest recurring obstacle. They are actively seeking modern solutions like Peto that can streamline day-to-day workflows and eliminate administrative drag.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.87,
+      "openness_to_change": 0.41,
+      "tech_comfort": 0.61,
+      "feature_complexity_tolerance": 0.44,
+      "overall_sentiment_bias": 0.5
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-11T13:18:35.297692"
     }
   }
 ]
