@@ -1,21 +1,39 @@
 # System Architecture & Technical Documentation
 
-This document provides a concise overview of the **Universal Synthetic User Research Platform** architecture, the technologies used, and the purpose of every code file across the repository.
+This document provides a comprehensive overview of the **Universal Synthetic User Research Platform** (SynthaResearch) architecture, the technologies used, and the purpose of every code module across the repository.
 
 ---
 
 ## 1. System Architecture Overview
 
-The platform uses a **modular, multi-tier agent-based architecture** designed to simulate human user research workflows (persona generation, surveys, 1-on-1 interviews, and insight synthesis) for any product domain without requiring real human participants.
+The platform uses a **modular, multi-tier agent-based and micro-service architecture** designed to simulate human user research workflows (persona generation, surveys, 1-on-1 qualitative interviews, and insight synthesis) for any product domain without requiring real human participants.
+
+The system supports both an **interactive terminal CLI** for quick local workflows and a full **production-grade web application** featuring a Next.js frontend, FastAPI backend, MongoDB Beanie ODM persistence, and secure JWT authentication.
 
 ```mermaid
 flowchart TD
     subgraph UI_Layer ["1. Presentation & Interface Layer"]
         CLI["CLI Menu (main.py)<br/>Interactive Terminal UI (Rich)"]
-        API["REST API (api.py)<br/>FastAPI Web Service"]
+        WEB["Next.js 16 Web App (client/)<br/>React 19 + TypeScript + Tailwind CSS"]
+        API["FastAPI REST API (api.py)<br/>Uvicorn ASGI + CORS"]
     end
 
-    subgraph Agent_Layer ["2. Multi-Agent Orchestration Layer (agents/)"]
+    subgraph Auth_Security ["2. Authentication & Access Layer (auth/)"]
+        JWT["JWT Security (auth/utils.py)<br/>Access & Refresh Tokens"]
+        AUTHR["Auth Router (auth/router.py)<br/>Register, Login, Me, Profile, Refresh"]
+        DEP["Dependencies (auth/dependencies.py)<br/>Bearer Token & Cookie Extraction"]
+    end
+
+    subgraph Router_Layer ["3. Modular API Routers (routers/)"]
+        SYS_R["system_router (routers/system.py)<br/>Health & LLM Config"]
+        EXP_R["experiments_router (routers/experiments.py)<br/>Product Workspace & Activation"]
+        PER_R["personas_router (routers/personas.py)<br/>Cohort Generation & Roster"]
+        SUR_R["surveys_router (routers/surveys.py)<br/>AI Questions & Survey Matrix"]
+        INT_R["interviews_router (routers/interviews.py)<br/>1-on-1 Sessions & Turns"]
+        REP_R["reports_router (routers/reports.py)<br/>Adoption Score, PDF & Insights"]
+    end
+
+    subgraph Agent_Layer ["4. Multi-Agent Orchestration Layer (agents/ & services.py)"]
         PGA["PersonaGenerationAgent<br/>(agents/persona_generator.py)"]
         PMM["PersonaMemoryModule<br/>(agents/persona_memory.py)"]
         SA["SurveyAgent<br/>(agents/survey_agent.py)"]
@@ -23,112 +41,215 @@ flowchart TD
         IEA["InsightExtractionAgent<br/>(agents/insight_agent.py)"]
     end
 
-    subgraph Utilities_Layer ["3. Core Utilities & Services (utils/ & config/)"]
-        LLM["LLMClient (utils/llm_client.py)<br/>OpenRouter API Connector"]
-        CFG["Settings (config/settings.py)<br/>Environment & Threshold Config"]
-        NLP["NLP Utilities (utils/nlp_utils.py)<br/>Sentiment & Heuristics"]
-        PDF["PDF Exporter (utils/pdf_exporter.py)<br/>ReportLab Document Engine"]
+    subgraph Utilities_Layer ["5. Core Utilities, Normalization & Config"]
+        LLM["LLMClient (utils/llm_client.py)<br/>OpenRouter Multi-Model Gateway"]
+        NORM["Normalizer (utils/normalizer.py)<br/>Domain Profiling & Heuristics"]
+        CFG["Settings (config/settings.py)<br/>Environment, DB & Thresholds"]
+        NLP["NLP Utilities (utils/nlp_utils.py)<br/>Sentiment & Lexicon Scoring"]
+        PDF["PDF Exporter (utils/pdf_exporter.py)<br/>ReportLab Document Generator"]
+        BANK["Templates & Banks (templates/)<br/>Demographic Names & Responses"]
         STG["Storage (utils/storage.py)<br/>Atomic JSON Persistence"]
     end
 
-    subgraph External_Service ["4. External AI Foundation Models"]
-        OR["OpenRouter API Gateway<br/>(GPT-4o, Claude, Llama 3, DeepSeek, etc.)"]
+    subgraph Persistence_Layer ["6. Database & Persistence Layer"]
+        subgraph Mongo_DB ["MongoDB + Beanie ODM (db/)"]
+            M_USER[("users")]
+            M_EXP[("experiments")]
+            M_PER[("personas")]
+            M_SURV[("survey_sessions")]
+            M_INT[("interview_sessions")]
+            M_REP[("reports")]
+        end
+        subgraph Local_Files ["Local Artifacts & File Fallbacks"]
+            FS_REP[("reports/*.pdf & *.json")]
+            FS_DATA[("data/*.json (CLI / Local)")]
+        end
     end
 
-    subgraph Storage_Layer ["5. Data Persistence (data/ & reports/)"]
-        EXP[("data/experiment.json")]
-        POOL[("data/persona_pool.json")]
-        SURVEY[("data/survey_responses.json")]
-        INTERVIEW[("data/interview_logs.json")]
-        REPORTS[("reports/*.json & *.pdf")]
+    subgraph External_Service ["7. Foundation AI Models"]
+        OR["OpenRouter API Gateway<br/>(Claude 3.5 Sonnet, GPT-4o, Llama 3.3, Gemini 2.5, DeepSeek)"]
     end
 
-    %% Flow connections
-    CLI & API --> PGA & SA & IA & IEA
-    PGA -->|Stores personas| POOL
-    PMM <-->|Reads & persists state| POOL
-    SA -->|Simulates answers via| PMM
-    SA -->|Stores survey| SURVEY
-    IA -->|Conducts multi-turn dialogue| PMM
-    IA -->|Appends logs| INTERVIEW
-    IEA -->|Aggregates research data| SURVEY & INTERVIEW & EXP
-    IEA -->|Generates outputs| REPORTS
-    
-    PGA & PMM & SA & IEA --> LLM
+    %% Client/API Connections
+    WEB <-->|REST API + Bearer / Cookies| API
+    CLI --> PGA & SA & IA & IEA
+    API --> AUTHR
+    API --> SYS_R & EXP_R & PER_R & SUR_R & INT_R & REP_R
+    AUTHR & EXP_R & PER_R & SUR_R & INT_R & REP_R --> DEP
+    DEP --> JWT
+
+    %% Routers to DB
+    AUTHR <--> M_USER
+    EXP_R <--> M_EXP
+    PER_R <--> M_PER
+    SUR_R <--> M_SURV
+    INT_R <--> M_INT
+    REP_R <--> M_REP
+
+    %% Routers to Agents
+    EXP_R --> NORM
+    PER_R --> PGA
+    SUR_R --> SA
+    INT_R --> PMM
+    REP_R --> IEA & PDF
+    PDF --> FS_REP
+
+    %% Agents internal flows
+    PGA --> BANK & LLM
+    SA --> PMM & LLM & NLP
+    IA --> PMM
+    IEA --> LLM & NLP
+    PMM --> LLM & BANK
+
+    %% LLM to Gateway
     LLM <--> OR
     LLM --- CFG
-    IEA --> PDF
-    SA --> NLP
-    PGA & SA & IA & IEA --- STG
-    STG --> EXP & POOL & SURVEY & INTERVIEW
+    CLI <--> FS_DATA
 ```
-
-### Core Architecture Flow
-1. **Experiment Setup**: The user specifies the product name, domain, value proposition, target audience, and research objectives.
-2. **Persona Synthesis**: `PersonaGenerationAgent` sends experiment specs to the LLM to generate diverse user archetypes with demographic, psychological, and behavioral traits.
-3. **Cross-Persona Surveying**: `SurveyAgent` poses questions to all personas simultaneously. Each persona answers in-character through `PersonaMemoryModule`, which classifies sentiments.
-4. **Interactive Qualitative Interview**: `InterviewAgent` lets researchers chat 1-on-1 with any persona while preserving conversation history and opinions.
-5. **Insight Extraction & Reporting**: `InsightExtractionAgent` aggregates survey and interview data, identifies behavioral patterns, and exports structured JSON and PDF reports.
 
 ---
 
-## 2. Technologies Used
+## 2. Core Architecture Flow
+
+1. **Authentication & Multi-Tenant Scoping**:
+   - Users register or log in via [`/auth/register`](file:///d:/PROJECTS/SyntheticUsersReserch/server/auth/router.py) and [`/auth/login`](file:///d:/PROJECTS/SyntheticUsersReserch/server/auth/router.py).
+   - Passwords are securely hashed using `bcrypt`.
+   - The server issues short-lived JWT access tokens alongside secure, HttpOnly refresh tokens.
+   - All subsequent research operations (experiments, personas, surveys, interviews, and reports) are strictly scoped to the authenticated `user_id`.
+
+2. **Experiment Workspace & Domain Normalization**:
+   - The user defines product parameters: product name, description, target audience, research objectives, and industry domain (e.g., B2B SaaS, FinTech, HealthTech, DevTools, E-Commerce).
+   - [`normalize_experiment`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/normalizer.py) enriches the configuration with heuristic domain profiles, pricing models, and key risk dimensions.
+   - Experiments are saved as active in the MongoDB `experiments` collection. Users can maintain multiple experiments and switch the active workspace seamlessly.
+
+3. **Domain-Tailored Persona Synthesis**:
+   - [`PersonaGenerationAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_generator.py) constructs diverse synthetic user personas tailored to the active product's domain.
+   - Personas receive realistic demographic attributes, technical skill levels, current workflows, pain points, budget constraints, churn triggers, and MBTI personality traits.
+   - Personas are indexed and stored in MongoDB under `personas` scoped to both `user_id` and `experiment_id`.
+
+4. **Multi-Persona Survey Simulations**:
+   - [`SurveyAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/survey_agent.py) suggests domain-specific questions or takes custom researcher questions.
+   - Executes batch survey runs across the cohort. Personas respond in-character using [`PersonaMemoryModule`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_memory.py).
+   - Responses undergo automated sentiment classification (`POSITIVE`, `NEUTRAL`, `NEGATIVE`) and key takeaway extraction, generating comparison matrices saved to `survey_sessions`.
+
+5. **Interactive 1-on-1 Qualitative Interviews**:
+   - [`InterviewAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/interview_agent.py) and [`PersonaMemoryModule`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_memory.py) enable real-time, multi-turn dialogues with any specific persona.
+   - Maintains continuous conversation history and locks established opinions across turns to avoid cognitive drift.
+   - Sessions and turn-by-turn logs are saved in MongoDB under `interview_sessions`.
+
+6. **Insight Extraction & Strategic Reporting**:
+   - [`InsightExtractionAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/insight_agent.py) synthesizes quantitative survey findings and qualitative interview transcripts.
+   - Computes an **Adoption Propensity Score (%)** with segment-by-segment breakdowns and group reasoning.
+   - Generates executive summaries, friction point analyses, and prioritized product recommendations.
+   - Compiles formal reports saved in MongoDB (`reports`) and exports styled multi-page PDF documents via [`export_pdf`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/pdf_exporter.py).
+
+---
+
+## 3. Technologies Used
 
 | Technology / Library | Version | Purpose in Project |
 | :--- | :--- | :--- |
-| **Python** | 3.10+ | Core programming language powering the entire backend, CLI, and agents. |
-| **FastAPI** | 0.110.0 | High-performance REST API backend providing endpoints for external UI/web integrations. |
+| **Python** | 3.10+ | Core backend runtime powering the agents, CLI, and REST API. |
+| **FastAPI** | 0.110.0 | Asynchronous web framework exposing REST endpoints, OpenAPI docs, and lifespan events. |
 | **Uvicorn** | 0.28.0 | ASGI web server running the FastAPI application. |
-| **Rich** | 13.7.1 | Terminal styling, formatted tables, colored panels, and interactive prompts in the CLI. |
-| **ReportLab** | 4.2.0 | Programmatic PDF document generation for research and executive reports. |
-| **OpenRouter API** | REST API | Multi-model LLM provider allowing dynamic model switching (GPT-4o, Claude 3.5, Llama 3.3, etc.). |
-| **Requests / HTTPX** | 2.31 / 0.27 | HTTP clients handling communication with OpenRouter chat completion endpoints. |
-| **Pydantic** | 2.x | Data validation and schema enforcement for API requests and payloads. |
-| **python-dotenv** | 1.0.1 | Environment configuration management loading API keys and settings from `.env`. |
+| **MongoDB** | 5.0+ / Atlas | NoSQL document database providing multi-tenant persistence. |
+| **Motor** | >=3.7.0 | Official asynchronous Python driver for MongoDB. |
+| **Beanie ODM** | >=2.2.0 | Asynchronous Object Document Mapper (ODM) built on Pydantic and Motor. |
+| **PyJWT** | >=2.15.0 | Secure JSON Web Token generation and validation (Access & Refresh tokens). |
+| **bcrypt** | >=5.0.0 | Cryptographic salt-and-hash password security. |
+| **Pydantic** | 2.x | Data validation, request payload parsing, and Beanie document schemas. |
+| **ReportLab** | 4.2.0 | Programmatic PDF document layout, typography, tables, and visual styling. |
+| **Rich** | 13.7.1 | Interactive terminal UI, colored tables, progress indicators, and CLI prompts. |
+| **OpenRouter API** | REST API | Multi-model foundation LLM gateway (Claude 3.5, GPT-4o, Llama 3.3, Gemini 2.5, DeepSeek). |
+| **HTTPX / Requests**| 0.27 / 2.31 | HTTP client libraries for OpenRouter API communication. |
+| **python-dotenv** | 1.0.1 | Environment configuration management loading credentials from `.env`. |
+| **Next.js** | 16.4.0 | Modern React frontend framework with App Router, SSR, and client state. |
+| **React** | 19.3.0 | Modern reactive user interface rendering for the web application. |
+| **Tailwind CSS** | ^4.0 | Utility-first styling framework powering the modern dashboard aesthetic. |
+| **Lucide React** | ^1.53.0 | High-quality iconography across all dashboard views. |
 
 ---
 
-## 3. Project Files & Their Purpose
+## 4. Directory & File Reference
 
-### Entrypoints & Interface Layer
-* **[`main.py`](file:///d:/PROJECTS/SyntheticUsersReserch/main.py)**:
-  Interactive CLI application. Provides a 6-option menu to configure experiments, generate personas, launch surveys, conduct live interviews, and export reports with rich terminal styling.
-* **[`api.py`](file:///d:/PROJECTS/SyntheticUsersReserch/api.py)**:
-  FastAPI server exposing REST endpoints (`/api/setup-experiment`, `/api/generate-personas`, `/api/run-survey`, `/api/interview`, `/api/generate-report`, `/api/llm-config`).
-* **[`test_pipeline.py`](file:///d:/PROJECTS/SyntheticUsersReserch/test_pipeline.py)**:
-  End-to-end automated verification script that executes the complete research workflow across multiple test product domains.
+### Root Directory (`server/`)
+* **[`api.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/api.py)**:
+  Main FastAPI application entrypoint. Configures database lifespan (`init_db` / `close_db`), CORS middleware, and mounts all modular routers.
+* **[`main.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/main.py)**:
+  Interactive standalone CLI program providing terminal-based execution of persona generation, surveys, interviews, and report generation using Rich.
+* **[`services.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/services.py)**:
+  Instantiates and exports shared singleton instances of `PersonaGenerationAgent`, `SurveyAgent`, and `InsightExtractionAgent`.
+* **[`schemas.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/schemas.py)**:
+  Pydantic request models (`ExperimentModel`, `SurveyRequestModel`, `InterviewMessageModel`).
+* **[`requirements.txt`](file:///d:/PROJECTS/SyntheticUsersReserch/server/requirements.txt)**:
+  Pinned backend dependencies including FastAPI, Beanie, Motor, PyJWT, bcrypt, and ReportLab.
+* **[`test_pipeline.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/test_pipeline.py)**:
+  Automated end-to-end integration test validating research pipelines across diverse domains.
+* **[`test_persona_diversity.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/test_persona_diversity.py)**:
+  Diversity audit script checking persona uniqueness, demographic variety, and archetype dispersion.
+* **[`validation.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/validation.py)**:
+  Comprehensive validation suite verifying all persona consistency, survey, interview, and scoring requirements.
 
-### Configuration Layer
-* **[`config/settings.py`](file:///d:/PROJECTS/SyntheticUsersReserch/config/settings.py)**:
-  Central configuration module. Reads `.env` values (`OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`), sets thresholds (sentiment thresholds, memory window), and provides status checks.
-* **[`.env`](file:///d:/PROJECTS/SyntheticUsersReserch/.env)** & **[`.env.example`](file:///d:/PROJECTS/SyntheticUsersReserch/.env.example)**:
-  Environment variable definition files storing API credentials and active LLM model selection.
+### Authentication Package (`server/auth/`)
+* **[`auth/router.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/auth/router.py)**:
+  Authentication endpoints (`/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/me`, `/auth/profile`, `/auth/logout`).
+* **[`auth/dependencies.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/auth/dependencies.py)**:
+  FastAPI dependency injections (`get_current_user`, `get_user_from_auth_or_query`) for securing protected routes and streaming PDFs.
+* **[`auth/utils.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/auth/utils.py)**:
+  Password hashing (`hash_password`, `verify_password`) and JWT token utilities (`create_access_token`, `create_refresh_token`, `decode_token`).
+* **[`auth/schemas.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/auth/schemas.py)**:
+  Pydantic models for user registration, login, token responses, and profile updates.
 
-### Agent Layer (`agents/`)
-* **[`agents/persona_generator.py`](file:///d:/PROJECTS/SyntheticUsersReserch/agents/persona_generator.py)**:
-  `PersonaGenerationAgent` dynamically generates diverse, domain-tailored synthetic user profiles (archetype, demographics, habits, pain points, willingness to pay, churn triggers, and psychological traits). Includes deterministic fallback archetypes.
-* **[`agents/persona_memory.py`](file:///d:/PROJECTS/SyntheticUsersReserch/agents/persona_memory.py)**:
-  `PersonaMemoryModule` maintains cognitive consistency for each persona. Tracks conversation history, locks established opinions across turns, and generates in-character responses using LLM system prompts.
-* **[`agents/survey_agent.py`](file:///d:/PROJECTS/SyntheticUsersReserch/agents/survey_agent.py)**:
-  `SurveyAgent` suggests product-specific survey questions using LLM intelligence and runs batch surveys across all personas in parallel, extracting key takeaways and sentiment labels.
-* **[`agents/interview_agent.py`](file:///d:/PROJECTS/SyntheticUsersReserch/agents/interview_agent.py)**:
-  `InterviewAgent` manages interactive 1-on-1 interview sessions with individual personas, persisting multi-turn dialogue to `interview_logs.json`.
-* **[`agents/insight_agent.py`](file:///d:/PROJECTS/SyntheticUsersReserch/agents/insight_agent.py)**:
-  `InsightExtractionAgent` performs qualitative data synthesis across surveys and interviews. Identifies cross-cutting themes, behavioral segments, friction points, and recommendations, triggering both JSON and PDF export.
+### Database Package (`server/db/`)
+* **[`db/connection.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/db/connection.py)**:
+  Initializes the Motor client and registers Beanie document models on startup; handles graceful shutdown.
+* **[`db/models.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/db/models.py)**:
+  Beanie ODM Document models:
+  - `User`: Account credentials, profile avatar seed, active status.
+  - `Experiment`: Product definitions, domain profiles, user association, and active flag.
+  - `Persona`: Complete synthetic persona dossiers scoped by user and experiment.
+  - `SurveySession`: Survey questions, batch answers, sentiment breakdowns, and matrix data.
+  - `InterviewSession`: Multi-turn dialogue logs between researcher and persona.
+  - `ResearchReport`: Executive summaries, adoption propensity scores, findings, and raw report payloads.
 
-### Utilities Layer (`utils/`)
-* **[`utils/llm_client.py`](file:///d:/PROJECTS/SyntheticUsersReserch/utils/llm_client.py)**:
-  `LLMClient` wraps OpenRouter's HTTP chat completions API. Handles bearer authentication, prompt payloads, response retries, JSON markdown sanitization, and configuration validation.
-* **[`utils/nlp_utils.py`](file:///d:/PROJECTS/SyntheticUsersReserch/utils/nlp_utils.py)**:
-  Provides text processing utilities and heuristic keyword/lexicon sentiment analysis used when scoring responses or running without LLM dependencies.
-* **[`utils/pdf_exporter.py`](file:///d:/PROJECTS/SyntheticUsersReserch/utils/pdf_exporter.py)**:
-  Builds styled, multi-page PDF research reports using ReportLab with custom color palettes, tables, callout blocks, and executive summaries.
-* **[`utils/storage.py`](file:///d:/PROJECTS/SyntheticUsersReserch/utils/storage.py)**:
-  Atomic file operations (`load_json`, `save_json`) ensuring safe reading and writing of data files.
+### API Routers (`server/routers/`)
+* **[`routers/system.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/routers/system.py)**:
+  Root health check (`GET /`) and LLM configuration probe (`GET /api/llm-config`).
+* **[`routers/experiments.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/routers/experiments.py)**:
+  Experiment management (`POST /api/setup-experiment`, `GET /api/experiment`, `GET /api/experiments`, `POST /api/experiment/{id}/activate`).
+* **[`routers/personas.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/routers/personas.py)**:
+  Persona generation and retrieval (`POST /api/generate-personas`, `GET /api/personas`).
+* **[`routers/surveys.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/routers/surveys.py)**:
+  Survey operations (`GET /api/suggest-questions`, `POST /api/run-survey`, `GET /api/survey-matrix`).
+* **[`routers/interviews.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/routers/interviews.py)**:
+  Qualitative interviews (`POST /api/interview`, `GET /api/interviews`, `GET /api/interview/{id}`, `POST /api/interview/reset`).
+* **[`routers/reports.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/routers/reports.py)**:
+  Analytics & Reports (`GET /api/adoption-score`, `POST /api/generate-report`, `GET /api/reports/latest`, `GET /api/reports/latest/pdf`, `GET /api/reports/{id}/pdf`, `GET /api/reports`).
 
-### Persistence Layer (`data/` and `reports/`)
-* **`data/experiment.json`**: Active experiment metadata (product name, description, target audience, objectives).
-* **`data/persona_pool.json`**: Generated persona profiles with memory state and opinion records.
-* **`data/survey_responses.json`**: Aggregated survey questions, persona answers, and sentiment tags.
-* **`data/interview_logs.json`**: Conversation turn records between human researchers and synthetic personas.
-* **`reports/`**: Destination directory for generated timestamped research reports (`report_<timestamp>.json` and `report_<timestamp>.pdf`).
+### Agent Layer (`server/agents/`)
+* **[`agents/persona_generator.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_generator.py)**:
+  `PersonaGenerationAgent`: Dynamically synthesizes domain-grounded persona cohorts via OpenRouter LLM, falling back to rich deterministic profiles if offline.
+* **[`agents/persona_memory.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_memory.py)**:
+  `PersonaMemoryModule`: Manages cognitive state, locks in prior opinions, and formats role-playing prompts for consistent character persona responses.
+* **[`agents/survey_agent.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/survey_agent.py)**:
+  `SurveyAgent`: Generates relevant research questions, simulates batch responses across personas, and formats side-by-side comparison matrices.
+* **[`agents/interview_agent.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/interview_agent.py)**:
+  `InterviewAgent`: Orchestrates interactive terminal interviews and multi-turn logging.
+* **[`agents/insight_agent.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/insight_agent.py)**:
+  `InsightExtractionAgent`: Extracts behavioral themes, consensus/polarization patterns, computes the "Would use this product?" score, and drafts executive recommendations.
+
+### Utilities & Templates (`server/utils/` & `server/templates/`)
+* **[`utils/llm_client.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/llm_client.py)**:
+  `LLMClient`: Secure client for the OpenRouter Chat Completions API with bearer authentication, retry mechanisms, and JSON response sanitization.
+* **[`utils/normalizer.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/normalizer.py)**:
+  Domain categorization heuristics, keyword extractors, and research profile normalizer.
+* **[`utils/pdf_exporter.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/pdf_exporter.py)**:
+  `export_pdf`: Generates multi-page ReportLab PDF reports with visual score gauges, structured callout boxes, and executive summaries.
+* **[`utils/nlp_utils.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/nlp_utils.py)**:
+  Heuristic sentiment analysis and text processing tools.
+* **[`utils/storage.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/utils/storage.py)**:
+  Safe atomic JSON read and write functions for local file persistence.
+* **[`templates/name_bank.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/templates/name_bank.py)**:
+  Culturally diverse first and last name repositories for synthetic persona construction.
+* **[`templates/response_templates.py`](file:///d:/PROJECTS/SyntheticUsersReserch/server/templates/response_templates.py)**:
+  Diverse response pools categorized by archetype and sentiment for high-fidelity fallback simulations.
