@@ -17,7 +17,18 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResponse>;
-  register: (email: string, password: string, fullName?: string) => Promise<AuthResponse>;
+  register: (
+    email: string,
+    password: string,
+    fullName?: string,
+    avatarSeed?: string,
+    avatarGender?: string
+  ) => Promise<AuthResponse>;
+  updateProfile: (data: {
+    full_name?: string;
+    avatar_seed?: string;
+    avatar_gender?: string;
+  }) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -82,18 +93,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (
     email: string,
     password: string,
-    fullName?: string
+    fullName?: string,
+    avatarSeed?: string,
+    avatarGender?: string
   ): Promise<AuthResponse> => {
     const data = await api.auth.register({
       email,
       password,
       full_name: fullName,
+      avatar_seed: avatarSeed,
+      avatar_gender: avatarGender,
     });
     setStoredToken(data.access_token);
     setStoredUser(data.user);
     setToken(data.access_token);
     setUser(data.user);
     return data;
+  };
+
+  const updateProfile = async (data: {
+    full_name?: string;
+    avatar_seed?: string;
+    avatar_gender?: string;
+  }): Promise<User> => {
+    const updated = await api.auth.updateProfile(data);
+    setStoredUser(updated);
+    setUser(updated);
+    return updated;
   };
 
   const logout = async () => {
@@ -117,6 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         login,
         register,
+        updateProfile,
         logout,
       }}
     >

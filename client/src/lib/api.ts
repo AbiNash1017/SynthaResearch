@@ -151,11 +151,26 @@ export const api = {
         body: JSON.stringify(credentials),
         skipAuth: true,
       }),
-    register: (data: { email: string; password: string; full_name?: string }) =>
+    register: (data: {
+      email: string;
+      password: string;
+      full_name?: string;
+      avatar_seed?: string;
+      avatar_gender?: string;
+    }) =>
       fetchJson<AuthResponse>("/auth/register", {
         method: "POST",
         body: JSON.stringify(data),
         skipAuth: true,
+      }),
+    updateProfile: (data: {
+      full_name?: string;
+      avatar_seed?: string;
+      avatar_gender?: string;
+    }) =>
+      fetchJson<User>("/auth/profile", {
+        method: "PATCH",
+        body: JSON.stringify(data),
       }),
     getMe: () => fetchJson<User>("/auth/me"),
     logout: () =>

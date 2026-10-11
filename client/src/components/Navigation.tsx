@@ -12,11 +12,16 @@ import {
   Activity,
   LogOut,
   LogIn,
+  Edit3,
+  X,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { LLMConfig, Experiment } from "@/types/api";
 import { useAuth } from "@/lib/authContext";
+import { Avatar } from "@/components/Avatar";
+import { AvatarPicker } from "@/components/AvatarPicker";
 
 const NAV_ITEMS = [
   {
@@ -53,10 +58,41 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, updateProfile } = useAuth();
   const [llmConfig, setLlmConfig] = useState<LLMConfig | null>(null);
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [activeExp, setActiveExp] = useState<Experiment | null>(null);
+
+  const [isEditingAvatar, setIsEditingAvatar] = useState(false);
+  const [tempSeed, setTempSeed] = useState(
+    user?.avatar_seed || user?.full_name || "Marcus Vance"
+  );
+  const [tempGender, setTempGender] = useState<"male" | "female">(
+    (user?.avatar_gender as "male" | "female") || "male"
+  );
+  const [isSavingAvatar, setIsSavingAvatar] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setTempSeed(user.avatar_seed || user.full_name || "Marcus Vance");
+      setTempGender((user.avatar_gender as "male" | "female") || "male");
+    }
+  }, [user]);
+
+  const handleSaveAvatar = async () => {
+    setIsSavingAvatar(true);
+    try {
+      await updateProfile({
+        avatar_seed: tempSeed,
+        avatar_gender: tempGender,
+      });
+      setIsEditingAvatar(false);
+    } catch (err) {
+      console.error("Failed to update avatar:", err);
+    } finally {
+      setIsSavingAvatar(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -173,28 +209,103 @@ export function Sidebar() {
       <div className="p-3 space-y-3">
         {/* User Account / Profile Box */}
         {isAuthenticated && user ? (
-          <div className="p-3 rounded-2xl bg-white border border-[#CFE1B9] shadow-xs flex items-center justify-between">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-[#465135] text-[#CFE1B9] flex items-center justify-center font-bold text-xs uppercase shrink-0 shadow-xs">
-                {user.full_name ? user.full_name[0] : user.email[0]}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-[#2D3522] truncate">
-                  {user.full_name || user.email.split("@")[0]}
-                </p>
-                <p className="text-[10px] text-[#728156] truncate font-mono">
-                  {user.email}
-                </p>
-              </div>
+          <>
+            <div className="p-3 rounded-2xl bg-white border border-[#CFE1B9] shadow-xs flex items-center justify-between group">
+              <button
+                type="button"
+                onClick={() => setIsEditingAvatar(true)}
+                className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer hover:opacity-90 transition-opacity flex-1 pr-1"
+                title="Click to customize profile avatar"
+              >
+                <div className="relative">
+                  <Avatar
+                    seed={user.avatar_seed || user.full_name || user.email}
+                    gender={user.avatar_gender || "male"}
+                    alt={user.full_name || user.email}
+                    className="w-8 h-8 rounded-xl"
+                    fallbackText={user.full_name || user.email}
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#465135] text-white flex items-center justify-center shadow-2xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Edit3 className="w-2 h-2" />
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[#2D3522] truncate">
+                    {user.full_name || user.email.split("@")[0]}
+                  </p>
+                  <p className="text-[10px] text-[#728156] truncate font-mono">
+                    {user.email}
+                  </p>
+                </div>
+              </button>
+              <button
+                onClick={() => logout()}
+                title="Sign Out"
+                className="p-1.5 rounded-lg text-[#88976C] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => logout()}
-              title="Sign Out"
-              className="p-1.5 rounded-lg text-[#88976C] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+
+            {/* Avatar Customization Modal */}
+            {isEditingAvatar && (
+              <div className="fixed inset-0 z-50 bg-[#1C2417]/50 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="w-full max-w-sm bg-white rounded-3xl p-6 border border-[#CFE1B9] shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#F4F7F4]">
+                    <div>
+                      <h3 className="text-sm font-bold text-[#2D3522]">
+                        Customize Your Profile Avatar
+                      </h3>
+                      <p className="text-[11px] text-[#728156]">
+                        Select your preferred gender and illustration style
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingAvatar(false)}
+                      className="p-1.5 rounded-lg text-[#88976C] hover:text-[#2D3522] hover:bg-[#F4F7F4] transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <AvatarPicker
+                    selectedSeed={tempSeed}
+                    selectedGender={tempGender}
+                    onSelect={(s, g) => {
+                      setTempSeed(s);
+                      setTempGender(g);
+                    }}
+                  />
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#F4F7F4]">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingAvatar(false)}
+                      className="px-3 py-1.5 rounded-xl border border-[#CFE1B9] text-[#5B6845] hover:bg-[#F8FAF7] text-xs font-semibold transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveAvatar}
+                      disabled={isSavingAvatar}
+                      className="px-4 py-1.5 rounded-xl bg-[#465135] hover:bg-[#353D27] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {isSavingAvatar ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Saving...</span>
+                        </>
+                      ) : (
+                        <span>Save Avatar</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <Link
             href="/login"

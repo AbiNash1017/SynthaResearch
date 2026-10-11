@@ -3,10 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
 import jwt
 from beanie import PydanticObjectId
 
+from datetime import datetime
 from db.models import User
 from auth.schemas import (
     UserRegister,
     UserLogin,
+    UserUpdate,
     TokenResponse,
     UserResponse,
     RefreshTokenRequest,
@@ -37,7 +39,9 @@ async def register(payload: UserRegister, response: Response):
     user = User(
         email=payload.email.lower().strip(),
         hashed_password=hash_password(payload.password),
-        full_name=payload.full_name.strip() if payload.full_name else None
+        full_name=payload.full_name.strip() if payload.full_name else None,
+        avatar_seed=payload.avatar_seed.strip() if payload.avatar_seed else None,
+        avatar_gender=payload.avatar_gender.strip() if payload.avatar_gender else None,
     )
     await user.insert()
 
@@ -63,6 +67,8 @@ async def register(payload: UserRegister, response: Response):
             id=user_id_str,
             email=user.email,
             full_name=user.full_name,
+            avatar_seed=user.avatar_seed,
+            avatar_gender=user.avatar_gender,
             created_at=user.created_at
         )
     )
@@ -105,6 +111,8 @@ async def login(payload: UserLogin, response: Response):
             id=user_id_str,
             email=user.email,
             full_name=user.full_name,
+            avatar_seed=user.avatar_seed,
+            avatar_gender=user.avatar_gender,
             created_at=user.created_at
         )
     )
@@ -178,6 +186,34 @@ async def get_current_user_profile(current_user: User = Depends(get_current_user
         id=str(current_user.id),
         email=current_user.email,
         full_name=current_user.full_name,
+        avatar_seed=current_user.avatar_seed,
+        avatar_gender=current_user.avatar_gender,
+        created_at=current_user.created_at
+    )
+
+
+@router.patch("/profile", response_model=UserResponse)
+async def update_profile(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Updates user profile details including full_name, avatar_seed, and avatar_gender."""
+    if payload.full_name is not None:
+        current_user.full_name = payload.full_name.strip() or None
+    if payload.avatar_seed is not None:
+        current_user.avatar_seed = payload.avatar_seed.strip() or None
+    if payload.avatar_gender is not None:
+        current_user.avatar_gender = payload.avatar_gender.strip() or None
+
+    current_user.updated_at = datetime.utcnow()
+    await current_user.save()
+
+    return UserResponse(
+        id=str(current_user.id),
+        email=current_user.email,
+        full_name=current_user.full_name,
+        avatar_seed=current_user.avatar_seed,
+        avatar_gender=current_user.avatar_gender,
         created_at=current_user.created_at
     )
 

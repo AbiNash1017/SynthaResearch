@@ -22,6 +22,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/lib/authContext";
 
 const PROMPT_SUGGESTIONS = [
   "What is the single biggest workflow pain point you encounter every week?",
@@ -34,6 +36,7 @@ const PROMPT_SUGGESTIONS = [
 function InterviewsContent() {
   const searchParams = useSearchParams();
   const personaParam = searchParams.get("persona");
+  const { user } = useAuth();
 
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [activeExp, setActiveExp] = useState<Experiment | null>(null);
@@ -327,20 +330,30 @@ function InterviewsContent() {
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-[#2D3522]">{p.name}</span>
-                        <span className="text-[10px] text-[#728156] font-mono">
-                          {p.age}y
-                        </span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Avatar
+                          seed={p.name}
+                          gender={p.gender}
+                          alt={p.name}
+                          className="w-8 h-8 rounded-xl shrink-0"
+                          fallbackText={p.name}
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-xs text-[#2D3522] truncate">{p.name}</span>
+                            <span className="text-[10px] text-[#728156] font-mono shrink-0">
+                              {p.age}y
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#647460] truncate">
+                            {p.occupation}
+                          </p>
+                        </div>
                       </div>
-                      <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white text-[#5B6845] border border-[#CFE1B9]/50">
+                      <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white text-[#5B6845] border border-[#CFE1B9]/50 shrink-0">
                         {p.archetype}
                       </span>
                     </div>
-
-                    <p className="text-[11px] text-[#647460] mt-1 line-clamp-1">
-                      {p.occupation}
-                    </p>
 
                     <div className="mt-2 flex items-center justify-between text-[10px] text-[#88976C] pt-1.5 border-t border-[#CFE1B9]/40">
                       <span>{p.location}</span>
@@ -358,10 +371,24 @@ function InterviewsContent() {
 
             {/* Persona Quick Card */}
             {selectedPersona && (
-              <div className="p-4 bg-[#F4F7F4] border-t border-[#CFE1B9]/60 space-y-2 text-xs">
-                <span className="text-[10px] font-bold text-[#728156] uppercase tracking-wider block">
-                  Active Respondent Dossier
-                </span>
+              <div className="p-4 bg-[#F4F7F4] border-t border-[#CFE1B9]/60 space-y-2.5 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <Avatar
+                    seed={selectedPersona.name}
+                    gender={selectedPersona.gender}
+                    alt={selectedPersona.name}
+                    className="w-9 h-9 rounded-xl shrink-0"
+                    fallbackText={selectedPersona.name}
+                  />
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold text-[#728156] uppercase tracking-wider block">
+                      Active Respondent Dossier
+                    </span>
+                    <p className="text-xs font-bold text-[#2D3522] truncate">
+                      {selectedPersona.name}
+                    </p>
+                  </div>
+                </div>
                 <p className="text-[#2D3522] leading-relaxed line-clamp-3 text-[11px]">
                   {selectedPersona.background_story}
                 </p>
@@ -382,9 +409,13 @@ function InterviewsContent() {
             {/* Chat header */}
             <div className="px-6 py-4 border-b border-[#F4F7F4] flex items-center justify-between bg-white/60 backdrop-blur-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#E7F5DC] text-[#728156] flex items-center justify-center font-bold">
-                  <Bot className="w-5 h-5" />
-                </div>
+                <Avatar
+                  seed={selectedPersona ? selectedPersona.name : "Interview Room"}
+                  gender={selectedPersona?.gender}
+                  alt={selectedPersona ? selectedPersona.name : "Persona"}
+                  className="w-10 h-10 rounded-2xl shadow-xs"
+                  fallbackIcon={<Bot className="w-5 h-5 text-[#728156]" />}
+                />
                 <div>
                   <h3 className="text-sm font-bold text-[#2D3522]">
                     {selectedPersona ? selectedPersona.name : "Interview Room"}
@@ -416,15 +447,21 @@ function InterviewsContent() {
                       isUser ? "flex-row-reverse" : "flex-row"
                     }`}
                   >
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
+                    <Avatar
+                      seed={
                         isUser
-                          ? "bg-[#728156] text-white"
-                          : "bg-[#CFE1B9] text-[#2D3522]"
-                      }`}
-                    >
-                      {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                    </div>
+                          ? (user?.avatar_seed || user?.full_name || user?.email || "User")
+                          : (selectedPersona?.name || "Persona")
+                      }
+                      gender={
+                        isUser
+                          ? (user?.avatar_gender || "male")
+                          : (selectedPersona?.gender || "male")
+                      }
+                      alt={isUser ? (user?.full_name || "User") : (selectedPersona?.name || "Persona")}
+                      className="w-8 h-8 rounded-xl shadow-xs"
+                      fallbackIcon={isUser ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[#2D3522]" />}
+                    />
 
                     <div
                       className={`max-w-[75%] p-4 rounded-2xl shadow-xs leading-relaxed text-sm ${
@@ -448,9 +485,13 @@ function InterviewsContent() {
 
               {sending && (
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#CFE1B9] text-[#2D3522] flex items-center justify-center shrink-0">
-                    <Bot className="w-4 h-4" />
-                  </div>
+                  <Avatar
+                    seed={selectedPersona?.name || "Persona"}
+                    gender={selectedPersona?.gender}
+                    alt={selectedPersona?.name || "Persona"}
+                    className="w-8 h-8 rounded-xl shadow-xs animate-pulse"
+                    fallbackIcon={<Bot className="w-4 h-4 text-[#2D3522]" />}
+                  />
                   <div className="p-4 rounded-2xl bg-white border border-[#CFE1B9]/80 shadow-xs flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin text-[#728156]" />
                     <span className="text-xs text-[#728156] font-medium">

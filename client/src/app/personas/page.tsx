@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { Avatar } from "@/components/Avatar";
 
 export default function PersonasPage() {
   const [personas, setPersonas] = useState<Persona[]>([]);
@@ -272,17 +273,26 @@ export default function PersonasPage() {
                           : "bg-white border-[#CFE1B9]/70 hover:bg-[#F8FAF7] hover:border-[#98A77C]"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-bold text-[#2D3522]">{p.name}</h4>
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#E7F5DC] text-[#465135]">
-                              {p.age}y
-                            </span>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Avatar
+                            seed={p.name}
+                            gender={p.gender}
+                            alt={p.name}
+                            className="w-10 h-10 rounded-xl shrink-0"
+                            fallbackText={p.name}
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-bold text-[#2D3522] truncate">{p.name}</h4>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#E7F5DC] text-[#465135] shrink-0">
+                                {p.age}y
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#5B6845] mt-0.5 line-clamp-1">
+                              {p.occupation}
+                            </p>
                           </div>
-                          <p className="text-xs text-[#5B6845] mt-0.5 line-clamp-1">
-                            {p.occupation}
-                          </p>
                         </div>
                         <span className="text-[10px] font-semibold bg-[#CFE1B9] text-[#2D3522] px-2 py-0.5 rounded-full shrink-0">
                           {p.archetype}
@@ -322,25 +332,36 @@ export default function PersonasPage() {
               <div className="bg-white rounded-3xl p-7 border border-[#CFE1B9]/70 shadow-xs space-y-6">
                 {/* Dossier Header */}
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#F4F7F4]">
-                  <div>
-                    <div className="flex items-center gap-2.5">
-                      <h3 className="text-xl font-bold text-[#2D3522]">
-                        {selectedPersona.name}
-                      </h3>
-                      <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#E7F5DC] text-[#465135]">
-                        ID: {selectedPersona.id}
-                      </span>
+                  <div className="flex items-center gap-4 min-w-0">
+                    <Avatar
+                      seed={selectedPersona.name}
+                      gender={selectedPersona.gender}
+                      alt={selectedPersona.name}
+                      className="w-14 h-14 rounded-2xl shadow-sm border border-[#CFE1B9]/80 shrink-0"
+                      fallbackText={selectedPersona.name}
+                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-xl font-bold text-[#2D3522] truncate">
+                          {selectedPersona.name}
+                        </h3>
+                        <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#E7F5DC] text-[#465135] shrink-0">
+                          ID: {selectedPersona.id}
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-[#728156] mt-1 flex items-center gap-2 truncate">
+                        <Briefcase className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">
+                          {selectedPersona.occupation} • {selectedPersona.location} •{" "}
+                          {selectedPersona.age} y/o ({selectedPersona.gender})
+                        </span>
+                      </p>
                     </div>
-                    <p className="text-xs font-semibold text-[#728156] mt-1 flex items-center gap-2">
-                      <Briefcase className="w-3.5 h-3.5" />
-                      {selectedPersona.occupation} • {selectedPersona.location} •{" "}
-                      {selectedPersona.age} y/o ({selectedPersona.gender})
-                    </p>
                   </div>
 
                   <Link
                     href={`/interviews?persona=${selectedPersona.id}`}
-                    className="px-3.5 py-2 bg-[#E7F5DC] hover:bg-[#CFE1B9] text-[#2D3522] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
+                    className="px-3.5 py-2 bg-[#E7F5DC] hover:bg-[#CFE1B9] text-[#2D3522] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs shrink-0"
                   >
                     <span>Interview 1-on-1</span>
                     <ArrowRight className="w-3.5 h-3.5 text-[#728156]" />

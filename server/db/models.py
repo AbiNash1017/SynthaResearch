@@ -1,13 +1,15 @@
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Annotated
 from beanie import Document, Indexed
 from pydantic import Field
 
 
 class User(Document):
-    email: Indexed(str, unique=True)
+    email: Annotated[str, Indexed(unique=True)]
     hashed_password: str
     full_name: Optional[str] = None
+    avatar_seed: Optional[str] = None
+    avatar_gender: Optional[str] = None
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -17,7 +19,7 @@ class User(Document):
 
 
 class Experiment(Document):
-    user_id: Indexed(str)
+    user_id: Annotated[str, Indexed()]
     product_name: str
     product_description: str
     target_audience: str
@@ -33,9 +35,9 @@ class Experiment(Document):
 
 
 class Persona(Document):
-    user_id: Indexed(str)
+    user_id: Annotated[str, Indexed()]
     experiment_id: Optional[str] = None
-    persona_id: Indexed(str)
+    persona_id: Annotated[str, Indexed()]
     name: str
     age: int
     gender: str
@@ -57,7 +59,7 @@ class Persona(Document):
 
 
 class SurveySession(Document):
-    user_id: Indexed(str)
+    user_id: Annotated[str, Indexed()]
     experiment_id: Optional[str] = None
     questions: List[str] = []
     responses: List[Dict[str, Any]] = []
@@ -69,9 +71,9 @@ class SurveySession(Document):
 
 
 class InterviewSession(Document):
-    user_id: Indexed(str)
+    user_id: Annotated[str, Indexed()]
     experiment_id: Optional[str] = None
-    session_id: Indexed(str)
+    session_id: Annotated[str, Indexed()]
     persona_id: str
     persona_name: str
     archetype: str
@@ -84,7 +86,7 @@ class InterviewSession(Document):
 
 
 class ResearchReport(Document):
-    user_id: Indexed(str)
+    user_id: Annotated[str, Indexed()]
     experiment_id: Optional[str] = None
     timestamp: str
     date_str: str

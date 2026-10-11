@@ -6,7 +6,15 @@ from pydantic import BaseModel, EmailStr, Field
 class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
+    full_name: str = Field(..., min_length=2, description="Full name is required")
+    avatar_seed: Optional[str] = None
+    avatar_gender: Optional[str] = None
+
+
+class UserUpdate(BaseModel):
     full_name: Optional[str] = None
+    avatar_seed: Optional[str] = None
+    avatar_gender: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -18,6 +26,8 @@ class UserResponse(BaseModel):
     id: str
     email: str
     full_name: Optional[str] = None
+    avatar_seed: Optional[str] = None
+    avatar_gender: Optional[str] = None
     created_at: datetime
 
 
