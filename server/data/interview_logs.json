@@ -1,0 +1,23 @@
+[
+  {
+    "session_id": "sess_persona_001",
+    "product_name": "HydraGlow",
+    "persona_id": "persona_001",
+    "persona_name": "Sunita Rao",
+    "archetype": "Power User / Optimizer",
+    "turns": [
+      {
+        "turn": 1,
+        "user_message": "What is your biggest concern or potential dealbreaker with adopting HydraGlow?",
+        "persona_response": "Honestly? I'd need to sit with it. My first impressions of tools are usually wrong in one direction or the other—I've been surprised both ways.",
+        "timestamp": "2026-10-13T12:00:00"
+      },
+      {
+        "turn": 2,
+        "user_message": "How would your team justify the pricing and switching cost for HydraGlow?",
+        "persona_response": "The price looks fair if the product is as capable as it sounds. I'd just want to see the full feature set before committing—no unpleasant surprises.",
+        "timestamp": "2026-10-13T12:01:00"
+      }
+    ]
+  }
+]

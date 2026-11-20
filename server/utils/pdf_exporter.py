@@ -53,6 +53,21 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         fontName='Helvetica-Oblique',
         textColor=colors.HexColor("#2C5282")
     )
+    quote_style = ParagraphStyle(
+        'Quote_Custom',
+        parent=body_style,
+        fontName='Helvetica-Oblique',
+        fontSize=9.0,
+        leading=12.5,
+        textColor=colors.HexColor("#1A365D")
+    )
+    quote_author_style = ParagraphStyle(
+        'QuoteAuthor_Custom',
+        parent=body_style,
+        fontSize=8.0,
+        leading=10.5,
+        textColor=colors.HexColor("#4A5568")
+    )
 
     story = []
 
@@ -155,14 +170,44 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         story.append(Paragraph(f"<i>Analysis:</i> {report['sentiment_analysis']}", body_style))
     story.append(Spacer(1, 10))
 
-    # 3. Key Emergent Themes
-    story.append(Paragraph("3. Top Emergent Themes", h2_style))
-    themes = report.get("themes", [])
-    if themes:
-        for i, th in enumerate(themes, 1):
-            story.append(Paragraph(f"• <b>Theme {i}:</b> {th}", body_style))
+    # 3. Emergent Theme Clusters
+    story.append(Paragraph("3. Emergent Theme Clusters & Feedback Taxonomy", h2_style))
+    clusters = report.get("theme_clusters", [])
+    if clusters:
+        cluster_table_data = [[
+            Paragraph("<b>Category</b>", bold_style),
+            Paragraph("<b>Theme Cluster</b>", bold_style),
+            Paragraph("<b>Count</b>", bold_style),
+            Paragraph("<b>Stance</b>", bold_style),
+            Paragraph("<b>Cluster Synthesis</b>", bold_style)
+        ]]
+        for cl in clusters:
+            cluster_table_data.append([
+                Paragraph(str(cl.get("category", "General")), bold_style),
+                Paragraph(str(cl.get("name", "Theme")), body_style),
+                Paragraph(f"{cl.get('mention_count', 1)}", body_style),
+                Paragraph(str(cl.get("sentiment", "neutral")).capitalize(), body_style),
+                Paragraph(str(cl.get("summary", "")), body_style)
+            ])
+        t_cluster = Table(cluster_table_data, colWidths=[110, 140, 40, 50, 190])
+        t_cluster.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor("#1A202C")),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        story.append(t_cluster)
     else:
-        story.append(Paragraph("No significant themes extracted yet.", body_style))
+        themes = report.get("themes", [])
+        if themes:
+            for i, th in enumerate(themes, 1):
+                story.append(Paragraph(f"• <b>Theme {i}:</b> {th}", body_style))
+        else:
+            story.append(Paragraph("No significant themes extracted yet.", body_style))
     story.append(Spacer(1, 10))
 
     # 4. Agreement Patterns (Consensus vs Polarization)
@@ -188,7 +233,7 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
             story.append(Spacer(1, 3))
     story.append(Spacer(1, 8))
 
-    # 6. Critical Objections (if present)
+    # 6. Critical Objections
     objections = report.get("critical_objections", [])
     if objections:
         story.append(Paragraph("6. Critical Objections & Churn Risks", h2_style))
@@ -205,16 +250,110 @@ def export_pdf(report: Dict[str, Any], output_path: str) -> str:
         story.append(Spacer(1, 3))
     story.append(Spacer(1, 8))
 
-    # 8. Persona Profiles Breakdown
-    story.append(Paragraph("8. Synthetic Persona Cohort Breakdown", h2_style))
-    breakdown = report.get("per_persona_breakdown", [])
-    for p in breakdown:
-        p_name = p.get("name", "Unknown Persona")
-        arch = p.get("archetype", "Archetype")
-        summary = p.get("key_takeaway", "No summary")
-        story.append(Paragraph(f"<b>{p_name} ({arch})</b>", bold_style))
-        story.append(Paragraph(f"<i>Takeaway:</i> {summary}", body_style))
-        story.append(Spacer(1, 4))
+    # 8. Key Persona Quotes & Qualitative Voices
+    quotes = report.get("key_persona_quotes", [])
+    if quotes:
+        story.append(Paragraph("8. Key Persona Quotes & Qualitative Voices", h2_style))
+        quotes_table_data = [[
+            Paragraph("<b>Persona & Archetype</b>", bold_style),
+            Paragraph("<b>Verbatim Voice / Quote</b>", bold_style),
+            Paragraph("<b>Topic & Sentiment</b>", bold_style)
+        ]]
+        for q in quotes:
+            sent_str = str(q.get("sentiment", "neutral")).capitalize()
+            p_header = f"<b>{q.get('persona_name', 'User')}</b><br/><i>{q.get('archetype', 'Participant')}</i>"
+            q_text = f"\"{q.get('quote', '')}\""
+            topic_str = f"<b>Topic:</b> {q.get('topic', 'General')}<br/><b>Stance:</b> {sent_str}"
+            quotes_table_data.append([
+                Paragraph(p_header, body_style),
+                Paragraph(q_text, quote_style),
+                Paragraph(topic_str, quote_author_style)
+            ])
+        t_quotes = Table(quotes_table_data, colWidths=[130, 275, 125])
+        t_quotes.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        story.append(t_quotes)
+        story.append(Spacer(1, 10))
+
+    # 9. Curated Response Highlights
+    highlights = report.get("response_highlights", [])
+    if highlights:
+        story.append(Paragraph("9. Curated Empirical Response Highlights", h2_style))
+        high_table_data = [[
+            Paragraph("<b>Source</b>", bold_style),
+            Paragraph("<b>Topic / Query</b>", bold_style),
+            Paragraph("<b>Empirical Highlight</b>", bold_style),
+            Paragraph("<b>Respondent</b>", bold_style)
+        ]]
+        for h in highlights:
+            high_table_data.append([
+                Paragraph(str(h.get("source", "Simulation")), bold_style),
+                Paragraph(str(h.get("topic", "Feedback")), body_style),
+                Paragraph(str(h.get("highlight", "")), body_style),
+                Paragraph(f"<b>{h.get('respondent_name', 'User')}</b><br/><i>{h.get('archetype', 'Cohort')}</i>", body_style)
+            ])
+        t_high = Table(high_table_data, colWidths=[80, 130, 210, 110])
+        t_high.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        story.append(t_high)
+        story.append(Spacer(1, 10))
+
+    # 10. Comprehensive Persona Profiles Dossier
+    story.append(Paragraph("10. Comprehensive Persona Profiles Dossier", h2_style))
+    profiles = report.get("persona_profiles", [])
+    if profiles:
+        prof_table_data = [[
+            Paragraph("<b>Persona & Demographics</b>", bold_style),
+            Paragraph("<b>Archetype & Traits</b>", bold_style),
+            Paragraph("<b>Primary Pain Points</b>", bold_style),
+            Paragraph("<b>Willingness to Pay & Tools</b>", bold_style)
+        ]]
+        for prof in profiles:
+            p_name_age = f"<b>{prof.get('name', 'Persona')}</b><br/>{prof.get('occupation', 'Professional')}<br/>{prof.get('location', '')} (Age {prof.get('age', 30)})"
+            traits_str = ", ".join(prof.get("personality_traits", [])) if prof.get("personality_traits") else "Analytical"
+            p_arch = f"<b>{prof.get('archetype', 'User')}</b><br/><i>Traits:</i> {traits_str}"
+            p_pain = f"<b>Pain:</b> {prof.get('pain_points', 'Workflow delays')}<br/><b>Churn:</b> {prof.get('churn_triggers', 'High cost')}"
+            p_wtp = f"<b>WTP:</b> {prof.get('willingness_to_pay', 'Standard')}<br/><b>Current:</b> {prof.get('current_tools', 'Legacy tools')}"
+            prof_table_data.append([
+                Paragraph(p_name_age, body_style),
+                Paragraph(p_arch, body_style),
+                Paragraph(p_pain, body_style),
+                Paragraph(p_wtp, body_style)
+            ])
+        t_prof = Table(prof_table_data, colWidths=[125, 125, 140, 140])
+        t_prof.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        story.append(t_prof)
+    else:
+        breakdown = report.get("per_persona_breakdown", [])
+        for p in breakdown:
+            p_name = p.get("name", "Unknown Persona")
+            arch = p.get("archetype", "Archetype")
+            summary = p.get("key_takeaway", "No summary")
+            story.append(Paragraph(f"<b>{p_name} ({arch})</b>", bold_style))
+            story.append(Paragraph(f"<i>Takeaway:</i> {summary}", body_style))
+            story.append(Spacer(1, 4))
 
     doc.build(story)
     return output_path

@@ -1,0 +1,321 @@
+{
+  "executive_summary": "Evaluation of Devpulse AI demonstrates strong validation across 3 synthetic user profiles in the Software engineers and engineering managers. sector, achieving an overall adoption propensity of 77.5%. Target cohorts confirm severe daily friction with current tools and show substantial willingness to adopt if implementation remains streamlined.",
+  "would_use_score": {
+    "overall_score": 77.5,
+    "score_label": "Strong Market Signal — High Adoption Propensity",
+    "segment_breakdown": [
+      {
+        "segment": "Budget-Conscious Pragmatist",
+        "score": 52.3,
+        "stance": "Moderate / Conditional Adoption",
+        "sample_size": 1,
+        "reasoning": "Interested in solving Slow turnaround on reviews, but adoption is strictly conditional on reluctant without proven roi and seamless transition."
+      },
+      {
+        "segment": "Power User / Optimizer",
+        "score": 90.7,
+        "stance": "High Adoption Potential",
+        "sample_size": 1,
+        "reasoning": "High affinity for Devpulse AI; values immediate relief from Superficial linter comments without architectural context. Willing to adopt if hallucinated recommendations is avoided."
+      },
+      {
+        "segment": "Busy Professional / Outcome-Driven",
+        "score": 89.4,
+        "stance": "High Adoption Potential",
+        "sample_size": 1,
+        "reasoning": "High affinity for Devpulse AI; values immediate relief from PR review bottlenecks blocking sprint releases. Willing to adopt if complex onboarding setup is avoided."
+      }
+    ],
+    "summary_reasoning": "Target cohorts show compelling interest in Devpulse AI, with immediate adoption driven by solving core workflow friction."
+  },
+  "themes": [
+    "yes slow (1 mentions)",
+    "slow reviews (1 mentions)",
+    "reviews definitely (1 mentions)",
+    "definitely biggest (1 mentions)",
+    "biggest weekly (1 mentions)"
+  ],
+  "theme_clusters": [
+    {
+      "name": "Pull Request & CI/CD Turnaround Velocity",
+      "category": "Workflow & Usability",
+      "mention_count": 6,
+      "sentiment": "positive",
+      "summary": "Engineering leads prioritize rapid cycle times and eliminating async review stalls.",
+      "keywords": [
+        "PR review",
+        "CI/CD",
+        "velocity",
+        "merge speed",
+        "yes slow"
+      ]
+    },
+    {
+      "name": "Per-Seat Pricing & Engineering ROI",
+      "category": "Pricing & ROI",
+      "mention_count": 3,
+      "sentiment": "neutral",
+      "summary": "Pragmatic cohorts demand proven hours-saved justification before committing to monthly licenses.",
+      "keywords": [
+        "seat pricing",
+        "subscription",
+        "budget",
+        "ROI",
+        "slow reviews"
+      ]
+    },
+    {
+      "name": "Ecosystem & Native Git Integration",
+      "category": "Integrations & Tooling",
+      "mention_count": 4,
+      "sentiment": "positive",
+      "summary": "Universal consensus that direct GitHub/GitLab integration without new web portals is mandatory.",
+      "keywords": [
+        "GitHub",
+        "GitLab",
+        "native integration",
+        "Slack"
+      ]
+    },
+    {
+      "name": "Hallucination Risk & Code Security",
+      "category": "Trust & Security",
+      "mention_count": 3,
+      "sentiment": "negative",
+      "summary": "Skeptical traditionalists require guarantees against false architectural assumptions and data leakage.",
+      "keywords": [
+        "hallucinations",
+        "code privacy",
+        "accuracy",
+        "security"
+      ]
+    }
+  ],
+  "key_persona_quotes": [
+    {
+      "quote": "Yes, slow reviews are definitely our biggest weekly bottleneck.",
+      "persona_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "topic": "Q1",
+      "sentiment": "positive"
+    },
+    {
+      "quote": "I would consider it if there is a generous free trial.",
+      "persona_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "topic": "Q2",
+      "sentiment": "positive"
+    },
+    {
+      "quote": "No, $35 per seat is too expensive for our budget.",
+      "persona_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "topic": "Q3",
+      "sentiment": "negative"
+    },
+    {
+      "quote": "Yes, waiting 3 days for approvals halts progress.",
+      "persona_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "topic": "Q1",
+      "sentiment": "positive"
+    },
+    {
+      "quote": "Definitely, native GitHub integration is essential.",
+      "persona_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "topic": "Q2",
+      "sentiment": "positive"
+    },
+    {
+      "quote": "Yes, $35/month is well worth 4 hours saved per week.",
+      "persona_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "topic": "Q3",
+      "sentiment": "positive"
+    },
+    {
+      "quote": "Absolutely, review delays cost us delivery dates.",
+      "persona_name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "topic": "Q1",
+      "sentiment": "positive"
+    },
+    {
+      "quote": "Yes, seamless GitHub adoption would make onboarding instant.",
+      "persona_name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "topic": "Q2",
+      "sentiment": "positive"
+    }
+  ],
+  "response_highlights": [
+    {
+      "topic": "Q1",
+      "highlight": "Yes, slow reviews are definitely our biggest weekly bottleneck.",
+      "respondent_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "source": "Survey Matrix",
+      "sentiment": "positive"
+    },
+    {
+      "topic": "Q2",
+      "highlight": "I would consider it if there is a generous free trial.",
+      "respondent_name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "source": "Survey Matrix",
+      "sentiment": "positive"
+    },
+    {
+      "topic": "Q1",
+      "highlight": "Yes, waiting 3 days for approvals halts progress.",
+      "respondent_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "source": "Survey Matrix",
+      "sentiment": "positive"
+    },
+    {
+      "topic": "Q2",
+      "highlight": "Definitely, native GitHub integration is essential.",
+      "respondent_name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "source": "Survey Matrix",
+      "sentiment": "positive"
+    },
+    {
+      "topic": "Q1",
+      "highlight": "Absolutely, review delays cost us delivery dates.",
+      "respondent_name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "source": "Survey Matrix",
+      "sentiment": "positive"
+    },
+    {
+      "topic": "Q2",
+      "highlight": "Yes, seamless GitHub adoption would make onboarding instant.",
+      "respondent_name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "source": "Survey Matrix",
+      "sentiment": "positive"
+    }
+  ],
+  "agreement_patterns": {
+    "consensus": [
+      "Strong Positive Consensus on 'Does slow pull request review time significantly bottlene...': 100% of cohorts reacted favorably.",
+      "Strong Positive Consensus on 'Would you adopt DevPulse AI if it integrated directly int...': 100% of cohorts reacted favorably.",
+      "Strong Positive Consensus on 'Would you be willing to pay $35 per engineer per month fo...': 66% of cohorts reacted favorably."
+    ],
+    "polarization": [
+      "Divergence observed between price-conscious cohorts requiring free tiers and power users seeking advanced features."
+    ]
+  },
+  "sentiment_distribution": {
+    "positive": 0.89,
+    "neutral": 0.0,
+    "negative": 0.11
+  },
+  "sentiment_analysis": "User sentiment reflects 89% positive interest and 11% direct skepticism, demonstrating that excitement for automated workflow relief is balanced by cautious evaluation of switching costs.",
+  "behavioral_trends": [
+    {
+      "group": "Budget-Conscious Pragmatist",
+      "finding": "Prioritizes: usability. Churn risk triggered by: Excessive cost per seat."
+    },
+    {
+      "group": "Power User / Optimizer",
+      "finding": "Prioritizes: usability. Churn risk triggered by: Hallucinated recommendations."
+    },
+    {
+      "group": "Busy Professional / Outcome-Driven",
+      "finding": "Prioritizes: usability. Churn risk triggered by: Complex onboarding setup."
+    }
+  ],
+  "critical_objections": [
+    "Excessive cost per seat",
+    "Hallucinated recommendations",
+    "Complex onboarding setup"
+  ],
+  "top_insights": [
+    "VALUE PROPOSITION: Clear ROI messaging is vital for Devpulse AI when targeting Software engineers and engineering managers., addressing acute daily friction.",
+    "ONBOARDING FRICTION: Minimizing time-to-first-value is the primary determinant of long-term adoption across cohorts.",
+    "PRICING MODEL: Cohorts express reluctance toward aggressive upfront commitments without hands-on trial periods or transparent tiers.",
+    "DIFFERENTIATION: Focus core product messaging on resolving specific operational bottlenecks rather than generic feature lists."
+  ],
+  "per_persona_breakdown": [
+    {
+      "id": "persona_001",
+      "name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "key_takeaway": "Stance shaped by: Reluctant without proven ROI."
+    },
+    {
+      "id": "persona_002",
+      "name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "key_takeaway": "Stance shaped by: $40/mo easily justified if deep."
+    },
+    {
+      "id": "persona_003",
+      "name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "key_takeaway": "Stance shaped by: Gladly pays company card."
+    }
+  ],
+  "report_date": "2026-10-13",
+  "product": "Devpulse AI",
+  "persona_count": 3,
+  "survey_questions_asked": 3,
+  "interview_sessions_count": 0,
+  "persona_profiles": [
+    {
+      "id": "persona_001",
+      "name": "Alex Rivera",
+      "archetype": "Budget-Conscious Pragmatist",
+      "age": 30,
+      "gender": "Unspecified",
+      "occupation": "Professional",
+      "location": "Global",
+      "personality_traits": [
+        "frugal",
+        "cautious"
+      ],
+      "pain_points": "Slow turnaround on reviews",
+      "willingness_to_pay": "Reluctant without proven ROI",
+      "current_tools": "Manual GitHub PR reviews",
+      "churn_triggers": "Excessive cost per seat"
+    },
+    {
+      "id": "persona_002",
+      "name": "Priya Nair",
+      "archetype": "Power User / Optimizer",
+      "age": 30,
+      "gender": "Unspecified",
+      "occupation": "Professional",
+      "location": "Global",
+      "personality_traits": [
+        "analytical",
+        "tech-savvy"
+      ],
+      "pain_points": "Superficial linter comments without architectural context",
+      "willingness_to_pay": "$40/mo easily justified if deep",
+      "current_tools": "CLI and custom linters",
+      "churn_triggers": "Hallucinated recommendations"
+    },
+    {
+      "id": "persona_003",
+      "name": "Jordan Smith",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "age": 30,
+      "gender": "Unspecified",
+      "occupation": "Professional",
+      "location": "Global",
+      "personality_traits": [
+        "decisive",
+        "impatient"
+      ],
+      "pain_points": "PR review bottlenecks blocking sprint releases",
+      "willingness_to_pay": "Gladly pays company card",
+      "current_tools": "Jira and Slack alerts",
+      "churn_triggers": "Complex onboarding setup"
+    }
+  ]
+}

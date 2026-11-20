@@ -38,17 +38,19 @@ Provides an intuitive, high-fidelity user interface for configuring product rese
   - Budget / Willingness-to-Pay and Churn triggers
   - Background narrative story
 
-### 4. Survey Simulation & Matrix (`/surveys`)
+### 4. Survey Simulation & Respondent Cards (`/surveys`)
 - **AI-Suggested Questions**: Generate domain-relevant survey questions with one click.
 - **Custom Question Builder**: Enter custom prompts and hypothesis tests.
 - **Simultaneous Cohort Execution**: Watch all personas answer concurrently.
 - Sentiment tags (`POSITIVE`, `NEUTRAL`, `NEGATIVE`) and extracted key takeaways.
-- **Matrix Grid View**: Toggle side-by-side comparison across personas and questions.
+- **Respondent Cards View**: Direct card-based inspection showing each persona's candid answers, archetype, and sentiment with automatic serialization cleanup.
 
 ### 5. Live 1-on-1 Qualitative Interviews (`/interviews`)
 - Select any persona to open a live conversational interview session.
 - Real-time multi-turn chat powered by the backend `PersonaMemoryModule`.
-- Persistent interview history and transcript inspection.
+- Natural, concise human conversation (1–2 sentences, zero em-dashes, direct scenario adaptation).
+- Live animated typing indicator (smooth bouncing dots).
+- Persistent interview history and transcript inspection with strict persona name matching.
 
 ### 6. Executive Insights & PDF Reports (`/reports`)
 - **Adoption Propensity Score (%)**: Visual score gauge measuring "Would use this product?".
@@ -71,7 +73,7 @@ client/
 │   │   ├── login/          # User login page
 │   │   ├── register/       # User registration page
 │   │   ├── personas/       # Synthetic personas cohort page
-│   │   ├── surveys/        # Multi-persona surveys & matrix page
+│   │   ├── surveys/        # Multi-persona surveys & respondent cards page
 │   │   ├── interviews/     # 1-on-1 live interview interface
 │   │   ├── reports/        # Analytics, executive insights & PDF export
 │   │   └── globals.css     # Tailwind CSS styles and custom styling

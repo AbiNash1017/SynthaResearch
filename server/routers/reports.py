@@ -230,6 +230,10 @@ async def get_latest_report(current_user: User = Depends(get_current_user)):
             "sentiment_distribution": doc.sentiment_analysis,
             "behavioral_trends": doc.behavioral_themes,
             "top_insights": doc.strategic_recommendations,
+            "theme_clusters": [],
+            "key_persona_quotes": [],
+            "response_highlights": [],
+            "persona_profiles": []
         }
     report_data["id"] = str(doc.id)
     return {"report": report_data}

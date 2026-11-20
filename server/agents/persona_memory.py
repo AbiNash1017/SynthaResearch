@@ -43,7 +43,8 @@ class PersonaMemoryModule:
                     topic=topic
                 )
                 response = PersonaMemoryModule._clean_response(raw_response)
-            except Exception:
+            except Exception as e:
+                print(f"[PersonaMemoryModule] LLM Generation warning: {e}. Falling back to rule engine.")
                 response = None
 
         if not response:
@@ -131,6 +132,37 @@ class PersonaMemoryModule:
         if len(cleaned) < 10 or cleaned.lower().startswith("user safety:") or "response safety:" in cleaned.lower():
             return None
 
+        # Remove markdown headers and list formatting so speech never sounds like an essay or outline
+        if "\n" in cleaned:
+            lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
+            spoken = []
+            for l in lines:
+                # Drop headers like "**What's working well:**" or "### Summary"
+                if re.match(r"^(?:#{1,6}\s+|\*\*[^*]+\*\*:?|\* [^*]+:\s*$)", l):
+                    continue
+                # If bullet line like "- The reminders are great", strip the bullet
+                if re.match(r"^[-*•\d.]+\s+", l):
+                    sub = re.sub(r"^[-*•\d.]+\s*", "", l)
+                    sub = re.sub(r"^\*\*[^*]+\*\*:?\s*", "", sub).strip()
+                    if sub and len(sub) > 5:
+                        spoken.append(sub)
+                else:
+                    spoken.append(l)
+            if spoken:
+                cleaned = " ".join(spoken)
+
+        # Strictly replace all em-dashes (—), en-dashes (–), and double dashes (--) with natural commas/periods
+        cleaned = re.sub(r"\s*[—–]\s*", ", ", cleaned)
+        cleaned = re.sub(r"\s*--\s*", ", ", cleaned)
+        cleaned = re.sub(r",\s*,+", ", ", cleaned)
+        cleaned = re.sub(r",\s*\.", ".", cleaned)
+        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+
+        # Enforce human conversational brevity: strictly limit to 2 natural sentences if it rambled
+        sentences = re.split(r"(?<=[.!?])\s+", cleaned)
+        if len(sentences) > 3:
+            cleaned = " ".join(sentences[:2])
+
         return cleaned
 
     @staticmethod
@@ -196,38 +228,40 @@ class PersonaMemoryModule:
             established_str = "  (none yet)"
 
         length_rule = (
-            "2–3 natural conversational sentences"
+            "strictly 1–2 short conversational sentences (maximum 3 sentences if contrasting before vs now)"
             if mode == "interview"
-            else "1–2 crisp sentences"
+            else "1 crisp sentence"
         )
 
         is_first_turn = len(history_turns) == 0
         intro_rule = (
-            "If this is the very beginning of the interview, greet naturally in 1 sentence."
+            "If this is the very beginning of the interview, greet naturally in 1 short sentence."
             if is_first_turn
             else "CRITICAL: DO NOT RE-INTRODUCE YOURSELF. You already introduced yourself earlier in the conversation. NEVER repeat your name, age, job title, or greeting lines. Directly answer the user's question."
         )
 
-        system_prompt = f"""You are {name}, a {age}-year-old {occ} from {loc}, taking part in a product research interview.
+        system_prompt = f"""You are {name}, a {age}-year-old {occ} from {loc}, taking part in a 1-on-1 qualitative user research interview.
 Archetype: {archetype} | Personality: {traits}
 Background: {bg}
 
 {background_brief}
 
-Product being discussed: {p_name} – {p_desc} (target: {p_audience})
+Product being researched: {p_name} – {p_desc} (target: {p_audience})
 
-Things you have already said in this conversation:
+Things you have already expressed in this conversation:
 {established_str}
 
 CONVERSATIONAL RULES:
 • {intro_rule}
-• Speak entirely as {name} in first person. Sound like a real person talking, not a report or chatbot.
-• Keep it to {length_rule}. Do NOT pad your answer.
-• Draw on your private context naturally – never recite it word-for-word.
-• Directly and substantively answer what the researcher just asked.
-• If asked about a feature (e.g. voice, audio transcripts, pricing, UI), give your candid opinion on how it impacts your daily habits.
+• Speak entirely as {name} in the first person. Sound like a real person casually chatting in an interview over coffee, NOT an essay, article, or AI chatbot.
+• LENGTH CONSTRAINT: Keep your response to {length_rule}. Strictly do not write long paragraphs, essays, or multiple rambling points.
+• ABSOLUTELY NO EM-DASHES (— or –): Never use em-dashes or long dash symbols. Real people speaking in conversation do not use em-dashes. Use normal commas or periods.
+• NO BULLET POINTS OR HEADERS: Never use markdown bold headers (like '**What I liked:**'), bullet lists, or outlines. Output ONLY clean, natural spoken dialogue.
+• DO NOT OVER-EXPLAIN: Give your immediate, direct perspective without over-analyzing every single detail.
+• SCENARIO & TRIAL ADAPTATION: If the researcher asks about a specific testing timeline (e.g. "after using it for 15 days", "during your first week", "before vs now", "when tracking medication or food"), step into that scenario naturally and describe your experience in 1 or 2 quick sentences.
+• DIRECT & CANDID: Directly address the exact topic or tool the interviewer asked about, highlighting real personal benefits and candid frustrations.
 • NEVER start with "As a synthetic user", "As an AI", "Glad to share", or assistant preambles.
-• Output ONLY the spoken reply – no bullet notes, no reasoning steps, no thinking process."""
+• Output ONLY the spoken words."""
 
         messages = [{"role": "system", "content": system_prompt}]
 
@@ -241,7 +275,7 @@ CONVERSATIONAL RULES:
 
         messages.append({"role": "user", "content": question})
 
-        return llm_client.chat_completion(messages, temperature=0.82, max_tokens=750)
+        return llm_client.chat_completion(messages, temperature=0.75, max_tokens=1500)
 
     @staticmethod
     def generate_survey_responses_batch(
@@ -323,14 +357,20 @@ Example:
             if isinstance(parsed, list) and len(parsed) >= len(questions):
                 results = []
                 for a in parsed[:len(questions)]:
-                    raw_str = str(a).strip()
+                    if isinstance(a, dict):
+                        raw_str = str(a.get("answer") or a.get("response") or next(iter(a.values()), "")).strip()
+                    else:
+                        raw_str = str(a).strip()
                     cleaned = PersonaMemoryModule._clean_response(raw_str)
                     results.append(cleaned if cleaned else raw_str)
                 return results
             elif isinstance(parsed, list) and len(parsed) > 0:
                 results = []
                 for a in parsed:
-                    raw_str = str(a).strip()
+                    if isinstance(a, dict):
+                        raw_str = str(a.get("answer") or a.get("response") or next(iter(a.values()), "")).strip()
+                    else:
+                        raw_str = str(a).strip()
                     cleaned = PersonaMemoryModule._clean_response(raw_str)
                     results.append(cleaned if cleaned else raw_str)
                 for missing_q in questions[len(results):]:
@@ -531,7 +571,9 @@ Example:
             "would not pay", "would not use", "wouldn't use", "don't like", "do not like",
             "hard to justify", "wouldn't be comfortable", "would not be comfortable",
             "not comfortable", "wouldn't consider", "would not consider", "only way i'd consider",
-            "hesitant to", "reluctant to"
+            "hesitant to", "reluctant to", "juggling a few subscriptions", "adding another one has to be",
+            "not paying upfront", "another line item i don't need", "has to be clearly worth",
+            "don't commit", "do not commit", "won't commit", "wouldn't commit", "without testing first", "not committing"
         ]
         if any(np in lower for np in negated_pos):
             return "negative"

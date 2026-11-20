@@ -14,25 +14,28 @@ Powered by **OpenRouter LLM**, **FastAPI**, **MongoDB** with **Beanie ODM**, and
    - Seamlessly switch active experiments or manage multiple research projects.
 
 2. **OpenRouter Foundation Model Gateway**
-   - Zero hardcoded models: Swap between OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet, Meta Llama 3.3, Google Gemini 2.5 Flash, DeepSeek, etc. via `.env`.
-   - Built-in graceful fallbacks and offline heuristics if LLM keys are absent.
+   - Zero hardcoded models: Swap between OpenAI GPT-4o, Anthropic Claude 3.5 Sonnet, Meta Llama 3.3, Google Gemini 2.5 Flash, DeepSeek, Liquid LFM, etc. via `.env`.
+   - Built-in multi-model automatic failover across candidate free/paid models catching 404, 429, 500, 502, 503, and 504 status codes.
+   - Intelligent reasoning token management with generous limits to prevent reasoning truncation and extract final responses.
 
 3. **Domain-Tailored Persona Generation (`PersonaGenerationAgent`)**
    - Synthesizes diverse synthetic user personas tailored to the active product's target audience.
    - Includes full demographic details, current tool stacks, pain points, budget/willingness to pay, churn triggers, and MBTI psychological traits.
+   - Assigns generation-unique timestamped persona IDs and automatically purges old chat/survey sessions for the experiment to prevent slot crossover.
 
 4. **Cognitive Persona Memory & Consistency (`PersonaMemoryModule`)**
    - Personas maintain consistent opinions and remember prior conversational context across turns.
-   - Avoids cognitive drift during deep qualitative interrogations.
+   - **Natural Spoken Conciseness**: Strictly limits responses to 1–2 punchy conversational sentences, bans over-explaining, and automatically eliminates em-dashes (`—`).
+   - **Scenario & Trial Adaptation**: Dynamically steps into retrospective timelines (e.g., "after 15 days of use", "before vs after") to deliver grounded, believable user trials.
 
 5. **Cross-Persona Survey Simulations (`SurveyAgent`)**
    - AI-suggested questions tailored to product goals or custom research inquiries.
    - Personas answer simultaneously in-character with automatic sentiment classification (`POSITIVE`, `NEUTRAL`, `NEGATIVE`) and key takeaway extraction.
-   - Generates side-by-side comparison matrices.
+   - Generates side-by-side comparison matrices and structured respondent cards.
 
 6. **Interactive Live 1-on-1 Qualitative Interviews (`InterviewAgent`)**
    - Real-time conversational interview with any synthetic persona.
-   - Preserves multi-turn dialogue history and session transcripts in MongoDB.
+   - Preserves multi-turn dialogue history and session transcripts in MongoDB with strict persona name matching.
 
 7. **Insight Extraction & Strategic Reporting (`InsightExtractionAgent`)**
    - Aggregates empirical survey and interview data into executive findings.
@@ -53,12 +56,16 @@ Create a `.env` file in the `server/` directory (or copy from `.env.example`):
 ```env
 # OpenRouter LLM Configuration
 OPENROUTER_API_KEY=your_openrouter_api_key_here
-OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+OPENROUTER_MODEL=liquid/lfm-2.5-2.6b:free
+# Alternative models:
+# OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
+# OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+# OPENROUTER_MODEL=openai/gpt-4o
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # MongoDB Configuration
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DB_NAME=syntharesearch
+MONGODB_DB_NAME=syntharesearch  # or custom name e.g. synthUser
 
 # Authentication Configuration (Generate with: python -c "import secrets; print(secrets.token_hex(32))")
 SECRET_KEY=your_super_secret_jwt_key_here_change_for_production

@@ -1,0 +1,11 @@
+{
+  "product_name": "DevPulse AI",
+  "industry_domain": "B2B SaaS / DevTools",
+  "product_description": "An automated AI pull request reviewer and architectural impact analysis bot that speeds up code reviews for engineering teams.",
+  "target_audience": "Software engineers and engineering managers.",
+  "research_objectives": [
+    "Identify review bottlenecks",
+    "Determine pricing acceptance",
+    "Measure adoption likelihood"
+  ]
+}

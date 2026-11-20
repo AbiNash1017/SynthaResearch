@@ -28,7 +28,7 @@ flowchart TD
         SYS_R["system_router (routers/system.py)<br/>Health & LLM Config"]
         EXP_R["experiments_router (routers/experiments.py)<br/>Product Workspace & Activation"]
         PER_R["personas_router (routers/personas.py)<br/>Cohort Generation & Roster"]
-        SUR_R["surveys_router (routers/surveys.py)<br/>AI Questions & Survey Matrix"]
+        SUR_R["surveys_router (routers/surveys.py)<br/>AI Questions, Surveys & Respondent Cards"]
         INT_R["interviews_router (routers/interviews.py)<br/>1-on-1 Sessions & Turns"]
         REP_R["reports_router (routers/reports.py)<br/>Adoption Score, PDF & Insights"]
     end
@@ -125,17 +125,19 @@ flowchart TD
 3. **Domain-Tailored Persona Synthesis**:
    - [`PersonaGenerationAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_generator.py) constructs diverse synthetic user personas tailored to the active product's domain.
    - Personas receive realistic demographic attributes, technical skill levels, current workflows, pain points, budget constraints, churn triggers, and MBTI personality traits.
-   - Personas are indexed and stored in MongoDB under `personas` scoped to both `user_id` and `experiment_id`.
+   - Personas are indexed and stored in MongoDB under `personas` scoped to both `user_id` and `experiment_id` using collision-proof, generation-unique timestamped IDs.
+   - Generating a new cohort automatically clears previous `interview_sessions` and `survey_sessions` for that product experiment to prevent slot crossover.
 
 4. **Multi-Persona Survey Simulations**:
    - [`SurveyAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/survey_agent.py) suggests domain-specific questions or takes custom researcher questions.
    - Executes batch survey runs across the cohort. Personas respond in-character using [`PersonaMemoryModule`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_memory.py).
-   - Responses undergo automated sentiment classification (`POSITIVE`, `NEUTRAL`, `NEGATIVE`) and key takeaway extraction, generating comparison matrices saved to `survey_sessions`.
+   - Responses undergo automated sentiment classification (`POSITIVE`, `NEUTRAL`, `NEGATIVE`) and key takeaway extraction, generating comparison matrices and structured respondent cards saved to `survey_sessions`.
 
 5. **Interactive 1-on-1 Qualitative Interviews**:
    - [`InterviewAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/interview_agent.py) and [`PersonaMemoryModule`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/persona_memory.py) enable real-time, multi-turn dialogues with any specific persona.
-   - Maintains continuous conversation history and locks established opinions across turns to avoid cognitive drift.
-   - Sessions and turn-by-turn logs are saved in MongoDB under `interview_sessions`.
+   - **Scenario & Trial Adaptation**: Personas naturally step into hypothetical or retrospective trial premises (e.g. "after 15 days of using the app", "comparing before vs now").
+   - **Concise Spoken Delivery**: Responses are strictly constrained to 1–2 punchy sentences, banning over-explaining and stripping all formal em-dashes (`—`).
+   - Maintains continuous conversation history and locks established opinions across turns in MongoDB under `interview_sessions` with strict persona name validation.
 
 6. **Insight Extraction & Strategic Reporting**:
    - [`InsightExtractionAgent`](file:///d:/PROJECTS/SyntheticUsersReserch/server/agents/insight_agent.py) synthesizes quantitative survey findings and qualitative interview transcripts.

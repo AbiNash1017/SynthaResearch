@@ -8,6 +8,7 @@ import {
   ResearchReport,
   Experiment,
   SegmentAdoptionBreakdown,
+  PersonaProfile,
 } from "@/types/api";
 import {
   BarChart3,
@@ -28,6 +29,9 @@ import {
   Layers,
   Scale,
   Users,
+  Quote,
+  MessageSquare,
+  Tag,
 } from "lucide-react";
 
 export default function ReportsPage() {
@@ -44,6 +48,8 @@ export default function ReportsPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [themeCategoryFilter, setThemeCategoryFilter] = useState<string>("All");
+  const [quoteSentimentFilter, setQuoteSentimentFilter] = useState<string>("All");
 
   useEffect(() => {
     let ignore = false;
@@ -232,6 +238,29 @@ export default function ReportsPage() {
           reasoning: "",
         })
       );
+    }
+    return [];
+  })();
+
+  // Derive persona profiles dossier
+  const personaDossierList: PersonaProfile[] = (() => {
+    if (report?.persona_profiles && report.persona_profiles.length > 0) {
+      return report.persona_profiles;
+    }
+    if (report?.per_persona_breakdown && report.per_persona_breakdown.length > 0) {
+      return report.per_persona_breakdown.map((p) => ({
+        id: p.id,
+        name: p.name,
+        archetype: p.archetype,
+        pain_points: p.key_takeaway,
+        occupation: undefined,
+        location: undefined,
+        age: undefined,
+        personality_traits: [],
+        willingness_to_pay: undefined,
+        current_tools: undefined,
+        churn_triggers: undefined,
+      }));
     }
     return [];
   })();
@@ -561,28 +590,123 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 2. Key Emergent Themes */}
-            {report.themes && report.themes.length > 0 && (
+            {/* 2. Theme Clusters & Feedback Taxonomy */}
+            {((report.theme_clusters && report.theme_clusters.length > 0) ||
+              (report.themes && report.themes.length > 0)) && (
               <div className="p-6 rounded-2xl bg-[#F8FAF7] border border-[#CFE1B9]/60 space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#728156] flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-[#728156]" />
-                  Key Emergent Research Themes
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {report.themes.map((theme, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3.5 rounded-xl bg-white border border-[#CFE1B9]/70 flex items-start gap-3 shadow-2xs"
-                    >
-                      <span className="w-6 h-6 rounded-lg bg-[#E7F5DC] text-[#728156] text-xs font-bold flex items-center justify-center shrink-0">
-                        {idx + 1}
-                      </span>
-                      <p className="text-xs text-[#2D3522] leading-relaxed font-medium">
-                        {theme}
-                      </p>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#728156] flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-[#728156]" />
+                      Theme Clusters & Feedback Taxonomy
+                    </h4>
+                    <p className="text-xs text-[#5B6845] mt-0.5">
+                      Semantic aggregation of persona feedback grouped by feedback domain and sentiment stance
+                    </p>
+                  </div>
+
+                  {report.theme_clusters && report.theme_clusters.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {["All", ...Array.from(new Set(report.theme_clusters.map((c) => c.category)))].map(
+                        (cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => setThemeCategoryFilter(cat)}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                              themeCategoryFilter === cat
+                                ? "bg-[#728156] text-white shadow-2xs"
+                                : "bg-white text-[#465135] border border-[#CFE1B9]/70 hover:bg-[#E7F5DC]/60"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        )
+                      )}
                     </div>
-                  ))}
+                  )}
                 </div>
+
+                {report.theme_clusters && report.theme_clusters.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    {report.theme_clusters
+                      .filter(
+                        (c) =>
+                          themeCategoryFilter === "All" ||
+                          c.category === themeCategoryFilter
+                      )
+                      .map((cluster, idx) => {
+                        const isPos = String(cluster.sentiment).toLowerCase() === "positive";
+                        const isNeg = String(cluster.sentiment).toLowerCase() === "negative";
+                        return (
+                          <div
+                            key={idx}
+                            className="p-4 rounded-xl bg-white border border-[#CFE1B9]/70 shadow-2xs hover:shadow-xs transition-shadow space-y-2.5 flex flex-col justify-between"
+                          >
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-[#FAFDF7] border border-[#CFE1B9] text-[#465135]">
+                                  {cluster.category}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                  <span
+                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                      isPos
+                                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                        : isNeg
+                                        ? "bg-rose-50 text-rose-800 border border-rose-200"
+                                        : "bg-amber-50 text-amber-800 border border-amber-200"
+                                    }`}
+                                  >
+                                    {String(cluster.sentiment).toUpperCase()}
+                                  </span>
+                                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-700">
+                                    {cluster.mention_count} mentions
+                                  </span>
+                                </div>
+                              </div>
+                              <h5 className="font-bold text-sm text-[#2D3522]">
+                                {cluster.name}
+                              </h5>
+                              {cluster.summary && (
+                                <p className="text-xs text-[#5B6845] leading-relaxed">
+                                  {cluster.summary}
+                                </p>
+                              )}
+                            </div>
+
+                            {cluster.keywords && cluster.keywords.length > 0 && (
+                              <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[#F4F7F4]">
+                                {cluster.keywords.map((kw, kIdx) => (
+                                  <span
+                                    key={kIdx}
+                                    className="text-[10px] px-2 py-0.5 rounded-md bg-[#F8FAF7] text-[#5B6845] border border-[#CFE1B9]/50"
+                                  >
+                                    #{kw}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {report.themes?.map((theme, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl bg-white border border-[#CFE1B9]/70 flex items-start gap-3 shadow-2xs"
+                      >
+                        <span className="w-6 h-6 rounded-lg bg-[#E7F5DC] text-[#728156] text-xs font-bold flex items-center justify-center shrink-0">
+                          {idx + 1}
+                        </span>
+                        <p className="text-xs text-[#2D3522] leading-relaxed font-medium">
+                          {theme}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -713,36 +837,217 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 7. Synthetic Persona Breakdown */}
-            {report.per_persona_breakdown &&
-              report.per_persona_breakdown.length > 0 && (
-                <div className="p-6 rounded-2xl bg-[#F8FAF7] border border-[#CFE1B9]/60 space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#728156] flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#728156]" />
-                    Synthetic Persona Cohort Breakdown
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {report.per_persona_breakdown.map((p, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-xl bg-white border border-[#CFE1B9]/70 shadow-2xs space-y-1.5"
+            {/* 7. Key Persona Quotes & Qualitative Voices */}
+            {report.key_persona_quotes && report.key_persona_quotes.length > 0 && (
+              <div className="p-6 rounded-2xl bg-[#F8FAF7] border border-[#CFE1B9]/60 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#728156] flex items-center gap-2">
+                      <Quote className="w-4 h-4 text-[#728156]" />
+                      Key Persona Quotes & Qualitative Voices
+                    </h4>
+                    <p className="text-xs text-[#5B6845] mt-0.5">
+                      Verbatim feedback expressions captured during multi-persona surveys and 1-on-1 qualitative interviews
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    {["All", "positive", "neutral", "negative"].map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setQuoteSentimentFilter(st)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer capitalize ${
+                          quoteSentimentFilter === st
+                            ? "bg-[#728156] text-white shadow-2xs"
+                            : "bg-white text-[#465135] border border-[#CFE1B9]/70 hover:bg-[#E7F5DC]/60"
+                        }`}
                       >
-                        <div className="flex justify-between items-start gap-2">
-                          <h5 className="font-bold text-xs text-[#2D3522]">
-                            {p.name}
-                          </h5>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#E7F5DC] text-[#465135]">
-                            {p.archetype}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#5B6845] leading-relaxed pt-1 border-t border-[#F4F7F4]">
-                          {p.key_takeaway}
-                        </p>
-                      </div>
+                        {st}
+                      </button>
                     ))}
                   </div>
                 </div>
-              )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                  {report.key_persona_quotes
+                    .filter(
+                      (q) =>
+                        quoteSentimentFilter === "All" ||
+                        String(q.sentiment).toLowerCase() === quoteSentimentFilter.toLowerCase()
+                    )
+                    .map((quoteObj, qIdx) => {
+                      const isPos = String(quoteObj.sentiment).toLowerCase() === "positive";
+                      const isNeg = String(quoteObj.sentiment).toLowerCase() === "negative";
+                      return (
+                        <div
+                          key={qIdx}
+                          className={`p-4 rounded-xl bg-white border shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between space-y-3 ${
+                            isPos
+                              ? "border-emerald-200/80 border-l-4 border-l-emerald-500"
+                              : isNeg
+                              ? "border-rose-200/80 border-l-4 border-l-rose-500"
+                              : "border-[#CFE1B9] border-l-4 border-l-amber-500"
+                          }`}
+                        >
+                          <div className="space-y-2">
+                            <Quote className="w-4 h-4 text-[#728156]/40" />
+                            <p className="text-xs text-[#2D3522] italic font-medium leading-relaxed">
+                              &ldquo;{quoteObj.quote}&rdquo;
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-[#F4F7F4] flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                              <span className="font-bold text-xs text-[#2D3522] block">
+                                {quoteObj.persona_name}
+                              </span>
+                              <span className="text-[10px] text-[#728156] font-medium">
+                                {quoteObj.archetype}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              {quoteObj.topic && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#FAFDF7] text-[#5B6845] border border-[#CFE1B9]/60 truncate max-w-[140px]" title={quoteObj.topic}>
+                                  {quoteObj.topic}
+                                </span>
+                              )}
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  isPos
+                                    ? "bg-emerald-50 text-emerald-800"
+                                    : isNeg
+                                    ? "bg-rose-50 text-rose-800"
+                                    : "bg-amber-50 text-amber-800"
+                                }`}
+                              >
+                                {String(quoteObj.sentiment).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* 8. Curated Empirical Response Highlights */}
+            {report.response_highlights && report.response_highlights.length > 0 && (
+              <div className="p-6 rounded-2xl bg-[#F8FAF7] border border-[#CFE1B9]/60 space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#728156] flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-[#728156]" />
+                  Curated Empirical Response Highlights
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                  {report.response_highlights.map((high, hIdx) => (
+                    <div
+                      key={hIdx}
+                      className="p-4 rounded-xl bg-white border border-[#CFE1B9]/70 shadow-2xs space-y-2 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E7F5DC] text-[#465135]">
+                            {high.source}
+                          </span>
+                          <span className="text-[10px] text-[#88976C] font-semibold truncate max-w-[120px]">
+                            {high.topic}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#2D3522] leading-relaxed">
+                          {high.highlight}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-[#F4F7F4] flex items-center justify-between text-[11px]">
+                        <span className="font-semibold text-[#465135]">
+                          {high.respondent_name}
+                        </span>
+                        <span className="text-[10px] text-[#728156]">
+                          {high.archetype}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 9. Comprehensive Synthetic Persona Profiles Dossier */}
+            <div className="p-6 rounded-2xl bg-[#F8FAF7] border border-[#CFE1B9]/60 space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#728156] flex items-center gap-2">
+                <Users className="w-4 h-4 text-[#728156]" />
+                Synthetic Persona Profiles Dossier
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {personaDossierList.map((prof, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl bg-white border border-[#CFE1B9]/70 shadow-2xs space-y-2.5 flex flex-col justify-between"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <h5 className="font-bold text-xs text-[#2D3522]">
+                            {prof.name}
+                          </h5>
+                          {prof.occupation && (
+                            <span className="text-[11px] text-[#5B6845] block">
+                              {prof.occupation}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#E7F5DC] text-[#465135] shrink-0">
+                          {prof.archetype}
+                        </span>
+                      </div>
+
+                      {prof.location && (
+                        <p className="text-[10px] text-[#88976C]">
+                          📍 {prof.location} {prof.age ? `• ${prof.age} yrs` : ""}
+                        </p>
+                      )}
+
+                      {prof.personality_traits && prof.personality_traits.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {prof.personality_traits.map((tr, tIdx) => (
+                            <span
+                              key={tIdx}
+                              className="text-[9px] px-1.5 py-0.5 rounded bg-gray-50 border border-gray-200 text-gray-700"
+                            >
+                              {tr}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 pt-2 border-t border-[#F4F7F4] text-xs">
+                      {prof.pain_points && (
+                        <div>
+                          <span className="text-[10px] font-bold text-[#728156] uppercase block">
+                            Key Pain Points
+                          </span>
+                          <p className="text-[#2D3522] leading-snug">
+                            {prof.pain_points}
+                          </p>
+                        </div>
+                      )}
+                      {prof.willingness_to_pay && (
+                        <div>
+                          <span className="text-[10px] font-bold text-[#728156] uppercase block">
+                            Willingness To Pay
+                          </span>
+                          <p className="text-[#5B6845] leading-snug">
+                            {prof.willingness_to_pay}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
         ) : !loading ? (
           <div className="bg-white rounded-3xl p-16 text-center border border-[#CFE1B9]/70 space-y-4">

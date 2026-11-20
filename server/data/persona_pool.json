@@ -1,0 +1,227 @@
+[
+  {
+    "id": "persona_001",
+    "name": "Felix Weber",
+    "age": 37,
+    "gender": "Male",
+    "occupation": "Health-Conscious Active Professional",
+    "location": "Seattle, USA",
+    "income_bracket": "middle",
+    "education": "M.S. in Human-Computer Interaction",
+    "archetype": "Power User / Optimizer",
+    "personality_traits": [
+      "analytical",
+      "exacting",
+      "tech-savvy",
+      "detail-oriented"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Cliniko EHR and paper patient appointment cards",
+      "usage_frequency": "Continuous background use throughout workdays",
+      "primary_pain_points": "Complex medical billing and insurance reimbursement claim rejections",
+      "willingness_to_pay": "High budget tolerance for depth: Willing to pay $40–$120/month if it improves client retention and cuts administrative booking overhead, provided deep customization, robust APIs, and automation are included.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or simplistic design, lack of keyboard shortcuts/APIs, or performance lags",
+      "feature_priorities": "Extensibility, advanced automation, keyboard shortcuts, fast execution, and granular controls"
+    },
+    "psychological_profile": {
+      "mbti": "INTJ",
+      "risk_tolerance": "high",
+      "motivation_type": "intrinsic-mastery",
+      "decision_style": "evidence-based",
+      "attention_span": "long and meticulous"
+    },
+    "background_story": "Felix Weber is a 37-year-old Health-Conscious Active Professional based in Seattle, USA. In their day-to-day work dealing with gen z & millennial, and first-time pet owners who are seeking genuine pet care, help and a marketplace to get anything all at one place, they rely heavily on Cliniko EHR and paper patient appointment cards. Their primary operational bottleneck is complex medical billing and insurance reimbursement claim rejections, making them judge Peto strictly by how reliably it solves this issue.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.29,
+      "openness_to_change": 0.79,
+      "tech_comfort": 1.0,
+      "feature_complexity_tolerance": 0.83,
+      "overall_sentiment_bias": 0.52
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-16T13:35:26.161089"
+    }
+  },
+  {
+    "id": "persona_002",
+    "name": "Jordan Blake",
+    "age": 54,
+    "gender": "Non-binary",
+    "occupation": "Boutique Fitness Studio Founder & Trainer",
+    "location": "Singapore",
+    "income_bracket": "upper",
+    "education": "B.A. in Communications & Digital Media",
+    "archetype": "Budget-Conscious Pragmatist",
+    "personality_traits": [
+      "practical",
+      "frugal",
+      "analytical",
+      "value-driven"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Trainerize and direct Instagram direct messages with clients",
+      "usage_frequency": "Daily throughout standard 8-hour operational shifts",
+      "primary_pain_points": "Fragmented health data across wearables, apps, and clinical records",
+      "willingness_to_pay": "Cautious and ROI-focused: Willing to pay $40–$120/month if it improves client retention and cuts administrative booking overhead. Prefers low upfront risk, transparent pricing, or clear trial period.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or price increases, hidden fees, or low perceived return on spend",
+      "feature_priorities": "Cost predictability, transparent tiers, essential core stability, and straightforward setup"
+    },
+    "psychological_profile": {
+      "mbti": "ISTJ",
+      "risk_tolerance": "low",
+      "motivation_type": "extrinsic-economic",
+      "decision_style": "value-maximizing",
+      "attention_span": "focused on terms and pricing"
+    },
+    "background_story": "Operating out of Singapore, Jordan Blake (54) oversees critical operational workflows as a Boutique Fitness Studio Founder & Trainer. While currently managing with Trainerize and direct Instagram direct messages with clients, persistent challenges around fragmented health data across wearables, apps, and clinical records drain valuable time and focus. They approach Peto with a clear return-on-investment expectation: it must prove tangible productivity gains to justify any migration.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.94,
+      "openness_to_change": 0.41,
+      "tech_comfort": 0.68,
+      "feature_complexity_tolerance": 0.36,
+      "overall_sentiment_bias": 0.46
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-16T13:35:26.161089"
+    }
+  },
+  {
+    "id": "persona_003",
+    "name": "Chloe Bennett",
+    "age": 46,
+    "gender": "Female",
+    "occupation": "Holistic Healthcare Practitioner",
+    "location": "Paris, France",
+    "income_bracket": "middle",
+    "education": "B.S. in Industrial Engineering",
+    "archetype": "Busy Professional / Outcome-Driven",
+    "personality_traits": [
+      "goal-oriented",
+      "decisive",
+      "pragmatic",
+      "impatient"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Strava, Whoop band, and manual daily habit journal",
+      "usage_frequency": "Twice daily during reconciliation and operational handoffs",
+      "primary_pain_points": "Tedious manual client intake paperwork and scheduling double-bookings",
+      "willingness_to_pay": "Willing to pay a premium immediately if onboarding takes under 5 minutes and eliminates tedious manual client intake paperwork and schedul.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or steep learning curves, complicated setup, or unreliable workflows",
+      "feature_priorities": "Frictionless onboarding, rapid time-to-value, mobile accessibility, and streamlined workflows"
+    },
+    "psychological_profile": {
+      "mbti": "ENTJ",
+      "risk_tolerance": "medium",
+      "motivation_type": "extrinsic-career",
+      "decision_style": "ROI-driven",
+      "attention_span": "short-burst and task-focused"
+    },
+    "background_story": "With extensive practical experience in Paris, France, Chloe Bennett (46) serves as a Holistic Healthcare Practitioner. Their core operations currently depend on Strava, Whoop band, and manual daily habit journal, but frustration with tedious manual client intake paperwork and scheduling double-bookings has created significant day-to-day friction. When evaluating Peto, they look for real architectural depth, speed, and dependable execution rather than superficial marketing promises.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.32,
+      "openness_to_change": 0.64,
+      "tech_comfort": 0.82,
+      "feature_complexity_tolerance": 0.44,
+      "overall_sentiment_bias": 0.64
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-16T13:35:26.161089"
+    }
+  },
+  {
+    "id": "persona_004",
+    "name": "Zahra Al-Hashimi",
+    "age": 48,
+    "gender": "Female",
+    "occupation": "Private Wellness Clinic Operations Lead",
+    "location": "São Paulo, Brazil",
+    "income_bracket": "middle",
+    "education": "Bachelor's in Business Administration (BBA)",
+    "archetype": "Casual Explorer",
+    "personality_traits": [
+      "curious",
+      "spontaneous",
+      "aesthetic-minded",
+      "easily distracted"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "MyFitnessPal, Apple Health, and WhatsApp client check-ins",
+      "usage_frequency": "4 to 5 times per week during peak business hours",
+      "primary_pain_points": "Low long-term client adherence and high drop-off after the first 30 days",
+      "willingness_to_pay": "Flexible and experience-driven: Willing to pay $40–$120/month if it improves client retention and cuts administrative booking overhead, with strong emphasis on intuitive UI and peer endorsements.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or rigid setup, overwhelming cognitive load, or early paywalls",
+      "feature_priorities": "Intuitive user interface, visual clarity, low cognitive load, and engaging user experience"
+    },
+    "psychological_profile": {
+      "mbti": "ENFP",
+      "risk_tolerance": "medium",
+      "motivation_type": "intrinsic-recreational",
+      "decision_style": "spontaneous",
+      "attention_span": "short"
+    },
+    "background_story": "As an established Private Wellness Clinic Operations Lead in São Paulo, Brazil, Zahra Al-Hashimi (48) values stability and proven reliability above all else. They have well-honed routines built around MyFitnessPal, Apple Health, and WhatsApp client check-ins; while low long-term client adherence and high drop-off after the first 30 days is a known pain point, they remain cautious about adopting Peto until long-term reliability and zero data disruption are convincingly demonstrated.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.77,
+      "openness_to_change": 0.79,
+      "tech_comfort": 0.59,
+      "feature_complexity_tolerance": 0.32,
+      "overall_sentiment_bias": 0.57
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-16T13:35:26.161089"
+    }
+  },
+  {
+    "id": "persona_005",
+    "name": "Lucas Silva",
+    "age": 48,
+    "gender": "Male",
+    "occupation": "Certified Nutritionist & Lifestyle Coach",
+    "location": "Vancouver, Canada",
+    "income_bracket": "middle",
+    "education": "Self-Taught Practitioner with 8+ Years Industry Experience",
+    "archetype": "Skeptical Traditionalist",
+    "personality_traits": [
+      "conservative",
+      "thorough",
+      "cautious",
+      "habit-driven"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Mindbody, paper intake forms, and Google Sheets client scheduling",
+      "usage_frequency": "4 to 5 times per week during peak business hours",
+      "primary_pain_points": "Cluttered patient apps requiring too much manual daily data entry",
+      "willingness_to_pay": "Skeptical about new software fees: Requires proven track record and data safety before replacing Mindbody.",
+      "churn_triggers": "Inaccurate sensor metrics, complex client onboarding, or intrusive advertising, or bugs, unannounced UI overhauls, or feeling patronized",
+      "feature_priorities": "Uptime stability, data security, zero habit disruption, and backwards compatibility"
+    },
+    "psychological_profile": {
+      "mbti": "ISFJ",
+      "risk_tolerance": "very low",
+      "motivation_type": "status-quo preservation",
+      "decision_style": "risk-averse",
+      "attention_span": "methodical"
+    },
+    "background_story": "Located in Vancouver, Canada, Lucas Silva (48) is an active Certified Nutritionist & Lifestyle Coach working closely with gen z & millennial, and first-time pet owners who are seeking genuine pet care, help and a marketplace to get anything all at one place. Having cycled through tools like Mindbody, paper intake forms, and Google Sheets client scheduling, they find cluttered patient apps requiring too much manual daily data entry to be their biggest recurring obstacle. They are actively seeking modern solutions like Peto that can streamline day-to-day workflows and eliminate administrative drag.",
+    "opinion_seeds": {
+      "price_sensitivity": 0.73,
+      "openness_to_change": 0.12,
+      "tech_comfort": 0.42,
+      "feature_complexity_tolerance": 0.26,
+      "overall_sentiment_bias": 0.31
+    },
+    "memory": {
+      "conversation_history": [],
+      "established_opinions": {},
+      "last_updated": "2026-10-16T13:35:26.161089"
+    }
+  }
+]

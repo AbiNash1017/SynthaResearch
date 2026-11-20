@@ -1,0 +1,130 @@
+{
+  "survey_id": "survey_1791898973",
+  "product_name": "HydraGlow",
+  "questions": [
+    "What is your single biggest frustration with existing wellness tracking, habit apps, or smart gear you currently use?",
+    "Would you consistently use Hydraglow in your daily routine if it provided effortless, actionable health insights?"
+  ],
+  "responses": [
+    {
+      "persona_id": "persona_001",
+      "persona_name": "Sunita Rao",
+      "archetype": "Power User / Optimizer",
+      "answers": [
+        {
+          "question": "What is your single biggest frustration with existing wellness tracking, habit apps, or smart gear you currently use?",
+          "answer": "I'm open to alternatives, but I'm not going to disrupt my whole workflow for something that's only marginally better. It has to be meaningfully different.",
+          "sentiment": "negative",
+          "key_phrase": "I'm open to alternatives, but I'm not going to disrupt my whole"
+        },
+        {
+          "question": "Would you consistently use Hydraglow in your daily routine if it provided effortless, actionable health insights?",
+          "answer": "Hard to say without trying it. My gut says there's something here, but I'd want to spend a week with it before I have a real opinion.",
+          "sentiment": "neutral",
+          "key_phrase": "Hard to say without trying it"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_002",
+      "persona_name": "Kavita Sharma",
+      "archetype": "Busy Professional / Outcome-Driven",
+      "answers": [
+        {
+          "question": "What is your single biggest frustration with existing wellness tracking, habit apps, or smart gear you currently use?",
+          "answer": "Switching is always more painful than it looks on paper. There's the migration, the retraining, the inevitable 'where did that feature go' moment. It needs to be a clear step up.",
+          "sentiment": "neutral",
+          "key_phrase": "Switching is always more painful than it looks on paper"
+        },
+        {
+          "question": "Would you consistently use Hydraglow in your daily routine if it provided effortless, actionable health insights?",
+          "answer": "I'm curious but not convinced yet. The pitch sounds good—I'd just want to see how it handles the stuff that doesn't make it into the demo.",
+          "sentiment": "negative",
+          "key_phrase": "I'm curious but not convinced yet"
+        }
+      ]
+    },
+    {
+      "persona_id": "persona_003",
+      "persona_name": "Rohan Mehra",
+      "archetype": "Budget-Conscious Pragmatist",
+      "answers": [
+        {
+          "question": "What is your single biggest frustration with existing wellness tracking, habit apps, or smart gear you currently use?",
+          "answer": "Switching is always more painful than it looks on paper. There's the migration, the retraining, the inevitable 'where did that feature go' moment. It needs to be a clear step up.",
+          "sentiment": "neutral",
+          "key_phrase": "Switching is always more painful than it looks on paper"
+        },
+        {
+          "question": "Would you consistently use Hydraglow in your daily routine if it provided effortless, actionable health insights?",
+          "answer": "Honestly? I'd need to sit with it. My first impressions of tools are usually wrong in one direction or the other—I've been surprised both ways.",
+          "sentiment": "neutral",
+          "key_phrase": "I'd need to sit with it"
+        }
+      ]
+    }
+  ],
+  "created_at": "2026-10-13T19:12:53.458953",
+  "matrix": {
+    "survey_id": "survey_1791898973",
+    "product_name": "HydraGlow",
+    "persona_count": 3,
+    "questions": [
+      {
+        "question_index": 1,
+        "question": "What is your single biggest frustration with existing wellness tracking, habit apps, or smart gear you currently use?",
+        "persona_answers": {
+          "persona_001": {
+            "persona_name": "Sunita Rao",
+            "archetype": "Power User / Optimizer",
+            "answer": "I'm open to alternatives, but I'm not going to disrupt my whole workflow for something that's only marginally better. It has to be meaningfully different.",
+            "sentiment": "negative",
+            "key_phrase": "I'm open to alternatives, but I'm not going to disrupt my whole"
+          },
+          "persona_002": {
+            "persona_name": "Kavita Sharma",
+            "archetype": "Busy Professional / Outcome-Driven",
+            "answer": "Switching is always more painful than it looks on paper. There's the migration, the retraining, the inevitable 'where did that feature go' moment. It needs to be a clear step up.",
+            "sentiment": "neutral",
+            "key_phrase": "Switching is always more painful than it looks on paper"
+          },
+          "persona_003": {
+            "persona_name": "Rohan Mehra",
+            "archetype": "Budget-Conscious Pragmatist",
+            "answer": "Switching is always more painful than it looks on paper. There's the migration, the retraining, the inevitable 'where did that feature go' moment. It needs to be a clear step up.",
+            "sentiment": "neutral",
+            "key_phrase": "Switching is always more painful than it looks on paper"
+          }
+        }
+      },
+      {
+        "question_index": 2,
+        "question": "Would you consistently use Hydraglow in your daily routine if it provided effortless, actionable health insights?",
+        "persona_answers": {
+          "persona_001": {
+            "persona_name": "Sunita Rao",
+            "archetype": "Power User / Optimizer",
+            "answer": "Hard to say without trying it. My gut says there's something here, but I'd want to spend a week with it before I have a real opinion.",
+            "sentiment": "neutral",
+            "key_phrase": "Hard to say without trying it"
+          },
+          "persona_002": {
+            "persona_name": "Kavita Sharma",
+            "archetype": "Busy Professional / Outcome-Driven",
+            "answer": "I'm curious but not convinced yet. The pitch sounds good—I'd just want to see how it handles the stuff that doesn't make it into the demo.",
+            "sentiment": "negative",
+            "key_phrase": "I'm curious but not convinced yet"
+          },
+          "persona_003": {
+            "persona_name": "Rohan Mehra",
+            "archetype": "Budget-Conscious Pragmatist",
+            "answer": "Honestly? I'd need to sit with it. My first impressions of tools are usually wrong in one direction or the other—I've been surprised both ways.",
+            "sentiment": "neutral",
+            "key_phrase": "I'd need to sit with it"
+          }
+        }
+      }
+    ],
+    "created_at": "2026-10-13T19:12:53.458953"
+  }
+}

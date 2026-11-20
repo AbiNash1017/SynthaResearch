@@ -69,8 +69,12 @@ function InterviewsContent() {
   async function loadSessionTranscript(sessionId: string, persona?: Persona, prodName?: string) {
     try {
       const detail = await api.getInterviewSession(sessionId);
-      // Strictly ensure transcript persona matches the selected persona
-      if (persona && detail.persona_id && detail.persona_id !== persona.id) {
+      // Strictly ensure transcript persona matches the selected persona ID and name
+      if (
+        persona &&
+        ((detail.persona_id && detail.persona_id !== persona.id) ||
+          (detail.persona_name && detail.persona_name !== persona.name))
+      ) {
         initNewSession(persona, prodName);
         return;
       }
@@ -133,8 +137,10 @@ function InterviewsContent() {
         const chosen = target || foundList[0];
         setSelectedPersona(chosen);
 
-        // Check if there is an existing session for this persona in this product
-        const existing = sessions.find((s) => s.persona_id === chosen.id);
+        // Check if there is an existing session matching both ID and persona name
+        const existing = sessions.find(
+          (s) => s.persona_id === chosen.id && (!s.persona_name || s.persona_name === chosen.name)
+        );
         if (existing && existing.turns_count > 0) {
           loadSessionTranscript(existing.session_id, chosen, exp?.product_name);
         } else {
@@ -157,7 +163,9 @@ function InterviewsContent() {
 
   function handleSelectPersona(p: Persona) {
     setSelectedPersona(p);
-    const existing = pastSessions.find((s) => s.persona_id === p.id);
+    const existing = pastSessions.find(
+      (s) => s.persona_id === p.id && (!s.persona_name || s.persona_name === p.name)
+    );
     if (existing && existing.turns_count > 0) {
       loadSessionTranscript(existing.session_id, p, activeExp?.product_name);
     } else {
@@ -484,19 +492,24 @@ function InterviewsContent() {
               })}
 
               {sending && (
-                <div className="flex items-start gap-3">
+                <div className="flex items-end gap-2.5 my-1">
                   <Avatar
                     seed={selectedPersona?.name || "Persona"}
                     gender={selectedPersona?.gender}
                     alt={selectedPersona?.name || "Persona"}
-                    className="w-8 h-8 rounded-xl shadow-xs animate-pulse"
+                    className="w-8 h-8 rounded-xl shadow-xs shrink-0"
                     fallbackIcon={<Bot className="w-4 h-4 text-[#2D3522]" />}
                   />
-                  <div className="p-4 rounded-2xl bg-white border border-[#CFE1B9]/80 shadow-xs flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#728156]" />
-                    <span className="text-xs text-[#728156] font-medium">
-                      {selectedPersona?.name} is thinking and formulating thoughts...
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-medium text-[#728156] px-1 flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#728156] animate-pulse" />
+                      {selectedPersona?.name?.split(" ")[0] || "Persona"} is typing...
                     </span>
+                    <div className="px-4 py-3 rounded-2xl rounded-bl-xs bg-white border border-[#CFE1B9]/80 shadow-xs flex items-center gap-1.5 w-fit">
+                      <span className="w-2 h-2 rounded-full bg-[#728156] typing-dot" />
+                      <span className="w-2 h-2 rounded-full bg-[#728156] typing-dot" />
+                      <span className="w-2 h-2 rounded-full bg-[#728156] typing-dot" />
+                    </div>
                   </div>
                 </div>
               )}

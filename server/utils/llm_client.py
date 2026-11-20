@@ -85,35 +85,35 @@ class LLMClient:
             "Content-Type": "application/json"
         }
 
-        # Guard against OpenRouter's meta-tag 'openrouter/free' which routes to nvidia/nemotron content-safety
         target_model = self.model
+        # If openrouter/free or empty is specified, use liquid or poolside
         if target_model.strip().lower() in ["openrouter/free", "'openrouter/free'", '"openrouter/free"']:
-            import warnings as _w
-            _w.warn(
-                "OPENROUTER_MODEL is set to 'openrouter/free' which routes to a content-safety model. "
-                "Auto-rerouting to 'nex-agi/nex-n2.5-mini:free'. Update OPENROUTER_MODEL in .env to suppress this warning.",
-                UserWarning,
-                stacklevel=2
-            )
-            target_model = "nex-agi/nex-n2.5-mini:free"
+            target_model = "liquid/lfm-2.5-2.6b:free"
+
+        # Provide at least 1200 tokens so reasoning models don't exhaust the limit before writing content
+        effective_max_tokens = max(max_tokens or 1200, 1200)
 
         payload: Dict[str, Any] = {
             "model": target_model,
             "messages": messages,
             "temperature": temperature,
+            "max_tokens": effective_max_tokens
         }
-        if max_tokens:
-            payload["max_tokens"] = max_tokens
 
         candidate_models = [target_model]
-        if ":free" in target_model:
-            for bm in ["liquid/lfm-2.5-2.6b:free", "qwen/qwen3.8-27b:free"]:
-                if bm not in candidate_models:
-                    candidate_models.append(bm)
+        active_fallbacks = [
+            "liquid/lfm-2.5-2.6b:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "poolside/laguna-s-2.1:free",
+            "google/gemma-4-31b-it:free"
+        ]
+        for bm in active_fallbacks:
+            if bm not in candidate_models:
+                candidate_models.append(bm)
 
         last_err = None
         for attempt in range(1, retries + 1):
-            # Select model for this attempt (switch to backup if previous attempt hit 429)
+            # Select model for this attempt (switch to backup if previous attempt hit 404/429/500)
             current_model = candidate_models[(attempt - 1) % len(candidate_models)]
             payload["model"] = current_model
 
@@ -135,17 +135,34 @@ class LLMClient:
                             retry_data = retry_resp.json()
                             if retry_data.get("choices"):
                                 content = retry_data["choices"][0].get("message", {}).get("content", "").strip()
-                    return content
-                elif response.status_code in (429, 500, 502, 503, 504):
-                    # Rate limit or temporary gateway error, try next candidate model with backoff
+                    
+                    # If content is still empty but reasoning is present, attempt extraction or next model
+                    if not content and raw_msg.get("reasoning"):
+                        reasoning_text = raw_msg.get("reasoning", "")
+                        # Try to find a quoted reply inside reasoning
+                        quotes = re.findall(r'"([^"\n]{20,})"', reasoning_text)
+                        if quotes:
+                            content = quotes[-1].strip()
+                        else:
+                            # Move to next candidate model
+                            last_err = f"Empty content from reasoning model {current_model}"
+                            continue
+
+                    if content:
+                        return content
+                    else:
+                        last_err = f"Empty content returned by {current_model}"
+                        continue
+                elif response.status_code in (404, 429, 500, 502, 503, 504):
+                    # Rate limit, missing model, or temporary gateway error, try next candidate model with backoff
                     last_err = f"HTTP {response.status_code} ({current_model}): {response.text}"
-                    time.sleep(1.5 * attempt)
+                    time.sleep(1.0 * attempt)
                     continue
                 else:
                     raise OpenRouterError(f"OpenRouter API error (HTTP {response.status_code}): {response.text}")
             except requests.exceptions.RequestException as e:
                 last_err = str(e)
-                time.sleep(1.5 * attempt)
+                time.sleep(1.0 * attempt)
 
         raise OpenRouterError(f"Failed to communicate with OpenRouter after {retries} attempts. Error: {last_err}")
 

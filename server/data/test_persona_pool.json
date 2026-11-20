@@ -1,0 +1,62 @@
+[
+  {
+    "id": "persona_001",
+    "name": "Alex Rivera",
+    "archetype": "Budget-Conscious Pragmatist",
+    "personality_traits": [
+      "frugal",
+      "cautious"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Manual GitHub PR reviews",
+      "primary_pain_points": "Slow turnaround on reviews",
+      "willingness_to_pay": "Reluctant without proven ROI",
+      "churn_triggers": "Excessive cost per seat"
+    },
+    "opinion_seeds": {
+      "overall_sentiment_bias": 0.4,
+      "openness_to_change": 0.35,
+      "price_sensitivity": 0.85
+    }
+  },
+  {
+    "id": "persona_002",
+    "name": "Priya Nair",
+    "archetype": "Power User / Optimizer",
+    "personality_traits": [
+      "analytical",
+      "tech-savvy"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "CLI and custom linters",
+      "primary_pain_points": "Superficial linter comments without architectural context",
+      "willingness_to_pay": "$40/mo easily justified if deep",
+      "churn_triggers": "Hallucinated recommendations"
+    },
+    "opinion_seeds": {
+      "overall_sentiment_bias": 0.7,
+      "openness_to_change": 0.85,
+      "price_sensitivity": 0.25
+    }
+  },
+  {
+    "id": "persona_003",
+    "name": "Jordan Smith",
+    "archetype": "Busy Professional / Outcome-Driven",
+    "personality_traits": [
+      "decisive",
+      "impatient"
+    ],
+    "behavioral_patterns": {
+      "current_tools": "Jira and Slack alerts",
+      "primary_pain_points": "PR review bottlenecks blocking sprint releases",
+      "willingness_to_pay": "Gladly pays company card",
+      "churn_triggers": "Complex onboarding setup"
+    },
+    "opinion_seeds": {
+      "overall_sentiment_bias": 0.75,
+      "openness_to_change": 0.75,
+      "price_sensitivity": 0.3
+    }
+  }
+]

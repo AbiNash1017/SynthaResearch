@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 
-from db.models import User, Experiment, Persona
+from db.models import User, Experiment, Persona, InterviewSession, SurveySession
 from auth.dependencies import get_current_user
 from services import persona_agent
 
@@ -13,7 +14,7 @@ async def generate_personas(
     count: Optional[int] = 5,
     current_user: User = Depends(get_current_user)
 ):
-    """Generates synthetic personas tailored to the active product experiment and persists them in MongoDB."""
+    """Generates synthetic personas tailored to the active product experiment and persists them in MongoDB. Clears previous persona chats and survey sessions for this experiment."""
     user_id_str = str(current_user.id)
     exp = await Experiment.find_one(
         Experiment.user_id == user_id_str,
@@ -36,18 +37,30 @@ async def generate_personas(
     # Generate personas via agent (save_json disabled so we store in MongoDB)
     generated = persona_agent.generate_personas(exp_dict, count=count)
 
-    # Clean existing personas for this user & active experiment
+    # Clean existing personas, interview chat sessions, and surveys for this user & active experiment
     exp_id_str = str(exp.id)
     await Persona.find(
         Persona.user_id == user_id_str,
         Persona.experiment_id == exp_id_str
     ).delete()
 
-    # Insert into MongoDB with experiment-scoped persona IDs
+    await InterviewSession.find(
+        InterviewSession.user_id == user_id_str,
+        InterviewSession.experiment_id == exp_id_str
+    ).delete()
+
+    await SurveySession.find(
+        SurveySession.user_id == user_id_str,
+        SurveySession.experiment_id == exp_id_str
+    ).delete()
+
+    # Generate unique timestamp tag to prevent any slot or ID collision across generations
+    gen_tag = hex(int(datetime.utcnow().timestamp()))[2:]
+
+    # Insert into MongoDB with experiment-scoped, generation-unique persona IDs
     saved_personas = []
     for i, p in enumerate(generated):
-        # Guarantee distinct persona IDs across different experiments
-        p_id = f"persona_{exp_id_str[:6]}_{i+1:03d}"
+        p_id = f"persona_{exp_id_str[:6]}_{gen_tag}_{i+1:03d}"
         p["id"] = p_id
         doc = Persona(
             user_id=user_id_str,

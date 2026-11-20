@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Navigation";
 import { api } from "@/lib/api";
-import { Experiment, SurveyResults } from "@/types/api";
+import { Experiment, SurveyResults, PersonaSurveyResponse } from "@/types/api";
 import {
   ClipboardList,
   Sparkles,
@@ -33,7 +33,23 @@ export default function SurveysPage() {
   const [running, setRunning] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [viewMode, setViewMode] = useState<"matrix" | "cards">("matrix");
+  const [viewMode, setViewMode] = useState<"matrix" | "cards">("cards");
+
+  function formatAnswerText(text: string): string {
+    if (!text) return "";
+    let clean = text.trim();
+    if (clean.startsWith("{") && clean.includes("answer")) {
+      try {
+        const match = clean.match(/['"]answer['"]\s*:\s*['"]([\s\S]*?)['"]\s*\}/);
+        if (match && match[1]) {
+          clean = match[1];
+        }
+      } catch {
+        // fallback
+      }
+    }
+    return clean;
+  }
 
   useEffect(() => {
     let ignore = false;
@@ -47,11 +63,34 @@ export default function SurveysPage() {
 
       const matrix = matrixRes.status === "fulfilled" ? matrixRes.value : null;
       if (matrix && matrix.questions) {
+        // Reconstruct respondent cards from matrix if available
+        let reconstructedResponses: PersonaSurveyResponse[] = [];
+
+        if (matrix.personas && matrix.personas.length > 0 && matrix.rows) {
+          reconstructedResponses = matrix.personas.map((p) => {
+            const answers = (matrix.rows || []).map((row) => {
+              const resp = row.persona_responses?.[p.id];
+              return {
+                question: row.question,
+                answer: resp?.answer || "",
+                sentiment: (resp?.sentiment as "positive" | "neutral" | "negative") || "neutral",
+              };
+            });
+            return {
+              persona_id: p.id,
+              persona_name: p.name,
+              archetype: p.archetype,
+              answers,
+              timestamp: new Date().toISOString(),
+            };
+          });
+        }
+
         setSurveyResults({
           survey_id: "active",
           product_name: exp?.product_name || "Active Product",
           questions: matrix.questions as string[],
-          responses: [],
+          responses: reconstructedResponses,
           created_at: new Date().toISOString(),
           matrix: matrix,
         });
@@ -322,30 +361,13 @@ export default function SurveysPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setViewMode("matrix")}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    viewMode === "matrix"
-                      ? "bg-[#728156] text-white shadow-xs"
-                      : "bg-[#F8FAF7] text-[#5B6845] hover:bg-[#E7F5DC]"
-                  }`}
-                >
-                  Matrix Grid View
-                </button>
-                <button
-                  onClick={() => setViewMode("cards")}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    viewMode === "cards"
-                      ? "bg-[#728156] text-white shadow-xs"
-                      : "bg-[#F8FAF7] text-[#5B6845] hover:bg-[#E7F5DC]"
-                  }`}
-                >
+                <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#728156] text-white shadow-xs">
                   Respondent Cards
-                </button>
+                </span>
               </div>
             </div>
 
-            {/* Matrix View */}
+            {/* Matrix View (fallback if set) */}
             {viewMode === "matrix" && surveyResults.matrix && (
               <div className="overflow-x-auto rounded-2xl border border-[#CFE1B9]/70">
                 <table className="w-full border-collapse text-left text-xs">
@@ -391,7 +413,7 @@ export default function SurveysPage() {
                                     {getSentimentBadge(answerData.sentiment)}
                                   </div>
                                   <p className="text-xs text-[#2D3522] leading-relaxed">
-                                    &ldquo;{answerData.answer}&rdquo;
+                                    &ldquo;{formatAnswerText(answerData.answer)}&rdquo;
                                   </p>
                                 </>
                               ) : (
@@ -444,7 +466,7 @@ export default function SurveysPage() {
                             {getSentimentBadge(ans.sentiment)}
                           </div>
                           <p className="text-xs text-[#2D3522] italic bg-white p-2.5 rounded-xl border border-[#CFE1B9]/40 leading-relaxed">
-                            &ldquo;{ans.answer}&rdquo;
+                            &ldquo;{formatAnswerText(ans.answer)}&rdquo;
                           </p>
                         </div>
                       ))}

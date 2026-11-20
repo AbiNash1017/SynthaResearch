@@ -1,0 +1,11 @@
+{
+  "product_name": "HydraGlow",
+  "industry_domain": "Health & Wellness Consumer Tech",
+  "product_description": "A smart insulated water bottle with biometric hydration tracking, ambient LED reminders, and an accompanying mobile wellness app.",
+  "target_audience": "Active fitness enthusiasts, desk workers struggling with daily water intake, and biohackers.",
+  "research_objectives": [
+    "Evaluate willingness to purchase a $79 smart bottle vs standard bottles",
+    "Identify if daily push notification reminders cause app uninstalls",
+    "Discover interest in Apple Health and Garmin synchronization"
+  ]
+}

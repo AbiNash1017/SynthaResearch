@@ -180,6 +180,47 @@ export interface BehavioralTrend {
   finding: string;
 }
 
+export interface ThemeCluster {
+  name: string;
+  category: string;
+  mention_count: number;
+  sentiment: "positive" | "neutral" | "negative" | string;
+  summary?: string;
+  keywords?: string[];
+}
+
+export interface KeyPersonaQuote {
+  quote: string;
+  persona_name: string;
+  archetype: string;
+  topic?: string;
+  sentiment: "positive" | "neutral" | "negative" | string;
+}
+
+export interface ResponseHighlight {
+  topic: string;
+  highlight: string;
+  respondent_name: string;
+  archetype: string;
+  source: string;
+  sentiment: "positive" | "neutral" | "negative" | string;
+}
+
+export interface PersonaProfile {
+  id?: string;
+  name: string;
+  archetype: string;
+  age?: number;
+  gender?: string;
+  occupation?: string;
+  location?: string;
+  personality_traits?: string[];
+  pain_points?: string;
+  willingness_to_pay?: string;
+  current_tools?: string;
+  churn_triggers?: string;
+}
+
 export interface PersonaBreakdownItem {
   id?: string;
   name: string;
@@ -226,6 +267,10 @@ export interface ResearchReport {
   // Rich OpenRouter synthesis schema
   would_use_score?: WouldUseScore;
   themes?: string[];
+  theme_clusters?: ThemeCluster[];
+  key_persona_quotes?: KeyPersonaQuote[];
+  response_highlights?: ResponseHighlight[];
+  persona_profiles?: PersonaProfile[];
   agreement_patterns?: AgreementPatterns;
   sentiment_distribution?: SentimentDistribution;
   sentiment_analysis?: string;

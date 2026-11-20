@@ -66,26 +66,60 @@ def test_pipeline_for_product(product_data: dict):
     assert len(survey_res["responses"]) == len(personas)
     print(f"✔ Step 3: Multi-Persona Survey Executed ({len(survey_res['responses'])} personas answered)")
 
-    # 4. Interactive Interview Turn
+    # 4. Interactive Interview Simulation Mode (Multi-turn session logged)
     target_persona = personas[0]
     p_id = target_persona["id"]
-    test_question = f"What is your biggest concern with adopting {product_name}?"
-    reply = PersonaMemoryModule.generate_response(
+    interview_turns = []
+    
+    q1 = f"What is your biggest concern or potential dealbreaker with adopting {product_name}?"
+    reply1 = PersonaMemoryModule.generate_response(
         persona=target_persona,
-        question=test_question,
+        question=q1,
         experiment=loaded_exp,
         mode="interview"
     )
-    assert isinstance(reply, str) and len(reply) > 5, "Invalid persona response"
-    print(f"  User Question: {test_question}")
-    print(f"  {target_persona['name']}: {reply}")
+    assert isinstance(reply1, str) and len(reply1) > 5, "Invalid persona response on turn 1"
+    interview_turns.append({
+        "turn": 1,
+        "user_message": q1,
+        "persona_response": reply1,
+        "timestamp": "2026-10-13T12:00:00"
+    })
+
+    q2 = f"How would your team justify the pricing and switching cost for {product_name}?"
+    reply2 = PersonaMemoryModule.generate_response(
+        persona=target_persona,
+        question=q2,
+        experiment=loaded_exp,
+        mode="interview"
+    )
+    assert isinstance(reply2, str) and len(reply2) > 5, "Invalid persona response on turn 2"
+    interview_turns.append({
+        "turn": 2,
+        "user_message": q2,
+        "persona_response": reply2,
+        "timestamp": "2026-10-13T12:01:00"
+    })
+
+    # Save session into interview logs for insight extraction
+    session_data = [{
+        "session_id": f"sess_{p_id}",
+        "product_name": product_name,
+        "persona_id": p_id,
+        "persona_name": target_persona["name"],
+        "archetype": target_persona.get("archetype", "User"),
+        "turns": interview_turns
+    }]
+    interview_logs_path = "data/interview_logs.json"
+    save_json(interview_logs_path, session_data)
 
     # Verify memory update
     history = target_persona["memory"]["conversation_history"]
-    assert len(history) >= 2, "Conversation turn not stored in persona memory"
-    print(f"✔ Step 4: Interview & Memory Consistency Verified")
+    assert len(history) >= 4, f"Expected at least 4 turns in persona memory, found {len(history)}"
+    print(f"✔ Step 4: Multi-Turn Interview Simulation Executed & Session Logged ({len(interview_turns)} turns)")
+    print(f"  {target_persona['name']} on Q1: \"{reply1[:120]}...\"")
 
-    # 5. Insight & Report Generation
+    # 5. Insight & Comprehensive Report Generation
     insight_agent = InsightExtractionAgent(
         survey_path="data/survey_responses.json",
         interview_path="data/interview_logs.json",
@@ -94,19 +128,52 @@ def test_pipeline_for_product(product_data: dict):
         report_dir="reports"
     )
     report = insight_agent.generate_report()
-    assert "sentiment_distribution" in report
-    assert "top_insights" in report
-    assert len(report["top_insights"]) > 0
-    print(f"✔ Step 5: Research Report Generated (Sentiment: {report['sentiment_distribution']})")
-    print(f"  Top Actionable Insight: {report['top_insights'][0]}")
 
-    # Check generated files
+    # Assertions on core validation metrics
+    assert "would_use_score" in report, "Report missing 'would_use_score'"
+    w_score = report["would_use_score"]
+    assert 0.0 <= w_score["overall_score"] <= 100.0, f"Invalid overall score: {w_score['overall_score']}"
+    assert len(w_score.get("segment_breakdown", [])) > 0, "Missing segment breakdown in would_use_score"
+
+    assert "sentiment_distribution" in report, "Report missing 'sentiment_distribution'"
+    assert "top_insights" in report and len(report["top_insights"]) > 0, "Missing top actionable insights"
+
+    # Assertions on Theme Clusters
+    assert "theme_clusters" in report, "Report missing 'theme_clusters'"
+    assert len(report["theme_clusters"]) >= 2, f"Expected >= 2 theme clusters, got {len(report['theme_clusters'])}"
+    for cl in report["theme_clusters"]:
+        assert "name" in cl and "category" in cl and "sentiment" in cl and "mention_count" in cl
+    print(f"✔ Step 5a: Theme Clusters Extracted ({len(report['theme_clusters'])} clusters across categories: {list(set(c['category'] for c in report['theme_clusters']))})")
+
+    # Assertions on Key Persona Quotes
+    assert "key_persona_quotes" in report, "Report missing 'key_persona_quotes'"
+    assert len(report["key_persona_quotes"]) >= 2, f"Expected >= 2 key persona quotes, got {len(report['key_persona_quotes'])}"
+    for q in report["key_persona_quotes"]:
+        assert "quote" in q and "persona_name" in q and "archetype" in q and "sentiment" in q
+    print(f"✔ Step 5b: Key Persona Quotes Extracted ({len(report['key_persona_quotes'])} verbatim voices captured)")
+
+    # Assertions on Response Highlights
+    assert "response_highlights" in report, "Report missing 'response_highlights'"
+    assert len(report["response_highlights"]) >= 2, f"Expected >= 2 response highlights, got {len(report['response_highlights'])}"
+    for h in report["response_highlights"]:
+        assert "topic" in h and "highlight" in h and "respondent_name" in h
+    print(f"✔ Step 5c: Response Highlights Extracted ({len(report['response_highlights'])} empirical signals)")
+
+    # Assertions on Persona Profiles Dossier
+    assert "persona_profiles" in report, "Report missing 'persona_profiles'"
+    assert len(report["persona_profiles"]) == len(personas), f"Expected {len(personas)} profiles, got {len(report['persona_profiles'])}"
+    for prof in report["persona_profiles"]:
+        assert "name" in prof and "archetype" in prof and "pain_points" in prof
+    print(f"✔ Step 5d: Persona Profiles Dossier Compiled ({len(report['persona_profiles'])} profiles)")
+
+    # Check generated report files (JSON & PDF)
     date_str = report["report_date"]
     json_report = Path(f"reports/report_{date_str}.json")
     pdf_report = Path(f"reports/report_{date_str}.pdf")
     assert json_report.exists(), f"JSON report file not found at {json_report}"
     assert pdf_report.exists(), f"PDF report file not found at {pdf_report}"
-    print(f"  Report files verified: {json_report} & {pdf_report}")
+    assert pdf_report.stat().st_size > 3000, f"PDF report size too small ({pdf_report.stat().st_size} bytes)"
+    print(f"✔ Step 5e: Exported PDF Report Validated: {pdf_report} ({pdf_report.stat().st_size} bytes)")
 
 def main():
     print("==================================================")

@@ -40,13 +40,18 @@ cd server
 Create or verify your `server/.env` file:
 ```env
 # OpenRouter LLM Configuration
+# Choose any OpenRouter model (free or paid)
 OPENROUTER_API_KEY=your_openrouter_api_key_here
-OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+OPENROUTER_MODEL=liquid/lfm-2.5-2.6b:free
+# Alternative models:
+# OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
+# OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+# OPENROUTER_MODEL=openai/gpt-4o
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # MongoDB Configuration
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DB_NAME=syntharesearch
+MONGODB_DB_NAME=syntharesearch  # or custom name e.g. synthUser
 
 # JWT Secret Key (generate one using the command below)
 SECRET_KEY=your_super_secret_jwt_key_here_change_for_production
@@ -136,15 +141,15 @@ Navigate to [http://localhost:3000](http://localhost:3000) in your web browser.
    - Select desired cohort size (e.g. 5 personas) and click **Generate New Cohort**.
    - Browse synthetic user cards and click to view rich dossiers (demographics, tool stacks, pain points, willingness-to-pay, churn triggers, and MBTI traits).
 
-4. **Surveys & Sentiment Matrix (`/surveys`)**:
+4. **Surveys & Respondent Cards (`/surveys`)**:
    - Click **AI Suggest Questions** to auto-generate questions tailored to your research objectives, or type custom questions.
    - Click **Run Cohort Survey** to simulate answers across all personas simultaneously.
-   - Inspect persona responses, sentiments (`POSITIVE`, `NEUTRAL`, `NEGATIVE`), key takeaways, and toggle the **Matrix Comparison View**.
+   - Inspect persona responses, sentiments (`POSITIVE`, `NEUTRAL`, `NEGATIVE`), and key takeaways formatted in clean **Respondent Cards**.
 
 5. **Live 1-on-1 Qualitative Interviews (`/interviews`)**:
    - Pick any persona from your roster to launch an interactive interview session.
-   - Ask clarifying follow-ups, challenge their feedback, or probe pricing thresholds.
-   - Personas answer in-character with persistent conversational memory across turns.
+   - Ask clarifying follow-ups, test past trial scenarios (e.g., "after using for 15 days"), or probe pricing thresholds.
+   - Personas answer in-character with persistent conversational memory, natural concise speech, and a live animated typing indicator.
 
 6. **Analytics & Executive Report (`/reports`)**:
    - Review the **Adoption Propensity Score (%)** ("Would use this product?") and sentiment distribution.
